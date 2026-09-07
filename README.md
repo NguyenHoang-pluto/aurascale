@@ -4,12 +4,14 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 2 of 14 complete.**
-> This repository currently contains the project scaffold: tooling, design
-> tokens, configuration, error taxonomy, logging, and a running FastAPI service
-> with a health endpoint. **Image processing is not implemented yet** — it lands
-> in Phase 6. Every screen in the UI states which phase implements it rather
-> than showing placeholder behaviour. See [Roadmap](#roadmap).
+> **Build status — Phase 3 of 14 complete.**
+> This repository currently contains the project scaffold and the design
+> system: tooling, an accessible component library, the application shell and
+> workspace layout, configuration, error taxonomy, logging, a typed API client,
+> and a running FastAPI service with a health endpoint. **Image processing is
+> not implemented yet** — it lands in Phase 6. Every screen states which phase
+> implements it rather than showing placeholder behaviour. See
+> [Roadmap](#roadmap).
 
 ---
 
@@ -45,10 +47,16 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phase 2):
+Implemented today (Phases 1-3):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
+- Accessible component library: buttons, panels, segmented controls, select,
+  slider, switch, tooltips, status indicators, progress, error disclosure
+- Application shell with responsive navigation and the workspace layout
+- Typed API client that turns every failure — HTTP, network, timeout, abort —
+  into one `ApiError` shape
+- Live backend status indicator polling `/api/health`
 - Structured logging with per-job context fields
 - Full error taxonomy mapped to RFC 9457 `application/problem+json`
 - Configuration via `.env`, validated by Pydantic at startup
@@ -210,9 +218,14 @@ Linux / macOS — both in the foreground, Ctrl-C stops both:
 | Service | URL |
 | --- | --- |
 | Frontend | http://localhost:5173 |
+| Component gallery (dev only) | http://localhost:5173/design |
 | Backend | http://127.0.0.1:8000 |
 | Swagger UI | http://127.0.0.1:8000/docs |
 | ReDoc | http://127.0.0.1:8000/redoc |
+
+The component gallery renders every design-system primitive for visual review.
+The route is registered behind `import.meta.env.DEV`, so it folds away and the
+page is tree-shaken out of a production build.
 
 ### Checks
 
@@ -316,11 +329,15 @@ to another port. Stop the other process, or change `PORT` in `.env`.
 aurascale/
 ├── frontend/          React + TypeScript workspace UI
 │   └── src/
-│       ├── components/    layout and shared UI primitives
+│       ├── components/ui/       design-system primitives
+│       ├── components/layout/   app shell, top nav, workspace layout
+│       ├── components/feedback/ error, empty and phase states
 │       ├── features/      upload, viewer, settings, processing, history, system
 │       ├── pages/         routed screens
-│       ├── stores/        Zustand state
+│       ├── hooks/         shared behaviour (media queries, ...)
+│       ├── stores/        Zustand client state
 │       ├── services/      typed API client
+│       ├── test/          shared test harness
 │       └── styles/        design tokens
 ├── backend/           FastAPI service
 │   ├── app/
@@ -344,7 +361,7 @@ aurascale/
 | --- | --- | --- |
 | 1 | Architecture and analysis | Done |
 | 2 | Repository scaffold and tooling | Done |
-| 3 | Design system and app shell | Pending |
+| 3 | Design system and app shell | Done |
 | 4 | Upload and image viewer | Pending |
 | 5 | FastAPI service: system, models, persistence | Pending |
 | 6 | Real Real-ESRGAN inference with tiling | Pending |
