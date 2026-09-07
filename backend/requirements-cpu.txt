@@ -1,0 +1,7 @@
+# CPU-only PyTorch. Used by CI, Docker's default profile, and machines
+# without an NVIDIA GPU. Inference works but is roughly 20-60x slower.
+#
+# Install with:
+#   pip install -r requirements-cpu.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.7.1+cpu

@@ -1,0 +1,11 @@
+# PyTorch build for NVIDIA GPUs.
+#
+# Pinned to the CUDA 11.8 wheels deliberately: the cu12x wheels require an
+# NVIDIA driver >= 525 (Linux) / >= 527 (Windows). CUDA 11 minor-version
+# compatibility means these cu118 wheels load on any driver >= 452.39, which
+# covers older laptop drivers still shipping with RTX 30-series machines.
+#
+# Install with:
+#   pip install -r requirements-cuda.txt
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.7.1+cu118
