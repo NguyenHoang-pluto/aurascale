@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------- secrets
+.env
+.env.local
+.env.*.local
+
+# ---------------------------------------------------------------- python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ---------------------------------------------------------------- node
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# ---------------------------------------------------------------- runtime data
+# Model weights are downloaded on demand and verified against models/manifest.json.
+models/*.pth
+models/*.safetensors
+models/*.bin
+# storage/ keeps its own .gitignore so the directory exists on a fresh clone
+# while none of its runtime contents are ever committed.
+storage/*
+!storage/.gitignore
+*.db
+*.db-journal
+*.sqlite3
+
+# ---------------------------------------------------------------- editors / os
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
