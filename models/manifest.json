@@ -1,0 +1,108 @@
+{
+  "$comment": [
+    "Model registry for PixelForge AI.",
+    "Weights are downloaded on demand into this directory and are git-ignored.",
+    "'sha256' is null until Phase 6 records the digest from a verified download;",
+    "the downloader refuses to run with a null digest unless --trust-first-download",
+    "is passed, which is how the digests get recorded in the first place."
+  ],
+  "models": [
+    {
+      "id": "RealESRGAN_x4plus",
+      "name": "Real-ESRGAN x4 Plus",
+      "description": "General-purpose 4x upscaler. Best default for photographs.",
+      "arch": "RRDBNet",
+      "scale": 4,
+      "supports_denoise": false,
+      "file": "RealESRGAN_x4plus.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+      "sha256": null,
+      "arch_params": {
+        "num_in_ch": 3,
+        "num_out_ch": 3,
+        "num_feat": 64,
+        "num_block": 23,
+        "num_grow_ch": 32,
+        "scale": 4
+      }
+    },
+    {
+      "id": "RealESRGAN_x4plus_anime_6B",
+      "name": "Real-ESRGAN x4 Plus Anime",
+      "description": "6-block variant tuned for illustration and anime line art. Faster than x4plus.",
+      "arch": "RRDBNet",
+      "scale": 4,
+      "supports_denoise": false,
+      "file": "RealESRGAN_x4plus_anime_6B.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth",
+      "sha256": null,
+      "arch_params": {
+        "num_in_ch": 3,
+        "num_out_ch": 3,
+        "num_feat": 64,
+        "num_block": 6,
+        "num_grow_ch": 32,
+        "scale": 4
+      }
+    },
+    {
+      "id": "RealESRGAN_x2plus",
+      "name": "Real-ESRGAN x2 Plus",
+      "description": "Native 2x upscaler. Used for the 2x preset and as the second pass of 8x.",
+      "arch": "RRDBNet",
+      "scale": 2,
+      "supports_denoise": false,
+      "file": "RealESRGAN_x2plus.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth",
+      "sha256": null,
+      "arch_params": {
+        "num_in_ch": 3,
+        "num_out_ch": 3,
+        "num_feat": 64,
+        "num_block": 23,
+        "num_grow_ch": 32,
+        "scale": 2
+      }
+    },
+    {
+      "id": "realesr-general-x4v3",
+      "name": "Real-ESRGAN General v3",
+      "description": "Compact 4x model. Paired with the wdn variant it provides a real denoise-strength control via DNI weight interpolation.",
+      "arch": "SRVGGNetCompact",
+      "scale": 4,
+      "supports_denoise": true,
+      "denoise_pair": "realesr-general-wdn-x4v3",
+      "file": "realesr-general-x4v3.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.3.0/realesr-general-x4v3.pth",
+      "sha256": null,
+      "arch_params": {
+        "num_in_ch": 3,
+        "num_out_ch": 3,
+        "num_feat": 64,
+        "num_conv": 32,
+        "upscale": 4,
+        "act_type": "prelu"
+      }
+    },
+    {
+      "id": "realesr-general-wdn-x4v3",
+      "name": "Real-ESRGAN General v3 (denoise weights)",
+      "description": "Denoising counterpart of realesr-general-x4v3. Not selectable on its own; blended with its pair by the denoise-strength control.",
+      "arch": "SRVGGNetCompact",
+      "scale": 4,
+      "selectable": false,
+      "supports_denoise": false,
+      "file": "realesr-general-wdn-x4v3.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.3.0/realesr-general-wdn-x4v3.pth",
+      "sha256": null,
+      "arch_params": {
+        "num_in_ch": 3,
+        "num_out_ch": 3,
+        "num_feat": 64,
+        "num_conv": 32,
+        "upscale": 4,
+        "act_type": "prelu"
+      }
+    }
+  ]
+}
