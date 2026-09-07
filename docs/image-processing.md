@@ -2,9 +2,12 @@
 
 How a file becomes an upscaled image, and why each step exists.
 
-> **Status.** This is the design the Phase 6 implementation is written against.
-> Nothing in this document is implemented yet; the honesty table in §7 records
-> exactly which controls will be real when it ships.
+> **Status.** Steps 1-5 of the validation sequence are implemented in the
+> browser as of Phase 4 (`frontend/src/lib/imageValidation.ts`), giving
+> immediate feedback before an upload is attempted. The backend repeats all of
+> them — client checks are convenience, never a security control. Everything
+> from tiling onward is the design the Phase 6 implementation is written
+> against; the honesty table in §7 records which controls will be real.
 
 ## 1. Stages
 

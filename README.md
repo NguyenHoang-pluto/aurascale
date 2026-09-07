@@ -4,14 +4,12 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 3 of 14 complete.**
-> This repository currently contains the project scaffold and the design
-> system: tooling, an accessible component library, the application shell and
-> workspace layout, configuration, error taxonomy, logging, a typed API client,
-> and a running FastAPI service with a health endpoint. **Image processing is
-> not implemented yet** — it lands in Phase 6. Every screen states which phase
-> implements it rather than showing placeholder behaviour. See
-> [Roadmap](#roadmap).
+> **Build status — Phase 4 of 14 complete.**
+> You can load an image and inspect it: drag-and-drop upload with real
+> content-based validation, and a zoom/pan viewer. The backend runs with a
+> health endpoint. **Image processing is not implemented yet** — Real-ESRGAN
+> inference lands in Phase 6, and no part of the UI pretends otherwise. Every
+> unbuilt region states which phase delivers it. See [Roadmap](#roadmap).
 
 ---
 
@@ -54,6 +52,11 @@ Implemented today (Phases 1-3):
 - Accessible component library: buttons, panels, segmented controls, select,
   slider, switch, tooltips, status indicators, progress, error disclosure
 - Application shell with responsive navigation and the workspace layout
+- Drag-and-drop, click and paste upload, with format detected from file
+  contents rather than the extension, and a real decode to reject corrupt files
+- Image viewer: 25/50/100/200/400% zoom, fit to screen, drag pan,
+  ctrl+wheel zoom, full keyboard control, alpha checkerboard
+- Image information panel showing dimensions, resolution, size and format
 - Typed API client that turns every failure — HTTP, network, timeout, abort —
   into one `ApiError` shape
 - Live backend status indicator polling `/api/health`
@@ -67,7 +70,6 @@ Planned, with the phase that delivers each:
 
 | Feature | Phase |
 | --- | --- |
-| Drag-and-drop upload, validation, image viewer | 4 |
 | System/GPU status endpoint and indicator | 5 |
 | Real Real-ESRGAN inference with tiling | 6 |
 | Denoise strength via DNI weight interpolation | 6b |
@@ -362,7 +364,7 @@ aurascale/
 | 1 | Architecture and analysis | Done |
 | 2 | Repository scaffold and tooling | Done |
 | 3 | Design system and app shell | Done |
-| 4 | Upload and image viewer | Pending |
+| 4 | Upload and image viewer | Done |
 | 5 | FastAPI service: system, models, persistence | Pending |
 | 6 | Real Real-ESRGAN inference with tiling | Pending |
 | 6b | Denoise strength via DNI | Pending |
