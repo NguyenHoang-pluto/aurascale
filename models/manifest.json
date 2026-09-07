@@ -16,7 +16,7 @@
       "supports_denoise": false,
       "file": "RealESRGAN_x4plus.pth",
       "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
-      "sha256": null,
+      "sha256": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
       "arch_params": {
         "num_in_ch": 3,
         "num_out_ch": 3,
@@ -35,7 +35,7 @@
       "supports_denoise": false,
       "file": "RealESRGAN_x4plus_anime_6B.pth",
       "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth",
-      "sha256": null,
+      "sha256": "f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da",
       "arch_params": {
         "num_in_ch": 3,
         "num_out_ch": 3,
@@ -54,7 +54,7 @@
       "supports_denoise": false,
       "file": "RealESRGAN_x2plus.pth",
       "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth",
-      "sha256": null,
+      "sha256": "49fafd45f8fd7aa8d31ab2a22d14d91b536c34494a5cfe31eb5d89c2fa266abb",
       "arch_params": {
         "num_in_ch": 3,
         "num_out_ch": 3,
@@ -73,8 +73,8 @@
       "supports_denoise": true,
       "denoise_pair": "realesr-general-wdn-x4v3",
       "file": "realesr-general-x4v3.pth",
-      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.3.0/realesr-general-x4v3.pth",
-      "sha256": null,
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-general-x4v3.pth",
+      "sha256": "8dc7edb9ac80ccdc30c3a5dca6616509367f05fbc184ad95b731f05bece96292",
       "arch_params": {
         "num_in_ch": 3,
         "num_out_ch": 3,
@@ -93,8 +93,8 @@
       "selectable": false,
       "supports_denoise": false,
       "file": "realesr-general-wdn-x4v3.pth",
-      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.3.0/realesr-general-wdn-x4v3.pth",
-      "sha256": null,
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-general-wdn-x4v3.pth",
+      "sha256": "1641f8c4464b9f097c9fdda5589273713f67cf59f3d909e0bd688f0cee269dca",
       "arch_params": {
         "num_in_ch": 3,
         "num_out_ch": 3,

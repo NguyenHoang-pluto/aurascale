@@ -4,14 +4,16 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 5 of 14 complete.**
-> You can load an image and inspect it: drag-and-drop upload with real
-> content-based validation, and a zoom/pan viewer. The backend reports the
-> hardware it will actually run on — device, GPU, VRAM, CUDA and PyTorch, all
-> measured rather than assumed — and records jobs in SQLite behind Alembic
-> migrations. **Image processing is not implemented yet** — Real-ESRGAN
-> inference lands in Phase 6, and no part of the UI pretends otherwise. Every
-> unbuilt region states which phase delivers it. See [Roadmap](#roadmap).
+> **Build status — Phase 6 of 14 complete.**
+> Real-ESRGAN inference is real: the official weights run on your GPU (or CPU),
+> tiled, with genuine per-tile progress and a denoise control backed by DNI
+> weight interpolation. You can load an image and inspect it: drag-and-drop
+> upload with real content-based validation, and a zoom/pan viewer. The backend
+> reports the hardware it will actually run on and records jobs in SQLite behind
+> Alembic migrations. **The UI cannot start a job yet** — the inference engine
+> has no HTTP surface until the job API in Phase 7, so enhancement is reachable
+> from Python and the tests, not the browser. Every unbuilt region states which
+> phase delivers it. See [Roadmap](#roadmap).
 
 ---
 
@@ -47,7 +49,7 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phases 1-5):
+Implemented today (Phases 1-6):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
@@ -74,14 +76,25 @@ Implemented today (Phases 1-5):
   are on disk
 - SQLAlchemy 2 job records in SQLite, versioned by Alembic and migrated on
   startup, with interrupted jobs recovered when the process restarts
+- Real Real-ESRGAN inference against the official weights: `RealESRGAN_x4plus`,
+  `RealESRGAN_x2plus`, `RealESRGAN_x4plus_anime_6B` and `realesr-general-x4v3`,
+  loaded strictly into vendored `RRDBNet` / `SRVGGNetCompact` architectures
+- VRAM-safe tiled inference with real per-tile progress, cancellation between
+  tiles, and an out-of-memory ladder that halves the tile before falling back
+  to the CPU rather than failing the job
+- Denoise strength by DNI weight interpolation between `realesr-general-x4v3`
+  and its `wdn` counterpart — a real blended network, not a blend of outputs
+- 2x, 4x and 8x, where 8x is two neural passes (4x then 2x) so no part of the
+  result is resampled rather than generated
+- Model manager that loads lazily, caches between jobs, keeps one model resident
+  on a GPU, and frees VRAM before loading the next
+- Weight downloader that verifies SHA-256 before a file becomes visible
 - Environment diagnostic script that explains CUDA problems in plain language
 
 Planned, with the phase that delivers each:
 
 | Feature | Phase |
 | --- | --- |
-| Real Real-ESRGAN inference with tiling | 6 |
-| Denoise strength via DNI weight interpolation | 6b |
 | Async jobs, SSE progress, cancellation | 7 |
 | Before/after comparison (slider, side-by-side, split) | 9 |
 | Enhancement history (SQLite) | 10 |
@@ -315,8 +328,17 @@ collapsible developer panel in the UI.
 two-pass pipeline (4x then 2x, both neural) rather than a 4x pass followed by
 bicubic resampling. The UI labels it as such.
 
-Weights are downloaded on demand into `models/`, verified against the SHA-256
-digests in `models/manifest.json`, and never committed.
+Weights are downloaded into `models/`, verified against the SHA-256 digests in
+`models/manifest.json`, and never committed:
+
+```bash
+backend/.venv/Scripts/python scripts/download_models.py --all   # Windows
+backend/.venv/bin/python scripts/download_models.py --all       # Linux / macOS
+```
+
+Naming one model fetches what that model needs, including the `wdn` half of the
+denoise pair. A checkpoint is moved into place only after its digest matches, so
+a failed download never leaves a file that looks usable.
 
 ## Performance considerations
 
@@ -392,8 +414,8 @@ aurascale/
 | 3 | Design system and app shell | Done |
 | 4 | Upload and image viewer | Done |
 | 5 | FastAPI service: system, models, persistence | Done |
-| 6 | Real Real-ESRGAN inference with tiling | Pending |
-| 6b | Denoise strength via DNI | Pending |
+| 6 | Real Real-ESRGAN inference with tiling | Done |
+| 6b | Denoise strength via DNI | Done |
 | 7 | Async jobs, SSE progress, cancellation | Pending |
 | 8 | Frontend/backend integration | Pending |
 | 9 | Comparison viewer | Pending |

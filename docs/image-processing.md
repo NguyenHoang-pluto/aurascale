@@ -4,10 +4,12 @@ How a file becomes an upscaled image, and why each step exists.
 
 > **Status.** Steps 1-5 of the validation sequence are implemented in the
 > browser as of Phase 4 (`frontend/src/lib/imageValidation.ts`), giving
-> immediate feedback before an upload is attempted. The backend repeats all of
-> them — client checks are convenience, never a security control. Everything
-> from tiling onward is the design the Phase 6 implementation is written
-> against; the honesty table in §7 records which controls will be real.
+> immediate feedback before an upload is attempted. Steps 6-11 — alpha split,
+> normalisation, tiled inference, the second 8x pass, sharpening and alpha
+> recomposition — are implemented as of Phase 6 in `app/inference/` and
+> `app/services/enhancement_service.py`. Encoding and persistence (12-13) and
+> the upload path that repeats the validation server-side arrive with the job
+> API in Phase 7. The honesty table in §7 records which controls are real.
 
 ## 1. Stages
 
@@ -87,11 +89,17 @@ smaller values start to show seams on high-frequency textures.
 processes 288² instead of 256², about 27% overhead. Larger tiles amortise the
 padding better, so tile size is chosen as large as VRAM allows.
 
-**Auto-selection.** At job start, free VRAM is sampled with
-`torch.cuda.mem_get_info()` and a tile size is chosen from a conservative table,
-clamped by the configured `TILE_SIZE`. The table is calibrated by measurement,
-not derived analytically — activation memory depends on the block count, which
-varies by model.
+**Auto-selection.** At the start of every pass, free VRAM is sampled with
+`torch.cuda.mem_get_info()` and the configured `TILE_SIZE` is clamped to what
+that will take (`inference/device.py::recommended_tile_size`). The steps are
+deliberately conservative and sized for the 23-block RRDBNet, the heaviest
+architecture here, so they are safe for the lighter ones: undershooting costs
+some padding overhead, while overshooting costs a forward pass that raises.
+
+The sample is taken per pass rather than once at startup because another
+application claiming the GPU between jobs is the ordinary case on a laptop.
+`TILE_SIZE=0` disables tiling deliberately and is left alone; the OOM ladder
+below remains the safety net either way.
 
 **OOM ladder.** `torch.cuda.OutOfMemoryError` is caught per tile:
 
@@ -147,7 +155,7 @@ commitment for Phase 6:
 | Model selection | Different trained weights | AI |
 | Upscale factor | One or two neural passes | AI |
 | Detail enhancement | This *is* the super-resolution model; not a separate toggle | — |
-| Noise reduction | DNI interpolation between `realesr-general-x4v3` and its `wdn` counterpart | AI (Phase 6b; "Coming soon" until then) |
+| Noise reduction | DNI interpolation between `realesr-general-x4v3` and its `wdn` counterpart | AI (implemented) |
 | Sharpening | OpenCV unsharp mask on the result | Post-process |
 | Artifact reduction | Not implemented | "Coming soon" |
 
@@ -169,7 +177,14 @@ Because `realesr-general-x4v3` and `realesr-general-wdn-x4v3` are exactly such a
 pair, the denoise slider maps directly onto α. This is an upstream-supported
 technique, not an approximation: at α = 1 you get the standard model's weights
 byte for byte, at α = 0 the denoise model's, and the blend in between is a real
-network, not a blend of two outputs.
+network, not a blend of two outputs. `denoise_strength` is α, which is exactly
+what upstream's `--denoise_strength` flag sets, so the same value produces the
+same network here as with the reference CLI.
+
+The naming is worth stating plainly, because it reads backwards: α = 1 keeps
+the standard `x4v3` weights and denoises the *most*, while α = 0 blends fully to
+the `wdn` counterpart, which preserves noise. Higher is smoother. That direction
+is asserted by a test against the real weights rather than taken on trust.
 
 ## 8. Memory discipline
 

@@ -241,8 +241,11 @@ internals; shared behaviour moves to `hooks/` or `lib/`.
 | `api` | status codes, problem-document shape, contract | httpx ASGI transport, no network |
 | `services` | job lifecycle, validation rules | repository faked via the ABC |
 | `inference` | tiling geometry, seam handling, OOM backoff | synthetic tensors, tiny model |
-| end-to-end | a real image through a real model | marked `slow`, opt-in with `-m slow` |
+| end-to-end | a real image through a real model | marked `slow`; skipped when the weights are absent |
 
-The real-inference test is genuinely real — it downloads weights and produces an
-upscaled file — but it is excluded from the default run so the everyday suite
-stays in the sub-second range.
+The real-inference tests are genuinely real — they load the official
+checkpoints and run images through them, on the GPU when there is one. They run
+by default, because a check command that silently skips inference is not much of
+a check; `-m "not slow"` selects the fast suite, and `-m slow` only these. On a
+machine with no weights downloaded they skip rather than fail, so a fresh clone
+is still green.
