@@ -4,16 +4,14 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 6 of 14 complete.**
-> Real-ESRGAN inference is real: the official weights run on your GPU (or CPU),
-> tiled, with genuine per-tile progress and a denoise control backed by DNI
-> weight interpolation. You can load an image and inspect it: drag-and-drop
-> upload with real content-based validation, and a zoom/pan viewer. The backend
-> reports the hardware it will actually run on and records jobs in SQLite behind
-> Alembic migrations. **The UI cannot start a job yet** — the inference engine
-> has no HTTP surface until the job API in Phase 7, so enhancement is reachable
-> from Python and the tests, not the browser. Every unbuilt region states which
-> phase delivers it. See [Roadmap](#roadmap).
+> **Build status — Phase 7 of 14 complete.**
+> The backend now enhances images end to end: upload to `POST /api/jobs`, watch
+> real per-tile progress over Server-Sent Events, cancel between tiles, and
+> download the result. Real-ESRGAN runs on your GPU (or CPU) with a denoise
+> control backed by DNI weight interpolation. **The browser cannot start a job
+> yet** — the React app is not wired to the job API until Phase 8, so the
+> workspace still uploads and inspects images locally. Every unbuilt region
+> states which phase delivers it. See [Roadmap](#roadmap).
 
 ---
 
@@ -49,7 +47,7 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phases 1-6):
+Implemented today (Phases 1-7):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
@@ -89,13 +87,21 @@ Implemented today (Phases 1-6):
 - Model manager that loads lazily, caches between jobs, keeps one model resident
   on a GPU, and frees VRAM before loading the next
 - Weight downloader that verifies SHA-256 before a file becomes visible
+- Job API: submit an image, follow it over Server-Sent Events, download the
+  result with resumable `Range` support, and cancel or delete it
+- An in-process queue and worker thread, so inference never blocks the event
+  loop and a job survives as a durable record rather than as memory
+- Server-side repeat of every upload check — streamed size cap, magic bytes,
+  structural verify, dimension and output-pixel guards — because the browser's
+  checks are a convenience, not a control
+- Cooperative cancellation that stops between tiles and keeps no partial result
+- Retention sweeper that removes expired jobs, their files, and any orphans
 - Environment diagnostic script that explains CUDA problems in plain language
 
 Planned, with the phase that delivers each:
 
 | Feature | Phase |
 | --- | --- |
-| Async jobs, SSE progress, cancellation | 7 |
 | Before/after comparison (slider, side-by-side, split) | 9 |
 | Enhancement history (SQLite) | 10 |
 | Docker images, CPU and GPU profiles | 12 |
@@ -416,7 +422,7 @@ aurascale/
 | 5 | FastAPI service: system, models, persistence | Done |
 | 6 | Real Real-ESRGAN inference with tiling | Done |
 | 6b | Denoise strength via DNI | Done |
-| 7 | Async jobs, SSE progress, cancellation | Pending |
+| 7 | Async jobs, SSE progress, cancellation | Done |
 | 8 | Frontend/backend integration | Pending |
 | 9 | Comparison viewer | Pending |
 | 10 | History | Pending |

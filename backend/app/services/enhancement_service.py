@@ -52,6 +52,10 @@ class EnhancementRequest:
     denoise_strength: float | None = None
     # 0 disables the post-process entirely.
     sharpen_strength: float = 0.0
+    # Per-job tiling overrides. None means "use the configured default", which
+    # is then clamped to the free VRAM as usual.
+    tile_size: int | None = None
+    tile_pad: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -185,8 +189,12 @@ class EnhancementService:
 
             current = upscaler.upscale(
                 current,
-                tile=self._settings.tile_size,
-                tile_pad=self._settings.tile_pad,
+                tile=(
+                    request.tile_size if request.tile_size is not None else self._settings.tile_size
+                ),
+                tile_pad=(
+                    request.tile_pad if request.tile_pad is not None else self._settings.tile_pad
+                ),
                 on_progress=_scaled_progress(on_progress, index, len(plan)),
                 should_cancel=should_cancel,
             )

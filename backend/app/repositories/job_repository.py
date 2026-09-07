@@ -91,6 +91,9 @@ class SqlAlchemyJobRepository(JobRepository):
         )
         return list(rows)
 
+    async def commit(self) -> None:
+        await self._session.commit()
+
     async def count_active(self) -> int:
         total = await self._session.scalar(
             select(func.count())

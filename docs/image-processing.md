@@ -2,14 +2,13 @@
 
 How a file becomes an upscaled image, and why each step exists.
 
-> **Status.** Steps 1-5 of the validation sequence are implemented in the
-> browser as of Phase 4 (`frontend/src/lib/imageValidation.ts`), giving
-> immediate feedback before an upload is attempted. Steps 6-11 — alpha split,
-> normalisation, tiled inference, the second 8x pass, sharpening and alpha
-> recomposition — are implemented as of Phase 6 in `app/inference/` and
-> `app/services/enhancement_service.py`. Encoding and persistence (12-13) and
-> the upload path that repeats the validation server-side arrive with the job
-> API in Phase 7. The honesty table in §7 records which controls are real.
+> **Status.** Every stage below is implemented. Steps 1-5 run in the browser as
+> of Phase 4 (`frontend/src/lib/imageValidation.ts`) for immediate feedback, and
+> again on the server as of Phase 7 (`app/services/image_service.py`) — the
+> client's checks are a convenience, never a security control. Steps 6-11 are
+> the Phase 6 engine in `app/inference/` and
+> `app/services/enhancement_service.py`; encoding and persistence (12-13) are
+> Phase 7. The honesty table in §7 records which controls are real.
 
 ## 1. Stages
 

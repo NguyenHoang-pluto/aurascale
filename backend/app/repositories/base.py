@@ -66,3 +66,13 @@ class JobRepository(ABC):
     @abstractmethod
     async def count_active(self) -> int:
         """Jobs queued or processing, used to enforce the queue bound."""
+
+    @abstractmethod
+    async def commit(self) -> None:
+        """Make pending changes durable and visible to other connections.
+
+        Normally the caller's transaction scope handles this. It is explicit
+        here for the one case that cannot wait: a job row has to be committed
+        *before* its id is handed to the worker, or the worker can look it up
+        and find nothing.
+        """

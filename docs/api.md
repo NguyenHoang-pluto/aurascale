@@ -5,11 +5,11 @@ Base path: `/api`. Interactive docs at `/docs`, schema at `/openapi.json`.
 Responses use camelCase; request bodies accept camelCase. All errors are RFC
 9457 problem documents with media type `application/problem+json`.
 
-> **Implementation status.** `GET /api/health`, `GET /api/system` and
-> `GET /api/models` exist today (Phases 2 and 5). Every other endpoint below is
-> the agreed contract, implemented in the phase noted against it. This document
-> is the specification the implementation is written against, not a description
-> of what already runs.
+> **Implementation status.** The system endpoints (Phases 2 and 5) and the job
+> endpoints — submit, record, events, result, cancel (Phase 7) — exist today.
+> Still to come: `/preview` (Phase 9), `/thumbnail` and `GET /api/jobs`
+> (Phase 10). Each of those is the agreed contract, implemented in the phase
+> noted against it.
 
 ---
 
@@ -168,7 +168,8 @@ counterpart used for DNI denoise interpolation is part of
 ### `POST /api/jobs`
 
 Create an enhancement job. Returns immediately; inference happens on a worker.
-*Phase 7.*
+
+**Status: implemented (Phase 7).**
 
 **Request** — `multipart/form-data`
 
@@ -216,7 +217,9 @@ the configured defaults; `null` means "decide automatically from free VRAM".
 
 ### `GET /api/jobs/{jobId}`
 
-Full job record. Also the polling fallback when SSE is unavailable. *Phase 7.*
+Full job record. Also the polling fallback when SSE is unavailable.
+
+**Status: implemented (Phase 7).**
 
 ```json
 {
@@ -267,7 +270,9 @@ On failure, `error` carries the same fields as a problem document:
 
 ### `GET /api/jobs/{jobId}/events`
 
-Server-Sent Events progress stream. *Phase 7.*
+Server-Sent Events progress stream.
+
+**Status: implemented (Phase 7).**
 
 ```
 Content-Type: text/event-stream
@@ -301,6 +306,16 @@ Progress is measured, not simulated. During `running_inference` it is
 cannot be subdivided report their own boundaries only, rather than inventing
 intermediate percentages.
 
+The bands are: validation and preprocessing 0-10 %, loading the model 10-15 %,
+inference 15-90 %, post-processing and encoding 90-100 %. `tilesDone` and
+`tilesTotal` appear only inside the inference band, because that is the only
+stage with a real count behind them.
+
+A client that subscribes late — or reconnects — is sent the most recent event
+immediately, and a job that has already finished yields its terminal event and
+closes, so a stream never hangs waiting for something that has already
+happened.
+
 ### `GET /api/jobs/{jobId}/result`
 
 The processed image.
@@ -312,7 +327,9 @@ Content-Disposition: attachment; filename="pixelforge-9f1c0f2a-5120x2880.png"
 
 Returns `job_not_completed` (409) if the job has not finished, `job_not_found`
 (404) if the id is unknown or the file has been swept. Supports `Range` requests
-so a large download can resume. *Phase 7.*
+so a large download can resume.
+
+**Status: implemented (Phase 7).**
 
 ### `GET /api/jobs/{jobId}/preview`
 
@@ -329,11 +346,18 @@ full-resolution crop of the source region instead of a downscaled whole.
 
 ### `DELETE /api/jobs/{jobId}`
 
-Cancel if running, delete otherwise. *Phase 7.*
+Cancel if running, delete otherwise.
+
+**Status: implemented (Phase 7).**
 
 Cancellation is cooperative: a flag is set and the tiling loop checks it between
 tiles, so cancellation takes effect within one tile rather than immediately.
 A job that has already completed is deleted along with its files.
+
+A cancelled job keeps no output: the partial image is deleted and
+`/result` continues to answer `job_not_completed`. The flag is both held in
+memory, where the worker thread can read it between tiles, and persisted, so a
+cancellation requested before the job starts is honoured rather than raced.
 
 Returns `204 No Content`.
 
