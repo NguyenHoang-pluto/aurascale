@@ -5,10 +5,11 @@ Base path: `/api`. Interactive docs at `/docs`, schema at `/openapi.json`.
 Responses use camelCase; request bodies accept camelCase. All errors are RFC
 9457 problem documents with media type `application/problem+json`.
 
-> **Implementation status.** Only `GET /api/health` exists today (Phase 2).
-> Every other endpoint below is the agreed contract, implemented in the phase
-> noted against it. This document is the specification the implementation is
-> written against, not a description of what already runs.
+> **Implementation status.** `GET /api/health`, `GET /api/system` and
+> `GET /api/models` exist today (Phases 2 and 5). Every other endpoint below is
+> the agreed contract, implemented in the phase noted against it. This document
+> is the specification the implementation is written against, not a description
+> of what already runs.
 
 ---
 
@@ -84,35 +85,59 @@ when those are degraded — this is what a container healthcheck probes.
 ### `GET /api/system`
 
 Capability and hardware report. Drives the GPU indicator and the System section
-of Settings. *Phase 5.*
+of Settings.
+
+**Status: implemented (Phase 5).**
 
 ```json
 {
   "device": "cuda",
-  "cudaAvailable": true,
-  "cudaVersion": "11.8",
-  "torchVersion": "2.7.1+cu118",
-  "gpuName": "NVIDIA GeForce RTX 3050 Laptop GPU",
-  "vramTotalMb": 4096,
-  "vramFreeMb": 3338,
-  "driverVersion": "512.74",
-  "cpu": "AMD Ryzen 7 5800H",
-  "cpuCores": 8,
-  "ramTotalMb": 16384,
-  "loadedModels": ["RealESRGAN_x4plus"],
+  "deviceReason": "CUDA device detected",
+  "torch": {
+    "available": true,
+    "version": "2.7.1+cu118",
+    "cudaVersion": "11.8",
+    "cudaAvailable": true,
+    "importError": null
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "vramTotalMb": 4095,
+    "vramFreeMb": 3333,
+    "capability": "8.6"
+  },
+  "cpuName": "AMD Ryzen 5 5625U with Radeon Graphics",
+  "cpuCoresPhysical": 6,
+  "cpuCoresLogical": 12,
+  "ramTotalMb": 7532,
+  "ramAvailableMb": 441,
+  "pythonVersion": "3.11.9",
+  "platform": "Windows 10",
   "fp16": true,
-  "tileSize": 256
+  "tileSize": 256,
+  "tilePad": 16
 }
 ```
 
-`vramFreeMb` is sampled at request time. When CUDA is unavailable the GPU fields
-are `null` and `device` is `"cpu"` — this is a normal, supported state, not an
-error.
+`vramFreeMb` is sampled at request time — it is the number that decides whether
+the next job needs a smaller tile size. `gpu` is `null` and `device` is `"cpu"`
+when CUDA is unavailable: a normal, supported state, not an error, and
+`deviceReason` says which of the possible causes applied.
+
+`torch.available` is `false` on an install where PyTorch is missing or broken;
+`torch.importError` then carries the import failure verbatim, so a
+`DEVICE=cuda` machine that silently fell back to CPU can be diagnosed from this
+one response.
+
+The endpoint never raises for missing hardware: a machine with no GPU, no CUDA
+build of torch, or no torch at all still gets a complete report.
 
 ### `GET /api/models`
 
 Available models from `models/manifest.json`, annotated with whether the weights
-are present on disk. *Phase 5.*
+are present on disk.
+
+**Status: implemented (Phase 5).**
 
 ```json
 [
@@ -124,11 +149,17 @@ are present on disk. *Phase 5.*
     "scale": 4,
     "supportsDenoise": false,
     "downloaded": true,
-    "sizeMb": 63.9,
-    "loaded": true
+    "sizeMb": 63.9
   }
 ]
 ```
+
+`downloaded` reports whether the weight file named in the manifest is present
+under `MODELS_DIR`; `sizeMb` is its on-disk size, and `null` until it is there.
+
+Weight sets that are not selectable on their own are omitted — the `wdn`
+counterpart used for DNI denoise interpolation is part of
+`realesr-general-x4v3`, not a model a user picks.
 
 ---
 

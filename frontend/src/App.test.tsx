@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
-import { jsonResponse } from '@/test/renderWithProviders'
+import { stubSystemApi } from '@/test/systemFixtures'
 
 /**
  * Smoke tests for the composed application shell.
@@ -13,19 +13,9 @@ import { jsonResponse } from '@/test/renderWithProviders'
 describe('App', () => {
   beforeEach(() => {
     window.history.pushState({}, '', '/')
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() =>
-        Promise.resolve(
-          jsonResponse({
-            status: 'ok',
-            version: '0.1.0',
-            environment: 'test',
-            uptimeSeconds: 1,
-          }),
-        ),
-      ),
-    )
+    // The shell mounts the status indicator on every route, and Settings
+    // mounts the system panel, so all three endpoints have to answer.
+    stubSystemApi()
   })
 
   afterEach(() => {
@@ -43,7 +33,7 @@ describe('App', () => {
     ).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(screen.getByText('Backend online')).toBeInTheDocument()
+      expect(screen.getByText('GPU acceleration enabled')).toBeInTheDocument()
     })
   })
 

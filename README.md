@@ -4,10 +4,12 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 4 of 14 complete.**
+> **Build status — Phase 5 of 14 complete.**
 > You can load an image and inspect it: drag-and-drop upload with real
-> content-based validation, and a zoom/pan viewer. The backend runs with a
-> health endpoint. **Image processing is not implemented yet** — Real-ESRGAN
+> content-based validation, and a zoom/pan viewer. The backend reports the
+> hardware it will actually run on — device, GPU, VRAM, CUDA and PyTorch, all
+> measured rather than assumed — and records jobs in SQLite behind Alembic
+> migrations. **Image processing is not implemented yet** — Real-ESRGAN
 > inference lands in Phase 6, and no part of the UI pretends otherwise. Every
 > unbuilt region states which phase delivers it. See [Roadmap](#roadmap).
 
@@ -45,7 +47,7 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phases 1-3):
+Implemented today (Phases 1-5):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
@@ -63,14 +65,21 @@ Implemented today (Phases 1-3):
 - Structured logging with per-job context fields
 - Full error taxonomy mapped to RFC 9457 `application/problem+json`
 - Configuration via `.env`, validated by Pydantic at startup
-- `GET /api/health` with OpenAPI docs at `/docs`
+- `GET /api/health`, `GET /api/system` and `GET /api/models`, with OpenAPI
+  docs at `/docs`
+- Device resolution that reports *why* it chose CUDA or CPU, and a Settings
+  panel plus top-bar indicator showing the measured GPU, VRAM, CUDA, PyTorch
+  and CPU rather than a guess
+- Model registry read from `models/manifest.json`, annotated with which weights
+  are on disk
+- SQLAlchemy 2 job records in SQLite, versioned by Alembic and migrated on
+  startup, with interrupted jobs recovered when the process restarts
 - Environment diagnostic script that explains CUDA problems in plain language
 
 Planned, with the phase that delivers each:
 
 | Feature | Phase |
 | --- | --- |
-| System/GPU status endpoint and indicator | 5 |
 | Real Real-ESRGAN inference with tiling | 6 |
 | Denoise strength via DNI weight interpolation | 6b |
 | Async jobs, SSE progress, cancellation | 7 |
@@ -198,7 +207,8 @@ documents each one inline. The most important:
 | `MAX_UPLOAD_SIZE_MB` | `32` | Rejected before the body is buffered |
 | `MAX_INPUT_PIXELS` | `16000000` | Decompression-bomb guard |
 | `MAX_CONCURRENT_JOBS` | `1` | Keep at 1 for a single GPU |
-| `DATABASE_URL` | SQLite file | Change to `postgresql+asyncpg://...` to migrate |
+| `DATABASE_URL` | SQLite in `STORAGE_DIR` | Change to `postgresql+asyncpg://...` to migrate |
+| `AUTO_MIGRATE` | `true` | Run Alembic on startup; set `false` and migrate as a deploy step in production |
 
 Secrets are never committed: `.env` is git-ignored and `.env.example` holds no
 credentials.
@@ -246,6 +256,22 @@ cd backend
 .venv/Scripts/python -m mypy app
 .venv/Scripts/python -m pytest
 ```
+
+### Database migrations
+
+The schema is versioned with Alembic and applied on startup while
+`AUTO_MIGRATE` is true, so a fresh clone needs no migration step. To apply or
+author migrations by hand:
+
+```bash
+cd backend
+.venv/Scripts/python -m alembic upgrade head
+.venv/Scripts/python -m alembic revision --autogenerate -m "describe the change"
+```
+
+Autogenerate compares `app/models/db.py` against the live database, so review
+the generated script before committing it — SQLite reports a narrower set of
+changes than PostgreSQL does.
 
 ## Docker
 
@@ -365,7 +391,7 @@ aurascale/
 | 2 | Repository scaffold and tooling | Done |
 | 3 | Design system and app shell | Done |
 | 4 | Upload and image viewer | Done |
-| 5 | FastAPI service: system, models, persistence | Pending |
+| 5 | FastAPI service: system, models, persistence | Done |
 | 6 | Real Real-ESRGAN inference with tiling | Pending |
 | 6b | Denoise strength via DNI | Pending |
 | 7 | Async jobs, SSE progress, cancellation | Pending |

@@ -57,3 +57,29 @@ def test_uvicorn_color_message_extra_is_not_rendered() -> None:
     )
 
     assert formatted == "job finished port=8000"
+
+
+def test_reserved_context_keys_do_not_crash_logging(caplog) -> None:  # type: ignore[no-untyped-def]
+    """Regression: `extra={"name": ...}` made logging raise KeyError at emit
+    time, which turned a log call on an error path into a crash."""
+    logger = get_logger("app.test.reserved")
+
+    with caplog.at_level(logging.INFO):
+        logger.info("deleted", extra={"name": "a.png", "module": "x", "count": 2})
+
+    record = caplog.records[-1]
+    # Colliding keys are prefixed rather than dropped, so nothing is lost.
+    assert record.ctx_name == "a.png"  # type: ignore[attr-defined]
+    assert record.ctx_module == "x"  # type: ignore[attr-defined]
+    assert record.count == 2  # type: ignore[attr-defined]
+
+
+def test_reserved_keys_are_rendered_by_the_text_formatter() -> None:
+    logger = get_logger("app.test.reserved.render")
+    msg, kwargs = logger.process("deleted", {"extra": {"name": "a.png"}})
+
+    record = _record(**kwargs["extra"])
+    formatted = TextContextFormatter(fmt="%(message)s").format(record)
+
+    assert "ctx_name=a.png" in formatted
+    assert msg == "deleted"

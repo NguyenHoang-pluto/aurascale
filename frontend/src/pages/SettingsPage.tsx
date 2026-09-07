@@ -1,8 +1,9 @@
 import { PhaseNotice } from '@/components/feedback/PhaseNotice'
 import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/panel'
+import { SystemPanel } from '@/features/system/SystemPanel'
 import { PageContainer } from './PageContainer'
 
-const SECTIONS = [
+const PENDING_SECTIONS = [
   {
     title: 'General',
     description: 'Theme and workspace preferences.',
@@ -18,12 +19,6 @@ const SECTIONS = [
     description: 'Temporary file retention and maximum upload size.',
     phase: 'Phase 10',
   },
-  {
-    title: 'System',
-    description:
-      'Backend status, GPU status, CUDA version, PyTorch version and loaded model state.',
-    phase: 'Phase 5',
-  },
 ] as const
 
 export function SettingsPage() {
@@ -33,7 +28,7 @@ export function SettingsPage() {
       description="Defaults for processing, storage and the local backend."
     >
       <div className="flex flex-col gap-4">
-        {SECTIONS.map((section) => (
+        {PENDING_SECTIONS.map((section) => (
           <Panel key={section.title}>
             <PanelHeader>
               <PanelTitle>{section.title}</PanelTitle>
@@ -48,6 +43,16 @@ export function SettingsPage() {
             </PanelContent>
           </Panel>
         ))}
+
+        {/* Live, measured on the server — not a placeholder. */}
+        <Panel>
+          <PanelHeader>
+            <PanelTitle>System</PanelTitle>
+          </PanelHeader>
+          <PanelContent>
+            <SystemPanel />
+          </PanelContent>
+        </Panel>
       </div>
     </PageContainer>
   )

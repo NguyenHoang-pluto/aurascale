@@ -18,9 +18,9 @@ export interface BackendHealth {
 /**
  * Poll `/api/health` so the top bar reflects real backend reachability.
  *
- * This reports only what is actually known today. GPU and CUDA state come from
- * `/api/system`, which does not exist until Phase 5 — the indicator says
- * nothing about the GPU rather than guessing.
+ * Reachability only. GPU and CUDA state come from `/api/system` via
+ * `useSystemInfo`; the two are kept apart so the indicator can say the backend
+ * is down without also making a claim about the device.
  */
 export function useBackendHealth(): BackendHealth {
   const query = useQuery({

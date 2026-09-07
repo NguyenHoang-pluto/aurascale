@@ -5,8 +5,9 @@
  * exist to give immediate, specific feedback — they are a convenience, never a
  * security control; the backend re-validates everything it receives.
  *
- * Phase 5 adds `GET /api/system`, at which point these become the fallback used
- * before the real limits have loaded, so the two cannot silently drift.
+ * `GET /api/system` reports hardware capability, not upload limits, so these
+ * stay the client's own copy; the API contract in docs/api.md is what keeps
+ * them in step with the backend.
  */
 export interface UploadLimits {
   maxFileSizeBytes: number

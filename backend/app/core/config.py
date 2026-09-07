@@ -50,7 +50,13 @@ class Settings(BaseSettings):
     # -- storage -------------------------------------------------------
     storage_dir: Path = REPO_ROOT / "storage"
     models_dir: Path = REPO_ROOT / "models"
-    database_url: str = "sqlite+aiosqlite:///./storage/pixelforge.db"
+    # Left unset by default and derived from storage_dir below. A literal
+    # relative URL would resolve against the process working directory,
+    # so the database would move depending on where uvicorn was launched.
+    database_url: str | None = None
+    # Apply migrations at startup. Convenient locally; production should
+    # run "alembic upgrade head" as a deploy step and set this false.
+    auto_migrate: bool = True
 
     # -- upload limits (security § 16) ---------------------------------
     max_upload_size_mb: int = Field(default=32, ge=1, le=512)
@@ -74,6 +80,17 @@ class Settings(BaseSettings):
     temp_retention_hours: int = Field(default=24, ge=1)
     max_total_storage_gb: float = Field(default=10.0, gt=0)
     cleanup_interval_minutes: int = Field(default=30, ge=1)
+
+    @field_validator("storage_dir", "models_dir", mode="after")
+    @classmethod
+    def _resolve_against_repo_root(cls, value: Path) -> Path:
+        """Make directory settings absolute.
+
+        A relative value such as "./storage" in .env would otherwise resolve
+        against the process working directory, so the storage tree and the
+        database would move depending on where uvicorn was started.
+        """
+        return value if value.is_absolute() else (REPO_ROOT / value).resolve()
 
     @field_validator("cors_origins", "allowed_formats", mode="before")
     @classmethod
@@ -100,6 +117,13 @@ class Settings(BaseSettings):
     @property
     def max_upload_size_bytes(self) -> int:
         return self.max_upload_size_mb * 1024 * 1024
+
+    @property
+    def resolved_database_url(self) -> str:
+        """Configured URL, or an absolute SQLite path inside the storage tree."""
+        if self.database_url is not None:
+            return self.database_url
+        return f"sqlite+aiosqlite:///{(self.storage_dir / 'pixelforge.db').as_posix()}"
 
     @property
     def inputs_dir(self) -> Path:

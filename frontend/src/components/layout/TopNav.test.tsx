@@ -3,24 +3,15 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TopNav } from './TopNav'
 import { MOBILE_WIDTH, setViewportWidth } from '@/test/matchMedia'
-import { jsonResponse, renderWithProviders } from '@/test/renderWithProviders'
+import { renderWithProviders } from '@/test/renderWithProviders'
+import { CPU_SYSTEM, stubSystemApi } from '@/test/systemFixtures'
 import { useThemeStore } from '@/stores/useThemeStore'
-
-const HEALTH_BODY = {
-  status: 'ok',
-  version: '0.1.0',
-  environment: 'test',
-  uptimeSeconds: 12,
-}
 
 describe('TopNav', () => {
   beforeEach(() => {
     useThemeStore.setState({ preference: 'dark', resolved: 'dark' })
     document.documentElement.classList.add('dark')
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => Promise.resolve(jsonResponse(HEALTH_BODY))),
-    )
+    stubSystemApi()
   })
 
   afterEach(() => {
@@ -60,12 +51,21 @@ describe('TopNav', () => {
 
     expect(screen.getByText('Checking backend')).toBeInTheDocument()
     await waitFor(() => {
-      expect(screen.getByText('Backend online')).toBeInTheDocument()
+      expect(screen.getByText('GPU acceleration enabled')).toBeInTheDocument()
     })
     expect(globalThis.fetch).toHaveBeenCalledWith(
       '/api/health',
       expect.objectContaining({ signal: expect.anything() }),
     )
+  })
+
+  it('names the device the backend actually resolved', async () => {
+    stubSystemApi(CPU_SYSTEM)
+    renderWithProviders(<TopNav />)
+
+    await waitFor(() => {
+      expect(screen.getByText('CPU mode')).toBeInTheDocument()
+    })
   })
 
   it('reports the backend as offline when the request fails', async () => {
