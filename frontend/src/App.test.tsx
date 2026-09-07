@@ -76,11 +76,14 @@ describe('App', () => {
     expect(screen.getByText('Page not found')).toBeInTheDocument()
   })
 
-  it('states which phase implements each unbuilt region instead of faking it', () => {
+  it('presents a working upload target and marks the regions that are not built', () => {
     render(<App />)
 
-    // The workspace must never present a dropzone that does nothing.
-    expect(screen.queryByText(/Drop an image here/i)).not.toBeInTheDocument()
+    // The dropzone became real in Phase 4, so it is expected here now.
+    expect(screen.getByText('Drop an image here')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Drop an image here/i)).toHaveAttribute('type', 'file')
+
+    // Everything still unimplemented must say so rather than look functional.
     expect(screen.getAllByText(/Arrives in Phase/).length).toBeGreaterThan(0)
   })
 })

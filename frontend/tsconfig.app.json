@@ -4,7 +4,11 @@
     "target": "es2023",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "esnext",
-    "types": ["vite/client"],
+    // "node" is here for test files that read fixtures from disk. App code
+    // cannot misuse it undetected: Vite fails the build on a bare `fs`
+    // import, and `process` is undefined in the browser, so the build is a
+    // harder guard than the type layer would be.
+    "types": ["vite/client", "node"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 
