@@ -73,7 +73,9 @@
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
 
-  --font-sans: 'Inter var', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* System stack: no webfont is loaded, so nothing blocks first paint and
+     the app works offline. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'JetBrains Mono', 'Cascadia Code', Menlo, monospace;
 }
 

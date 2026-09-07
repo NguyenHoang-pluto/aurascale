@@ -1,13 +1,21 @@
+import { NavLink } from 'react-router-dom'
 import { FileQuestion } from 'lucide-react'
-import { PlaceholderPage } from './PlaceholderPage'
+import { EmptyState } from '@/components/feedback/EmptyState'
+import { Button } from '@/components/ui/button'
 
 export function NotFoundPage() {
   return (
-    <PlaceholderPage
-      icon={FileQuestion}
-      title="Page not found"
-      description="That route does not exist. Use the navigation above to return to the workspace."
-      phase="404"
-    />
+    <div className="flex min-h-0 flex-1 items-center justify-center">
+      <EmptyState
+        icon={FileQuestion}
+        title="Page not found"
+        description="That route does not exist."
+        action={
+          <Button variant="secondary" asChild>
+            <NavLink to="/">Back to workspace</NavLink>
+          </Button>
+        }
+      />
+    </div>
   )
 }

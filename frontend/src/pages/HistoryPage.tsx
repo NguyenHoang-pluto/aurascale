@@ -1,13 +1,17 @@
-import { Clock } from 'lucide-react'
-import { PlaceholderPage } from './PlaceholderPage'
+import { PhaseNotice } from '@/components/feedback/PhaseNotice'
+import { PageContainer } from './PageContainer'
 
 export function HistoryPage() {
   return (
-    <PlaceholderPage
-      icon={Clock}
+    <PageContainer
       title="History"
-      description="Previously enhanced images with their model, scale and processing time. Backed by SQLite via the job repository."
-      phase="Phase 10"
-    />
+      description="Previously enhanced images, with the model, scale and processing time used for each."
+    >
+      <PhaseNotice
+        title="Enhancement history"
+        description="Thumbnails, input and output dimensions, scale, model, processing time and creation date, with view, download and delete actions. Backed by SQLite through the job repository."
+        phase="Phase 10"
+      />
+    </PageContainer>
   )
 }
