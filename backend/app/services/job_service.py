@@ -31,7 +31,7 @@ from app.core.exceptions import (
 from app.core.logging import get_logger
 from app.models.db import Job
 from app.models.enums import JobStatus, OutputFormat
-from app.repositories.base import JobRepository
+from app.repositories.base import JobRepository, Page
 from app.services.enhancement_service import EnhancementService
 from app.services.image_service import ImageService
 from app.services.model_service import ModelService
@@ -43,6 +43,10 @@ logger = get_logger(__name__)
 
 # Extensions used for the stored upload, by sniffed format.
 INPUT_EXTENSION = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp"}
+
+# History paging bounds, as documented in docs/api.md.
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
 
 STRENGTH_RANGE = (0.0, 1.0)
 TILE_SIZE_RANGE = (0, 2048)
@@ -309,6 +313,45 @@ class JobService:
 
         return job, preview
 
+    async def thumbnail_path(self, job_id: str) -> tuple[Job, Path]:
+        """The cached 256 px tile, built on first request.
+
+        Same lazy cache as the preview: generated off the event loop, written
+        atomically, and reused afterwards. A history grid asks for twenty of
+        these at once, so building them per request would be the page's
+        dominant cost.
+        """
+        job, output = await self.result_path(job_id)
+        thumbnail = self._storage.thumbnail_path(job_id)
+
+        if not thumbnail.is_file():
+            await asyncio.to_thread(self._images.write_thumbnail, output, thumbnail)
+            logger.info("thumbnail generated", extra={"job_id": job_id})
+
+        return job, thumbnail
+
+    async def list_jobs(
+        self, *, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0, status: JobStatus | None = None
+    ) -> Page:
+        """A page of history, newest first.
+
+        Paging and ordering belong to the repository, which has done both since
+        Phase 5; this only bounds what a caller may ask for.
+        """
+        if limit < 1 or limit > MAX_PAGE_SIZE:
+            raise ValidationError(
+                f"limit must be between 1 and {MAX_PAGE_SIZE}.",
+                technical=f"limit={limit}",
+                context={"maximum": MAX_PAGE_SIZE},
+            )
+        if offset < 0:
+            raise ValidationError(
+                "offset cannot be negative.",
+                technical=f"offset={offset}",
+            )
+
+        return await self._repository.list_jobs(limit=limit, offset=offset, status=status)
+
     async def crop_jpeg(self, job_id: str, x: int, y: int, width: int, height: int) -> bytes:
         """A full-resolution slice of the result, for inspection above 100%.
 
@@ -370,8 +413,8 @@ class JobService:
         removed = self._storage.delete(
             job.input_path,
             job.output_path,
-            job.thumbnail_path,
             self._storage.preview_path(job.id),
+            self._storage.thumbnail_path(job.id),
         )
         await self._repository.delete(job.id)
         self._broker.forget(job.id)

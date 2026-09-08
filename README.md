@@ -4,14 +4,15 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 9 of 14 complete.**
+> **Build status — Phase 10 of 14 complete.**
 > The whole loop works in the browser: drop an image in, choose a model, scale
-> and output settings, watch real per-tile progress, then compare before and
-> after with a slider, side by side or a fixed split, and download the result.
-> Real-ESRGAN runs on your GPU (or CPU) with a denoise control backed by DNI
-> weight interpolation. **Past results are not kept** — enhancement history is
-> Phase 10. Every unbuilt region states which phase delivers it.
-> See [Roadmap](#roadmap).
+> and output settings, watch real per-tile progress, compare before and after
+> with a slider, side by side or a fixed split, download the result, and find
+> recent jobs again on the History screen. Real-ESRGAN runs on your GPU (or
+> CPU) with a denoise control backed by DNI weight interpolation. **History is
+> not an archive** — jobs and their images are removed after
+> `TEMP_RETENTION_HOURS`, 24 by default. Every unbuilt region states which
+> phase delivers it. See [Roadmap](#roadmap).
 
 ---
 
@@ -47,7 +48,7 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phases 1-9):
+Implemented today (Phases 1-10):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
@@ -109,13 +110,16 @@ Implemented today (Phases 1-9):
 - A resolution-capped preview keeps large results out of the DOM, and above
   100% zoom the viewer fetches a full-resolution crop of just the visible
   region
+- History of recent jobs with thumbnails, the model, scale, sizes, processing
+  time and outcome, filterable by status and paged, with view, download and
+  delete — and the retention window stated on the page rather than left to be
+  discovered when an entry disappears
 - Environment diagnostic script that explains CUDA problems in plain language
 
 Planned, with the phase that delivers each:
 
 | Feature | Phase |
 | --- | --- |
-| Enhancement history (SQLite) | 10 |
 | Docker images, CPU and GPU profiles | 12 |
 
 ## Architecture
@@ -437,7 +441,7 @@ aurascale/
 | 7 | Async jobs, SSE progress, cancellation | Done |
 | 8 | Frontend/backend integration | Done |
 | 9 | Comparison viewer | Done |
-| 10 | History | Pending |
+| 10 | History | Done |
 | 11 | Test suites | Pending |
 | 12 | Docker | Pending |
 | 13-14 | Performance and UX polish | Pending |

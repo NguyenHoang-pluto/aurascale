@@ -37,6 +37,17 @@ def new_job_id() -> str:
     return uuid.uuid4().hex
 
 
+def _assert_job_id(job_id: str) -> str:
+    """Refuse anything that is not a generated id before it reaches a path.
+
+    Every stored filename is built from one of these, so this is the single
+    point where user-derived text would have to slip through to become a path.
+    """
+    if not job_id or not all(character in "0123456789abcdef" for character in job_id):
+        raise ValueError(f"job_id must be lowercase hex, got {job_id!r}")
+    return job_id
+
+
 class StorageService:
     """Owns the on-disk layout under STORAGE_DIR."""
 
@@ -69,8 +80,7 @@ class StorageService:
         `job_id` must be a generated hex id. Rejecting anything else keeps a
         caller from ever routing user input into a filename.
         """
-        if not job_id or not all(character in "0123456789abcdef" for character in job_id):
-            raise ValueError(f"job_id must be lowercase hex, got {job_id!r}")
+        _assert_job_id(job_id)
 
         input_ext = self._normalise_extension(input_ext)
         output_ext = self._normalise_extension(output_ext)
@@ -78,7 +88,7 @@ class StorageService:
         return JobPaths(
             input=self._settings.inputs_dir / f"{job_id}.{input_ext}",
             output=self._settings.outputs_dir / f"{job_id}.{output_ext}",
-            thumbnail=self._settings.thumbs_dir / f"{job_id}.webp",
+            thumbnail=self.thumbnail_path(job_id),
             preview=self.preview_path(job_id),
         )
 
@@ -89,10 +99,16 @@ class StorageService:
         cache, and a column for it would be a migration plus a second source of
         truth that could disagree with the disk.
         """
-        if not job_id or not all(character in "0123456789abcdef" for character in job_id):
-            raise ValueError(f"job_id must be lowercase hex, got {job_id!r}")
+        return self._settings.previews_dir / f"{_assert_job_id(job_id)}.jpg"
 
-        return self._settings.previews_dir / f"{job_id}.jpg"
+    def thumbnail_path(self, job_id: str) -> Path:
+        """Where a job's cached thumbnail lives.
+
+        Derived the same way, and for the same reason. `Job.thumbnail_path`
+        exists as a column but is deliberately left unused: two records of
+        where one file lives is one too many.
+        """
+        return self._settings.thumbs_dir / f"{_assert_job_id(job_id)}.webp"
 
     @staticmethod
     def _normalise_extension(extension: str) -> str:

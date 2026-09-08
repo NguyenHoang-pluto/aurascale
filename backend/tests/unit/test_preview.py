@@ -20,6 +20,7 @@ from app.core.exceptions import CorruptedImageError, ValidationError
 from app.services.image_service import (
     MAX_CROP_PIXELS,
     PREVIEW_MAX_EDGE,
+    THUMBNAIL_MAX_EDGE,
     CropRegion,
     ImageService,
 )
@@ -222,3 +223,76 @@ def test_a_valid_crop_becomes_a_pillow_box(service: ImageService) -> None:
     region = service.validate_crop(10, 20, 30, 40, bounds=(100, 100))
 
     assert region.box == (10, 20, 40, 60)
+
+
+# ---------------------------------------------------------------- thumbnail
+
+
+def test_a_thumbnail_is_capped_on_its_long_edge(service: ImageService, tmp_path: Path) -> None:
+    source = write_image(tmp_path / "result.png", 4000, 2000)
+
+    thumbnail = service.write_thumbnail(source, tmp_path / "thumb.webp")
+
+    with Image.open(thumbnail) as image:
+        assert max(image.size) == THUMBNAIL_MAX_EDGE
+        assert image.size == (THUMBNAIL_MAX_EDGE, THUMBNAIL_MAX_EDGE // 2)
+
+
+def test_a_thumbnail_keeps_a_tall_aspect_ratio(service: ImageService, tmp_path: Path) -> None:
+    source = write_image(tmp_path / "tall.png", 500, 2000)
+
+    thumbnail = service.write_thumbnail(source, tmp_path / "thumb.webp")
+
+    with Image.open(thumbnail) as image:
+        assert image.height == THUMBNAIL_MAX_EDGE
+        assert image.width == THUMBNAIL_MAX_EDGE // 4
+
+
+def test_a_small_result_is_not_upscaled_into_a_thumbnail(
+    service: ImageService, tmp_path: Path
+) -> None:
+    """A tiny result stays tiny rather than being blown up to fill the tile."""
+    source = write_image(tmp_path / "small.png", 100, 80)
+
+    thumbnail = service.write_thumbnail(source, tmp_path / "thumb.webp")
+
+    with Image.open(thumbnail) as image:
+        assert image.size == (100, 80)
+
+
+def test_a_thumbnail_is_webp_whatever_the_result_was(service: ImageService, tmp_path: Path) -> None:
+    for extension, image_format in [("png", "PNG"), ("jpg", "JPEG"), ("webp", "WEBP")]:
+        source = write_image(tmp_path / f"result.{extension}", 800, 600, image_format)
+
+        thumbnail = service.write_thumbnail(source, tmp_path / f"thumb-{extension}.webp")
+
+        with Image.open(thumbnail) as image:
+            assert image.format == "WEBP"
+
+
+def test_a_thumbnail_is_far_smaller_than_the_result(service: ImageService, tmp_path: Path) -> None:
+    """Twenty of these load at once, so the size is the whole point."""
+    source = write_image(tmp_path / "result.png", 3000, 2000)
+
+    thumbnail = service.write_thumbnail(source, tmp_path / "thumb.webp")
+
+    assert thumbnail.stat().st_size < source.stat().st_size / 100
+
+
+def test_writing_a_thumbnail_leaves_no_partial_file(service: ImageService, tmp_path: Path) -> None:
+    source = write_image(tmp_path / "result.png", 900, 700)
+    destination = tmp_path / "thumbs" / "thumb.webp"
+
+    service.write_thumbnail(source, destination)
+
+    assert destination.is_file()
+    assert list(destination.parent.glob("*.part")) == []
+
+
+def test_an_unreadable_result_makes_no_thumbnail(service: ImageService, tmp_path: Path) -> None:
+    """A missing or corrupt result produces an error, not a blank tile."""
+    broken = tmp_path / "broken.png"
+    broken.write_text("this is not an image at all", encoding="utf-8")
+
+    with pytest.raises(CorruptedImageError):
+        service.write_thumbnail(broken, tmp_path / "thumb.webp")

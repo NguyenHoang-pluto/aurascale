@@ -13,6 +13,7 @@ from pydantic import Field
 
 from app.models.db import Job
 from app.models.enums import JobStage, JobStatus, OutputFormat
+from app.repositories.base import Page
 from app.schemas.common import CamelModel
 
 
@@ -131,4 +132,26 @@ class JobResponse(CamelModel):
             created_at=job.created_at,
             started_at=job.started_at,
             finished_at=job.finished_at,
+        )
+
+
+class JobPage(CamelModel):
+    """One page of history.
+
+    `total` is the size of the whole filtered set, not of this page, so a
+    client can show "20 of 42" and size its pagination without a second call.
+    """
+
+    items: list[JobResponse]
+    total: int = Field(description="Matching jobs in total, ignoring limit and offset")
+    limit: int
+    offset: int
+
+    @classmethod
+    def from_page(cls, page: Page) -> JobPage:
+        return cls(
+            items=[JobResponse.from_job(job) for job in page.items],
+            total=page.total,
+            limit=page.limit,
+            offset=page.offset,
         )

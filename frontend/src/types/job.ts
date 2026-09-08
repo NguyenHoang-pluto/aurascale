@@ -62,6 +62,15 @@ export interface JobRecord {
   finishedAt: string | null
 }
 
+/** One page of history, as returned by `GET /api/jobs`. */
+export interface JobPage {
+  items: JobRecord[]
+  /** Everything matching the filter, not just this page, so a pager can be sized. */
+  total: number
+  limit: number
+  offset: number
+}
+
 export interface JobCreated {
   jobId: string
   status: JobStatus

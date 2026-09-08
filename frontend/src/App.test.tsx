@@ -79,8 +79,9 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    // History is Phase 10, and says so rather than looking functional.
-    await user.click(screen.getByRole('link', { name: 'History' }))
+    // Settings still has unbuilt sections, and they say so rather than
+    // looking functional. History became real in Phase 10.
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
 
     expect(screen.getAllByText(/Arrives in Phase/).length).toBeGreaterThan(0)
   })

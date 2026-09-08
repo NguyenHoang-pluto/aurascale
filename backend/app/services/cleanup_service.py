@@ -67,8 +67,8 @@ class CleanupService:
                 files += self._storage.delete(
                     job.input_path,
                     job.output_path,
-                    job.thumbnail_path,
                     self._storage.preview_path(job.id),
+                    self._storage.thumbnail_path(job.id),
                 )
                 await repository.delete(job.id)
                 expired += 1

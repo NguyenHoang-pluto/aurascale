@@ -5,11 +5,10 @@ Base path: `/api`. Interactive docs at `/docs`, schema at `/openapi.json`.
 Responses use camelCase; request bodies accept camelCase. All errors are RFC
 9457 problem documents with media type `application/problem+json`.
 
-> **Implementation status.** The system endpoints (Phases 2 and 5) and the job
-> endpoints — submit, record, events, result, cancel (Phase 7) — exist today.
-> Still to come: `/preview` (Phase 9), `/thumbnail` and `GET /api/jobs`
-> (Phase 10). Each of those is the agreed contract, implemented in the phase
-> noted against it.
+> **Implementation status.** Every endpoint below exists: the system endpoints
+> (Phases 2 and 5), the job endpoints — submit, record, events, result, cancel
+> (Phase 7) — the preview and crops (Phase 9), and history and thumbnails
+> (Phase 10).
 
 ---
 
@@ -365,7 +364,17 @@ Returns `job_not_completed` (409) before the job finishes, and `job_not_found`
 
 ### `GET /api/jobs/{jobId}/thumbnail`
 
-256 px thumbnail for the history grid. *Phase 10.*
+256 px thumbnail for the history grid, as WEBP.
+
+**Status: implemented (Phase 10).**
+
+Built on first request and cached, so a grid of twenty costs one encode each
+rather than one per view. A result already smaller than the tile is served at
+its own size, never upscaled. Removed with the job, by deletion or by the
+retention sweeper.
+
+Returns `job_not_completed` (409) before the job finishes, and `job_not_found`
+(404) for an unknown job or a result that has already been swept.
 
 ### `DELETE /api/jobs/{jobId}`
 
@@ -386,13 +395,19 @@ Returns `204 No Content`.
 
 ### `GET /api/jobs`
 
-Job history, newest first. *Phase 10.*
+Job history, newest first.
+
+**Status: implemented (Phase 10).**
 
 | Parameter | Default | Notes |
 | --- | --- | --- |
 | `limit` | 20 | Max 100 |
 | `offset` | 0 | |
 | `status` | — | Filter by job status |
+
+Each item has the same shape as `GET /api/jobs/{jobId}`, so a client needs one
+type for both. `total` counts everything matching the filter, not just this
+page, which is what lets a client size a pager without a second call.
 
 ```json
 {
@@ -402,3 +417,11 @@ Job history, newest first. *Phase 10.*
   "offset": 0
 }
 ```
+
+A `limit` above 100, below 1, a negative `offset` or an unknown `status` is
+refused with `422` rather than clamped.
+
+History is as durable as the files behind it: a job and its images are removed
+once `TEMP_RETENTION_HOURS` has passed, so this is a record of recent work
+rather than an archive. A row can briefly outlive its files, in which case the
+entry still lists but `/result` and `/thumbnail` answer `404`.

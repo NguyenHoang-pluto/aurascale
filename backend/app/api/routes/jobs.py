@@ -16,7 +16,8 @@ from app.core.exceptions import ValidationError
 from app.core.logging import get_logger
 from app.models.db import Job
 from app.models.enums import JobStatus, OutputFormat
-from app.schemas.job import JobCreatedResponse, JobResponse
+from app.schemas.job import JobCreatedResponse, JobPage, JobResponse
+from app.services.job_service import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
 logger = get_logger(__name__)
 
@@ -77,6 +78,32 @@ async def create_job(
         queue_position=submitted.queue_position,
         created_at=submitted.job.created_at,
     )
+
+
+@router.get(
+    "",
+    response_model=JobPage,
+    summary="Job history, newest first",
+    description=(
+        "A page of past jobs, most recent first, optionally filtered by status. "
+        "`total` counts everything that matches the filter, not just this page. "
+        "History is as durable as the files behind it: a job and its images are "
+        "removed once their retention window passes, so this is a record of "
+        "recent work rather than an archive."
+    ),
+)
+async def list_jobs(
+    service: JobServiceDep,
+    limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE, description="Page size")] = (
+        DEFAULT_PAGE_SIZE
+    ),
+    offset: Annotated[int, Query(ge=0, description="How many to skip")] = 0,
+    status_filter: Annotated[
+        JobStatus | None, Query(alias="status", description="Only jobs in this state")
+    ] = None,
+) -> JobPage:
+    page = await service.list_jobs(limit=limit, offset=offset, status=status_filter)
+    return JobPage.from_page(page)
 
 
 @router.get(
@@ -198,6 +225,24 @@ async def get_preview(
 
     _, path = await service.preview_path(job_id)
     return FileResponse(path, media_type="image/jpeg", headers=IMMUTABLE_CACHE)
+
+
+@router.get(
+    "/{job_id}/thumbnail",
+    summary="A small tile of the result, for the history grid",
+    description=(
+        "256 px on the long edge, WEBP. Built on first request and cached, so a "
+        "grid of twenty costs one encode each rather than one per view. A result "
+        "already smaller than that is served at its own size, never upscaled."
+    ),
+    responses={
+        200: {"content": {"image/webp": {}}},
+        409: {"description": "The job has not completed"},
+    },
+)
+async def get_thumbnail(job_id: str, service: JobServiceDep) -> FileResponse:
+    _, path = await service.thumbnail_path(job_id)
+    return FileResponse(path, media_type="image/webp", headers=IMMUTABLE_CACHE)
 
 
 @router.delete(

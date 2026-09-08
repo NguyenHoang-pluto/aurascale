@@ -58,6 +58,11 @@ PREVIEW_QUALITY = 92
 # result is not a crop, and serving one would defeat the cap above.
 MAX_CROP_PIXELS = 4096 * 4096
 
+# The history grid's tile. WEBP because a grid loads many at once and the
+# format is a third of the bytes of JPEG at this size.
+THUMBNAIL_MAX_EDGE = 256
+THUMBNAIL_QUALITY = 82
+
 
 @dataclass(frozen=True, slots=True)
 class CropRegion:
@@ -379,6 +384,24 @@ class ImageService:
         requests racing to build the same preview cannot leave a half-written
         file for a third to serve.
         """
+        return self._write_capped_copy(
+            source,
+            destination,
+            max_edge=PREVIEW_MAX_EDGE,
+            image_format="JPEG",
+            quality=PREVIEW_QUALITY,
+        )
+
+    def _write_capped_copy(
+        self,
+        source: Path,
+        destination: Path,
+        *,
+        max_edge: int,
+        image_format: str,
+        quality: int,
+    ) -> Path:
+        """Shared body of the preview and thumbnail writers."""
         destination.parent.mkdir(parents=True, exist_ok=True)
 
         try:
@@ -386,9 +409,11 @@ class ImageService:
                 # draft() lets the JPEG decoder skip straight to a reduced
                 # resolution, so a large JPEG result never fully decodes here.
                 # It is a no-op for other formats.
-                opened.draft("RGB", (PREVIEW_MAX_EDGE, PREVIEW_MAX_EDGE))
+                opened.draft("RGB", (max_edge, max_edge))
                 image = opened.convert("RGB")
-                image.thumbnail((PREVIEW_MAX_EDGE, PREVIEW_MAX_EDGE), Image.Resampling.LANCZOS)
+                # thumbnail() only ever shrinks, which is the never-upscale
+                # rule enforced by Pillow rather than restated here.
+                image.thumbnail((max_edge, max_edge), Image.Resampling.LANCZOS)
 
                 handle, temporary_name = tempfile.mkstemp(
                     prefix=f".{destination.stem}.", suffix=".part", dir=destination.parent
@@ -397,7 +422,7 @@ class ImageService:
                 temporary = Path(temporary_name)
 
                 try:
-                    image.save(temporary, format="JPEG", quality=PREVIEW_QUALITY, optimize=True)
+                    image.save(temporary, format=image_format, quality=quality, optimize=True)
                     temporary.replace(destination)
                 except Exception:
                     temporary.unlink(missing_ok=True)
@@ -409,6 +434,21 @@ class ImageService:
             ) from exc
 
         return destination
+
+    def write_thumbnail(self, source: Path, destination: Path) -> Path:
+        """A 256 px WEBP tile for the history grid, written atomically.
+
+        Shares the preview's shape deliberately: same never-upscale rule, same
+        temp-then-move write, same lazy cache. A result smaller than the tile
+        is stored at its own size rather than blown up to fill the square.
+        """
+        return self._write_capped_copy(
+            source,
+            destination,
+            max_edge=THUMBNAIL_MAX_EDGE,
+            image_format="WEBP",
+            quality=THUMBNAIL_QUALITY,
+        )
 
     def crop_to_jpeg(self, source: Path, region: CropRegion) -> bytes:
         """A full-resolution slice of a result, encoded as JPEG.
