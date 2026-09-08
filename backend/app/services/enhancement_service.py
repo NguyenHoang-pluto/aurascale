@@ -35,10 +35,40 @@ SECOND_PASS_MODEL = "RealESRGAN_x2plus"
 
 SUPPORTED_SCALES = (2, 4, 8)
 
-# Unsharp masking parameters. Radius is in output pixels; the strength the user
-# sets scales the amount of the high-frequency component added back.
-SHARPEN_RADIUS = 3
+# Unsharp masking parameters.
+#
+# The radius is a Gaussian sigma in *output* pixels, and it has to follow the
+# upscale factor. After an Nx enlargement the finest real structure - what the
+# source resolved - spans roughly N output pixels, so a fixed radius sharpens
+# a different thing at every scale: at 8x a sigma of 3 works almost entirely on
+# frequencies the model interpolated, which carry the least real information.
+# Scaling the radius keeps the filter pointed at the detail that came from the
+# image rather than from the upsampling.
+#
+# 0.75 is chosen so that 4x - the default scale - lands on sigma 3.0, exactly
+# what shipped before. 2x and 8x move relative to that anchor rather than to a
+# new guess.
+SHARPEN_SIGMA_PER_SCALE = 0.75
+SHARPEN_SIGMA_RANGE = (1.0, 6.0)
 SHARPEN_MAX_AMOUNT = 1.5
+
+# Shaping applied to the high-frequency component before it is added back, in
+# 0-255 units. Both ends matter and they do different jobs:
+#
+#   * below the floor the detail is discarded, so sensor noise and compression
+#     mottle in flat regions are not amplified into visible grain;
+#   * above the ceiling it is clamped, which is what limits the bright and dark
+#     rim - the halo - that unsharp masking leaves along a strong edge.
+#
+# Between the two the response is linear, which is where texture lives. That is
+# the whole design: little change in flat areas, most of the effect on
+# mid-amplitude micro-detail, and a bounded amount on hard edges.
+SHARPEN_NOISE_FLOOR = 2.0
+SHARPEN_DETAIL_CEILING = 10.0
+
+# Rec.709 luma. The sharpening correction is computed on this and added equally
+# to R, G and B, which preserves colour relationships.
+LUMA_WEIGHTS = (0.2126, 0.7152, 0.0722)
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,7 +265,7 @@ class EnhancementService:
 
         sharpened = request.sharpen_strength > 0
         if sharpened:
-            current = unsharp_mask(current, request.sharpen_strength)
+            current = unsharp_mask(current, request.sharpen_strength, scale=request.scale)
 
         if alpha is not None:
             current = attach_alpha(current, alpha)
@@ -317,12 +347,45 @@ def attach_alpha(colour: np.ndarray[Any, Any], alpha: np.ndarray[Any, Any]) -> n
     return np.dstack([colour, alpha])
 
 
-def unsharp_mask(image: np.ndarray[Any, Any], strength: float) -> np.ndarray[Any, Any]:
+def sharpen_sigma(scale: int) -> float:
+    """The Gaussian sigma to sharpen an `scale`x result with, in output pixels.
+
+    Proportional to the upscale factor, then clamped. Deliberately *not* a
+    strength multiplier: turning the amount up at 8x would drive the same
+    interpolated frequencies harder and produce halos, where moving the radius
+    changes which frequencies are touched at all.
+    """
+    low, high = SHARPEN_SIGMA_RANGE
+    return float(min(high, max(low, SHARPEN_SIGMA_PER_SCALE * scale)))
+
+
+def unsharp_mask(
+    image: np.ndarray[Any, Any], strength: float, *, scale: int = 4
+) -> np.ndarray[Any, Any]:
     """Post-process sharpening. Not a model, and labelled as such in the UI.
 
-    `strength` is 0..1 and scales the amount of the high-frequency component
-    added back. Everything is done in float and clipped once, so the highlights
-    do not wrap to black at high strengths.
+    An unsharp mask with three changes from the plain form, each aimed at one
+    of the ways plain unsharp masking looks artificial:
+
+      * the radius follows the upscale factor (`sharpen_sigma`), so the filter
+        works on structure the source actually resolved rather than on whatever
+        the upsampling invented;
+      * the high-frequency component is taken on **luma** and added equally to
+        R, G and B. That moves each pixel along the neutral axis, so hue and
+        saturation are preserved and no coloured fringe appears on an edge -
+        which is what sharpening the three channels independently produces;
+      * that component is shaped by a dead zone and a ceiling before it is
+        added back, which is what keeps flat regions quiet and edges free of a
+        pronounced rim.
+
+    `strength` is 0..1 and keeps its existing meaning and range - the UI is
+    unchanged. `scale` is the job's upscale factor.
+
+    Deterministic: same input, same output, no randomness anywhere.
+
+    Alpha is not sharpened. The pipeline splits it off before this is reached,
+    and a four-channel array is handled here as well only so the function is
+    correct on its own terms.
     """
     import cv2
 
@@ -332,15 +395,45 @@ def unsharp_mask(image: np.ndarray[Any, Any], strength: float) -> np.ndarray[Any
             technical=f"sharpen_strength={strength}",
         )
 
+    # A true no-op, and the same array back rather than a copy: sharpening off
+    # must not cost a round trip through float or change a single byte.
     if strength == 0:
         return image
 
+    colour = image[:, :, :3]
     amount = strength * SHARPEN_MAX_AMOUNT
-    source = image.astype(np.float32)
-    blurred = cv2.GaussianBlur(source, (0, 0), SHARPEN_RADIUS)
-    sharpened = source * (1.0 + amount) - blurred * amount
+    sigma = sharpen_sigma(scale)
 
-    return np.clip(sharpened, 0.0, 255.0).astype(np.uint8)
+    source = colour.astype(np.float32)
+    # Rec.709 luma. One channel rather than three: a third of the memory, and
+    # it is the channel the eye reads detail in.
+    detail = source @ np.array(LUMA_WEIGHTS, dtype=np.float32)
+
+    blurred = cv2.GaussianBlur(detail, (0, 0), sigma)
+    detail -= blurred
+
+    # Dead zone, then ceiling, written as two clips so the whole shaping runs
+    # in place. `d - clip(d, -floor, floor)` is a soft threshold: it is exactly
+    # zero inside the dead zone and shrinks everything outside it by `floor`,
+    # sign intact and with no separate magnitude array to hold.
+    np.clip(detail, -SHARPEN_NOISE_FLOOR, SHARPEN_NOISE_FLOOR, out=blurred)
+    detail -= blurred
+    del blurred
+    np.clip(detail, -SHARPEN_DETAIL_CEILING, SHARPEN_DETAIL_CEILING, out=detail)
+    detail *= amount
+
+    # Broadcast in place: adding the single-channel correction to all three
+    # never materialises a second full-size float array.
+    source += detail[:, :, None]
+    del detail
+    np.clip(source, 0.0, 255.0, out=source)
+    result = source.astype(np.uint8)
+
+    if image.shape[2] == 3:
+        return result
+
+    # Alpha carried through untouched.
+    return np.dstack([result, image[:, :, 3]])
 
 
 def _scaled_progress(

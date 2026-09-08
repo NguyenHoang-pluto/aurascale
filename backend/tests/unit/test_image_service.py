@@ -506,3 +506,113 @@ def test_a_real_16000x12000_result_produces_a_preview_and_a_thumbnail(
     with Image.open(thumbnail) as opened:
         assert max(opened.size) == THUMBNAIL_MAX_EDGE
 
+
+# ------------------------------------------------------------ jpeg chroma
+
+
+def sampling_of(path: Path) -> int:
+    """0 is 4:4:4, 2 is 4:2:0. Read back from the encoded file, not asserted
+    from the options we passed - the point is what libjpeg actually wrote."""
+    from PIL import JpegImagePlugin
+
+    with Image.open(path) as opened:
+        return int(JpegImagePlugin.get_sampling(opened))
+
+
+def test_jpeg_is_written_with_full_chroma_resolution(service: ImageService, tmp_path: Path) -> None:
+    """Pillow's default is 4:2:0 at every quality, 100 included.
+
+    That halved chroma on the file a user downloads as their finished result.
+    It is not luminance detail - subsampling never touched luma - but it is
+    the colour detail in skin, foliage and saturated edges.
+    """
+    destination = tmp_path / "out.jpg"
+
+    service.encode(
+        np.asarray(make_image(64, 48)), destination, output_format=OutputFormat.JPEG, quality=92
+    )
+
+    assert sampling_of(destination) == 0
+
+
+@pytest.mark.parametrize("quality", [50, 75, 92, 100])
+def test_full_chroma_holds_at_every_quality(
+    service: ImageService, tmp_path: Path, quality: int
+) -> None:
+    destination = tmp_path / f"out-{quality}.jpg"
+
+    service.encode(
+        np.asarray(make_image(64, 48)),
+        destination,
+        output_format=OutputFormat.JPEG,
+        quality=quality,
+    )
+
+    assert sampling_of(destination) == 0
+
+
+def test_full_chroma_preserves_colour_detail_a_subsampled_file_loses(
+    service: ImageService, tmp_path: Path
+) -> None:
+    """The measurable point of the change, on chroma the eye can see.
+
+    Alternating red and blue columns put all the detail in chroma and none in
+    luma, which is exactly what 4:2:0 discards.
+    """
+    columns = np.zeros((64, 64, 3), dtype=np.uint8)
+    columns[:, 0::2] = (200, 40, 40)
+    columns[:, 1::2] = (40, 40, 200)
+    source = Image.fromarray(columns)
+
+    full = tmp_path / "full.jpg"
+    service.encode(columns, full, output_format=OutputFormat.JPEG, quality=92)
+
+    subsampled = tmp_path / "subsampled.jpg"
+    source.save(subsampled, format="JPEG", quality=92, subsampling=2)
+
+    def chroma_error(path: Path) -> float:
+        with Image.open(path) as opened:
+            decoded = np.asarray(opened.convert("RGB"), dtype=np.int16)
+        return float(np.abs(decoded - columns.astype(np.int16)).mean())
+
+    assert chroma_error(full) < chroma_error(subsampled)
+
+
+def test_the_jpeg_still_decodes_at_the_right_size_and_mode(
+    service: ImageService, tmp_path: Path
+) -> None:
+    destination = tmp_path / "out.jpg"
+
+    service.encode(
+        np.asarray(make_image(70, 50)), destination, output_format=OutputFormat.JPEG, quality=92
+    )
+
+    with Image.open(destination) as opened:
+        assert opened.format == "JPEG"
+        assert opened.size == (70, 50)
+        assert opened.convert("RGB").size == (70, 50)
+
+
+def test_png_is_untouched_by_the_chroma_change(service: ImageService, tmp_path: Path) -> None:
+    """PNG has no chroma subsampling and must not have gained an option."""
+    destination = tmp_path / "out.png"
+
+    service.encode(np.asarray(make_image(32, 32)), destination, output_format=OutputFormat.PNG)
+
+    with Image.open(destination) as opened:
+        assert opened.format == "PNG"
+
+
+def test_a_full_resolution_crop_also_uses_full_chroma(
+    service: ImageService, tmp_path: Path
+) -> None:
+    """Since Phase 1 this is what the viewer shows from 100 % upward."""
+    from PIL import JpegImagePlugin
+
+    source = write_image(tmp_path / "result.png", make_image(64, 64))
+    region = service.validate_crop(0, 0, 32, 32, bounds=(64, 64))
+
+    encoded = service.crop_to_jpeg(source, region)
+
+    with Image.open(io.BytesIO(encoded)) as opened:
+        assert int(JpegImagePlugin.get_sampling(opened)) == 0

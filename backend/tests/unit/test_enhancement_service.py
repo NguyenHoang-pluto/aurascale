@@ -17,10 +17,14 @@ from app.core.config import Settings, get_settings
 from app.core.exceptions import ValidationError
 from app.inference.upscaler import UpscaleReport
 from app.services.enhancement_service import (
+    SHARPEN_DETAIL_CEILING,
+    SHARPEN_MAX_AMOUNT,
+    SHARPEN_SIGMA_RANGE,
     SUPPORTED_SCALES,
     EnhancementRequest,
     EnhancementService,
     attach_alpha,
+    sharpen_sigma,
     split_alpha,
     unsharp_mask,
 )
@@ -314,6 +318,177 @@ def test_sharpening_does_not_wrap_the_highlights() -> None:
 def test_an_out_of_range_sharpen_strength_is_refused(strength: float) -> None:
     with pytest.raises(ValidationError, match="between 0 and 1"):
         unsharp_mask(image(), strength)
+
+
+# ------------------------------------------------------ adaptive sharpening
+
+
+def grey(value: float, size: int = 128) -> np.ndarray[Any, Any]:
+    """A flat RGB field."""
+    return np.repeat(np.full((size, size), value, np.uint8)[:, :, None], 3, axis=2)
+
+
+def textured(sigma: float, size: int = 128, seed: int = 0) -> np.ndarray[Any, Any]:
+    """Mid-grey plus gaussian variation of a known amplitude."""
+    generator = np.random.default_rng(seed)
+    field = np.clip(128 + generator.normal(0, sigma, (size, size)), 0, 255).astype(np.uint8)
+    return np.repeat(field[:, :, None], 3, axis=2)
+
+
+def hard_edge(size: int = 128) -> np.ndarray[Any, Any]:
+    """One strong vertical step - where halos appear if they are going to."""
+    field = np.full((size, size), 40, np.uint8)
+    field[:, size // 2 :] = 200
+    return np.repeat(field[:, :, None], 3, axis=2)
+
+
+def mean_change(before: np.ndarray[Any, Any], after: np.ndarray[Any, Any]) -> float:
+    return float(np.abs(after.astype(int) - before.astype(int)).mean())
+
+
+@pytest.mark.parametrize("scale", [2, 4, 8])
+def test_zero_strength_is_a_true_no_op_at_every_scale(scale: int) -> None:
+    """The most important property: off means untouched, not "almost"."""
+    source = textured(12.0)
+
+    result = unsharp_mask(source, 0.0, scale=scale)
+
+    assert np.array_equal(result, source)
+    # The same array, not a copy that happens to be equal.
+    assert result is source
+
+
+def test_the_radius_follows_the_upscale_factor() -> None:
+    """A fixed radius sharpens a different thing at every scale."""
+    assert sharpen_sigma(2) == 1.5
+    # 4x is the anchor: exactly the sigma that shipped before.
+    assert sharpen_sigma(4) == 3.0
+    assert sharpen_sigma(8) == 6.0
+
+
+def test_the_radius_is_clamped_at_both_ends() -> None:
+    low, high = SHARPEN_SIGMA_RANGE
+
+    assert sharpen_sigma(1) == low
+    assert sharpen_sigma(64) == high
+
+
+@pytest.mark.parametrize("scale", [2, 4, 8])
+def test_a_flat_region_is_left_alone_at_every_scale(scale: int) -> None:
+    """Nothing to sharpen means nothing done - no drift, no grain."""
+    source = grey(128)
+
+    assert np.array_equal(unsharp_mask(source, 1.0, scale=scale), source)
+
+
+@pytest.mark.parametrize("scale", [2, 4, 8])
+def test_noise_in_a_flat_region_is_not_amplified_like_texture(scale: int) -> None:
+    """The dead zone is what separates sensor noise from real detail.
+
+    Both images are stochastic; only the amplitude differs. Sharpening that
+    treated them alike would turn a clean sky into visible grain.
+    """
+    noise = textured(3.0)
+    texture = textured(14.0)
+
+    noise_change = mean_change(noise, unsharp_mask(noise, 1.0, scale=scale))
+    texture_change = mean_change(texture, unsharp_mask(texture, 1.0, scale=scale))
+
+    assert texture_change > noise_change * 3
+
+
+def test_fine_texture_gains_local_contrast() -> None:
+    source = textured(14.0)
+
+    sharpened = unsharp_mask(source, 1.0, scale=4)
+
+    assert float(sharpened.std()) > float(source.std())
+
+
+def test_the_halo_on_a_strong_edge_is_bounded() -> None:
+    """The ceiling exists precisely to make this bound provable.
+
+    Overshoot cannot exceed `ceiling * max_amount` whatever the edge does, so
+    a hard step cannot be driven to black and white the way plain unsharp
+    masking drives it.
+    """
+    source = hard_edge()
+
+    row_before = source[64, :, 0].astype(int)
+    row_after = unsharp_mask(source, 1.0, scale=4)[64, :, 0].astype(int)
+
+    overshoot = max(
+        row_after.max() - row_before.max(),
+        row_before.min() - row_after.min(),
+    )
+    assert 0 < overshoot <= SHARPEN_DETAIL_CEILING * SHARPEN_MAX_AMOUNT
+
+
+def test_a_strong_edge_is_not_driven_to_the_ends_of_the_range() -> None:
+    """Plain unsharp masking clips a 40/200 step to 0 and 255. This must not."""
+    sharpened = unsharp_mask(hard_edge(), 1.0, scale=4)
+
+    assert sharpened.min() > 0
+    assert sharpened.max() < 255
+
+
+def test_colour_relationships_are_preserved() -> None:
+    """The correction is luma-based and added equally to R, G and B.
+
+    Sharpening the channels independently pulls them apart at an edge, which
+    is what a coloured fringe is.
+    """
+    source = np.zeros((64, 64, 3), np.uint8)
+    source[:, :32] = (60, 90, 140)
+    source[:, 32:] = (180, 150, 100)
+
+    sharpened = unsharp_mask(source, 1.0, scale=4)
+
+    before = source.astype(int)
+    after = sharpened.astype(int)
+    # Every channel moved by the same amount, so hue is untouched.
+    delta = after - before
+    assert np.array_equal(delta[:, :, 0], delta[:, :, 1])
+    assert np.array_equal(delta[:, :, 1], delta[:, :, 2])
+
+
+def test_an_rgba_image_keeps_its_alpha_untouched() -> None:
+    """Alpha is never sharpened - the pipeline splits it, and so does this."""
+    colour = textured(14.0, size=64)
+    alpha = np.linspace(0, 255, 64 * 64, dtype=np.uint8).reshape(64, 64)
+    source = np.dstack([colour, alpha])
+
+    sharpened = unsharp_mask(source, 1.0, scale=4)
+
+    assert sharpened.shape == source.shape
+    assert np.array_equal(sharpened[:, :, 3], alpha)
+    assert not np.array_equal(sharpened[:, :, :3], colour)
+
+
+def test_rgb_input_returns_three_channels() -> None:
+    sharpened = unsharp_mask(textured(14.0, size=64), 1.0, scale=4)
+
+    assert sharpened.shape[2] == 3
+    assert sharpened.dtype == np.uint8
+
+
+def test_sharpening_is_deterministic() -> None:
+    source = textured(14.0)
+
+    first = unsharp_mask(source, 0.7, scale=4)
+    second = unsharp_mask(source, 0.7, scale=4)
+
+    assert np.array_equal(first, second)
+
+
+def test_a_stronger_setting_changes_more_than_a_weaker_one() -> None:
+    """The existing 0..1 UI semantics still mean what they meant."""
+    source = textured(14.0)
+
+    gentle = mean_change(source, unsharp_mask(source, 0.25, scale=4))
+    firm = mean_change(source, unsharp_mask(source, 1.0, scale=4))
+
+    assert firm > gentle > 0
 
 
 # --------------------------------------------------------------------- misc

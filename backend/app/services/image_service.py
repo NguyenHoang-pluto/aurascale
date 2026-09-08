@@ -52,6 +52,16 @@ UPLOAD_CHUNK_BYTES = 1024 * 64
 
 JPEG_QUALITY_RANGE = (50, 100)
 
+# Full-resolution chroma. Pillow's default is -1, which libjpeg reads as 4:2:0
+# and which it keeps at *every* quality, 100 included - so the shipped q92
+# output was byte-identical to forcing 4:2:0.
+#
+# That halves chroma resolution in both axes, on the file a user downloads as
+# the finished result. It costs roughly twice the bytes and buys back the
+# colour detail: skin, foliage, fabric and saturated edges. It adds no
+# luminance detail, because subsampling never touched luma.
+JPEG_SUBSAMPLING_444 = 0
+
 # The comparison viewer's base layer. Long edge capped so a 200 MP result is
 # never handed to a browser whole; JPEG because this is a view, not a download.
 PREVIEW_MAX_EDGE = 4096
@@ -398,6 +408,8 @@ class ImageService:
             options["quality"] = self.validate_quality(quality)
             if output_format is OutputFormat.WEBP:
                 options["method"] = 4
+            if output_format is OutputFormat.JPEG:
+                options["subsampling"] = JPEG_SUBSAMPLING_444
 
         if source is None:
             return options
@@ -522,7 +534,16 @@ class ImageService:
             # of a 192 MP 8x output must not be refused as a bomb.
             with open_trusted(source) as opened:
                 cropped = opened.convert("RGB").crop(region.box)
-                cropped.save(buffer, format="JPEG", quality=PREVIEW_QUALITY)
+                # 4:4:4 here too. Since Phase 1 this is what the comparison
+                # viewer shows from 100 % upward, so it is the surface a user
+                # actually inspects detail on - subsampling it would put the
+                # chroma loss back exactly where it is most visible.
+                cropped.save(
+                    buffer,
+                    format="JPEG",
+                    quality=PREVIEW_QUALITY,
+                    subsampling=JPEG_SUBSAMPLING_444,
+                )
         except (
             UnidentifiedImageError,
             Image.DecompressionBombError,
