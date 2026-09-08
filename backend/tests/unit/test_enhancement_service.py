@@ -16,16 +16,23 @@ import pytest
 from app.core.config import Settings, get_settings
 from app.core.exceptions import ValidationError
 from app.inference.upscaler import UpscaleReport
+from app.services import enhancement_service
 from app.services.enhancement_service import (
+    LUMA_WEIGHTS,
     SHARPEN_DETAIL_CEILING,
     SHARPEN_MAX_AMOUNT,
+    SHARPEN_MIN_STRIP_ROWS,
+    SHARPEN_NOISE_FLOOR,
     SHARPEN_SIGMA_RANGE,
+    SHARPEN_STRIP_BYTES,
     SUPPORTED_SCALES,
     EnhancementRequest,
     EnhancementService,
     attach_alpha,
+    blur_margin,
     sharpen_sigma,
     split_alpha,
+    strip_rows,
     unsharp_mask,
 )
 from app.services.model_service import ModelService
@@ -489,6 +496,152 @@ def test_a_stronger_setting_changes_more_than_a_weaker_one() -> None:
     firm = mean_change(source, unsharp_mask(source, 1.0, scale=4))
 
     assert firm > gentle > 0
+
+
+# --------------------------------------------- sharpening in bounded strips
+
+
+def whole_frame_reference(
+    image: np.ndarray[Any, Any], strength: float, scale: int
+) -> np.ndarray[Any, Any]:
+    """The sharpener as it was before strips, kept as an oracle.
+
+    An 8x result reaches 195 MP, where this version asks OpenCV for a single
+    780 MB block for the blur alone and 2.2 GiB for the float conversion before
+    it. The strip form must produce exactly the same pixels, so it is checked
+    against this rather than against itself.
+    """
+    import cv2
+
+    amount = strength * SHARPEN_MAX_AMOUNT
+    sigma = sharpen_sigma(scale)
+    source = image[:, :, :3].astype(np.float32)
+    detail = source @ np.array(LUMA_WEIGHTS, dtype=np.float32)
+
+    blurred = cv2.GaussianBlur(detail, (0, 0), sigma)
+    detail -= blurred
+    np.clip(detail, -SHARPEN_NOISE_FLOOR, SHARPEN_NOISE_FLOOR, out=blurred)
+    detail -= blurred
+    del blurred
+    np.clip(detail, -SHARPEN_DETAIL_CEILING, SHARPEN_DETAIL_CEILING, out=detail)
+    detail *= amount
+
+    source += detail[:, :, None]
+    np.clip(source, 0.0, 255.0, out=source)
+    result = source.astype(np.uint8)
+
+    if image.shape[2] == 3:
+        return result
+    return np.dstack([result, image[:, :, 3]])
+
+
+@pytest.fixture
+def tiny_strips(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Force many strips on a small image.
+
+    Without this the default budget swallows any test-sized image in one
+    strip and the boundary logic - the only part that can be wrong - is never
+    executed.
+    """
+    monkeypatch.setattr(enhancement_service, "SHARPEN_STRIP_BYTES", 1)
+    monkeypatch.setattr(enhancement_service, "SHARPEN_MIN_STRIP_ROWS", 8)
+
+
+@pytest.mark.parametrize("scale", [2, 4, 8])
+@pytest.mark.parametrize("channels", [3, 4])
+def test_strips_are_bit_identical_to_whole_frame(
+    tiny_strips: None, scale: int, channels: int
+) -> None:
+    """Every strip boundary must be invisible, at every radius.
+
+    The margin is what makes this true: a strip reads the rows the kernel
+    reaches into and discards them afterwards, so the blur sees the same
+    neighbours it would have in one pass. 8x is the important case, because
+    its sigma of 6 has the widest support and therefore the most to get wrong.
+    """
+    generator = np.random.default_rng(4)
+    source = generator.integers(0, 256, (200, 160, channels), dtype=np.uint8)
+
+    assert np.array_equal(
+        unsharp_mask(source, 0.6, scale=scale),
+        whole_frame_reference(source, 0.6, scale),
+    )
+
+
+def test_strips_are_identical_even_one_row_at_a_time(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The most adversarial split there is: a boundary at every row."""
+    monkeypatch.setattr(enhancement_service, "SHARPEN_STRIP_BYTES", 1)
+    monkeypatch.setattr(enhancement_service, "SHARPEN_MIN_STRIP_ROWS", 1)
+    source = np.repeat(
+        np.where((np.arange(120)[None, :] // 11) % 2 == 0, 20, 230)
+        .repeat(90, 0)
+        .astype(np.uint8)[:, :, None],
+        3,
+        axis=2,
+    )
+
+    assert np.array_equal(
+        unsharp_mask(source, 1.0, scale=8),
+        whole_frame_reference(source, 1.0, scale=8),
+    )
+
+
+def test_the_blur_margin_covers_the_kernel_support() -> None:
+    """Measured, not assumed: a float Gaussian reaches exactly 4 sigma."""
+    for scale in (2, 4, 8):
+        sigma = sharpen_sigma(scale)
+        assert blur_margin(sigma) >= 4 * sigma
+
+
+def test_the_working_set_is_bounded_by_the_budget_not_the_image() -> None:
+    """The whole point: an 8x result must not cost more than a small one.
+
+    The reported failure was a single 780 MB allocation for the blur of a
+    195 MP frame. A strip's widest intermediate is float32 RGB at 12 bytes a
+    pixel, and it has to stay inside the budget however wide the result is.
+    """
+    for width in (1280, 5600, 16128, 32000):
+        rows = strip_rows(width)
+        working_set = rows * width * 12
+        assert rows >= SHARPEN_MIN_STRIP_ROWS
+        if rows > SHARPEN_MIN_STRIP_ROWS:
+            assert working_set <= SHARPEN_STRIP_BYTES, width
+
+
+def test_an_eight_x_sized_frame_is_processed_in_many_strips() -> None:
+    """Guards the guard: if this ever became one strip, the fix would be gone."""
+    # 16128 px wide is the failing 8x output from the report.
+    rows = strip_rows(16128)
+
+    assert rows < 12096
+    assert 12096 // rows > 10
+
+
+def test_a_degenerate_width_still_yields_a_usable_strip() -> None:
+    assert strip_rows(0) == SHARPEN_MIN_STRIP_ROWS
+    assert strip_rows(1) >= SHARPEN_MIN_STRIP_ROWS
+
+
+def test_the_callers_array_is_never_mutated(tiny_strips: None) -> None:
+    """Strips write into a copy; the input must come back untouched."""
+    generator = np.random.default_rng(9)
+    source = generator.integers(0, 256, (120, 100, 3), dtype=np.uint8)
+    original = source.copy()
+
+    unsharp_mask(source, 0.8, scale=8)
+
+    assert np.array_equal(source, original)
+
+
+def test_alpha_survives_strip_processing(tiny_strips: None) -> None:
+    colour = np.random.default_rng(2).integers(0, 256, (150, 120, 3), dtype=np.uint8)
+    alpha = np.linspace(0, 255, 150 * 120, dtype=np.uint8).reshape(150, 120)
+    source = np.dstack([colour, alpha])
+
+    sharpened = unsharp_mask(source, 0.8, scale=8)
+
+    assert sharpened.shape == source.shape
+    assert np.array_equal(sharpened[:, :, 3], alpha)
 
 
 # --------------------------------------------------------------------- misc

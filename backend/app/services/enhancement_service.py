@@ -11,6 +11,7 @@ a post-process. There is no control here that pretends to be AI.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -69,6 +70,17 @@ SHARPEN_DETAIL_CEILING = 10.0
 # Rec.709 luma. The sharpening correction is computed on this and added equally
 # to R, G and B, which preserves colour relationships.
 LUMA_WEIGHTS = (0.2126, 0.7152, 0.0722)
+
+# How much of the image the sharpener holds in float at once, in bytes of the
+# widest intermediate. An 8x result can reach 195 MP, where converting the
+# whole frame to float32 is 2.2 GiB and the blur of its luma another 744 MiB -
+# more than the machine has, and the allocation OpenCV fails on. Working a
+# strip at a time makes the cost a function of this budget and the image width
+# rather than of the output size, so a 195 MP job costs the same as a 12 MP one.
+SHARPEN_STRIP_BYTES = 64 * 1024 * 1024
+# Never go below this many rows, or a very wide image would be processed in
+# slivers and pay the per-strip overhead many times over.
+SHARPEN_MIN_STRIP_ROWS = 64
 
 
 @dataclass(frozen=True, slots=True)
@@ -359,6 +371,30 @@ def sharpen_sigma(scale: int) -> float:
     return float(min(high, max(low, SHARPEN_SIGMA_PER_SCALE * scale)))
 
 
+def blur_margin(sigma: float) -> int:
+    """Rows a strip must overlap its neighbour by for the blur to be exact.
+
+    `cv2.GaussianBlur` with `ksize=(0, 0)` derives the kernel from sigma, and
+    for a float image its support reaches exactly 4 sigma - measured, not
+    assumed. A couple of rows are added on top so the margin cannot be short
+    if OpenCV ever rounds differently.
+    """
+    return math.ceil(4.0 * sigma) + 2
+
+
+def strip_rows(width: int) -> int:
+    """How many rows to sharpen at once, from a fixed byte budget.
+
+    Derived from the width so the working set is bounded by
+    `SHARPEN_STRIP_BYTES` however wide the result is, rather than growing with
+    it. The widest intermediate is the strip in float32 RGB, at 12 bytes a
+    pixel.
+    """
+    if width <= 0:
+        return SHARPEN_MIN_STRIP_ROWS
+    return max(SHARPEN_MIN_STRIP_ROWS, SHARPEN_STRIP_BYTES // (width * 12))
+
+
 def unsharp_mask(
     image: np.ndarray[Any, Any], strength: float, *, scale: int = 4
 ) -> np.ndarray[Any, Any]:
@@ -400,40 +436,54 @@ def unsharp_mask(
     if strength == 0:
         return image
 
-    colour = image[:, :, :3]
     amount = strength * SHARPEN_MAX_AMOUNT
     sigma = sharpen_sigma(scale)
+    height, width = image.shape[:2]
 
-    source = colour.astype(np.float32)
-    # Rec.709 luma. One channel rather than three: a third of the memory, and
-    # it is the channel the eye reads detail in.
-    detail = source @ np.array(LUMA_WEIGHTS, dtype=np.float32)
+    # A copy, so alpha and the caller's array both survive untouched. Only the
+    # three colour channels are written below.
+    result = image.copy()
+    weights = np.array(LUMA_WEIGHTS, dtype=np.float32)
+    margin = blur_margin(sigma)
+    rows = strip_rows(width)
 
-    blurred = cv2.GaussianBlur(detail, (0, 0), sigma)
-    detail -= blurred
+    for top in range(0, height, rows):
+        bottom = min(height, top + rows)
+        # Read the neighbouring rows the blur kernel reaches into, so a strip
+        # boundary is not a discontinuity. Where this clamps, it clamps at the
+        # real image edge and OpenCV's border handling is the same one the
+        # whole-frame blur would have applied - which is what makes the result
+        # identical to processing the image in one piece.
+        read_top = max(0, top - margin)
+        read_bottom = min(height, bottom + margin)
 
-    # Dead zone, then ceiling, written as two clips so the whole shaping runs
-    # in place. `d - clip(d, -floor, floor)` is a soft threshold: it is exactly
-    # zero inside the dead zone and shrinks everything outside it by `floor`,
-    # sign intact and with no separate magnitude array to hold.
-    np.clip(detail, -SHARPEN_NOISE_FLOOR, SHARPEN_NOISE_FLOOR, out=blurred)
-    detail -= blurred
-    del blurred
-    np.clip(detail, -SHARPEN_DETAIL_CEILING, SHARPEN_DETAIL_CEILING, out=detail)
-    detail *= amount
+        block = image[read_top:read_bottom, :, :3].astype(np.float32)
+        detail = block @ weights
+        del block
 
-    # Broadcast in place: adding the single-channel correction to all three
-    # never materialises a second full-size float array.
-    source += detail[:, :, None]
-    del detail
-    np.clip(source, 0.0, 255.0, out=source)
-    result = source.astype(np.uint8)
+        blurred = cv2.GaussianBlur(detail, (0, 0), sigma)
+        detail -= blurred
 
-    if image.shape[2] == 3:
-        return result
+        # Dead zone, then ceiling, written as two clips so the whole shaping
+        # runs in place. `d - clip(d, -floor, floor)` is a soft threshold: it
+        # is exactly zero inside the dead zone and shrinks everything outside
+        # it by `floor`, sign intact and with no separate magnitude array.
+        np.clip(detail, -SHARPEN_NOISE_FLOOR, SHARPEN_NOISE_FLOOR, out=blurred)
+        detail -= blurred
+        del blurred
+        np.clip(detail, -SHARPEN_DETAIL_CEILING, SHARPEN_DETAIL_CEILING, out=detail)
+        detail *= amount
 
-    # Alpha carried through untouched.
-    return np.dstack([result, image[:, :, 3]])
+        # Discard the margin: those rows exist only to give the kernel real
+        # neighbours, and the strip below owns them.
+        correction = detail[top - read_top : top - read_top + (bottom - top)]
+
+        patch = image[top:bottom, :, :3].astype(np.float32)
+        patch += correction[:, :, None]
+        np.clip(patch, 0.0, 255.0, out=patch)
+        result[top:bottom, :, :3] = patch.astype(np.uint8)
+
+    return result
 
 
 def _scaled_progress(
