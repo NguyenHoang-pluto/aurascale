@@ -225,9 +225,22 @@ class RealEsrganUpscaler:
         grid = plan_tiles(width, height, tile_size=tile, tile_pad=tile_pad)
         dtype = target.dtype()
 
-        # float32 canvas: tiles are written into it in fp32 regardless of the
-        # compute precision, so rounding to uint8 happens once, at the end.
-        canvas = np.zeros((height * self.scale, width * self.scale, 3), dtype=np.float32)
+        # uint8 canvas, written a tile at a time.
+        #
+        # `plan_tiles` partitions the output into disjoint rectangles - the
+        # padding a tile is given is context for the convolutions and is cropped
+        # away again by `crop_slice`, so no two tiles ever write the same pixel
+        # and nothing is blended or accumulated here. That makes rounding once
+        # per tile and rounding once over a full-resolution fp32 canvas the same
+        # single rounding per pixel, and the results bit-identical.
+        #
+        # It is the difference between 1 and 4 bytes per channel across the
+        # whole output: at 8064x6048 the canvas is 139 MiB instead of 558 MiB,
+        # and the return no longer needs three of those alive at once.
+        #
+        # If overlapping tiles are ever blended, this has to become an fp32
+        # accumulator again - averaging uint8 in place would quantise twice.
+        canvas = np.zeros((height * self.scale, width * self.scale, 3), dtype=np.uint8)
 
         for planned in grid.tiles():
             if should_cancel is not None and should_cancel():
@@ -261,14 +274,19 @@ class RealEsrganUpscaler:
 
             crop_rows, crop_columns = planned.crop_slice(self.scale)
             out_rows, out_columns = planned.output_slice(self.scale)
-            canvas[out_rows, out_columns] = block[crop_rows, crop_columns]
+            # Scaled and rounded here rather than over the whole canvas later.
+            # `block` is already clamped to [0, 1] on the device above, so this
+            # cannot wrap.
+            canvas[out_rows, out_columns] = (
+                (block[crop_rows, crop_columns] * 255.0).round().astype(np.uint8)
+            )
 
             del block
 
             if on_progress is not None:
                 on_progress((planned.index + 1) / grid.count)
 
-        return (canvas * 255.0).round().astype(np.uint8)
+        return canvas
 
     def _move_to(self, target: ExecutionTarget) -> None:
         """Relocate the network, e.g. to CPU after exhausting VRAM."""

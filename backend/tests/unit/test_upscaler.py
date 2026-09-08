@@ -20,7 +20,8 @@ from torch import nn
 
 from app.core.exceptions import InferenceError, InsufficientMemoryError
 from app.inference.device import ExecutionTarget, cpu_target
-from app.inference.upscaler import JobCancelledError, RealEsrganUpscaler
+from app.inference.tiler import plan_tiles
+from app.inference.upscaler import JobCancelledError, RealEsrganUpscaler, _to_tensor
 from app.models.enums import DeviceType
 
 
@@ -359,3 +360,85 @@ def test_values_are_clamped_so_highlights_do_not_wrap() -> None:
 
     assert result.max() == 255
     assert result.min() == 255
+
+
+# ---------------------------------------------------------------- canvas dtype
+
+
+def _float32_canvas_reference(
+    upscaler: RealEsrganUpscaler,
+    image: np.ndarray[Any, Any],
+    *,
+    tile: int,
+    tile_pad: int,
+) -> np.ndarray[Any, Any]:
+    """The canvas as it was built before the uint8 change.
+
+    A full-resolution float32 buffer that every tile writes into, rounded to
+    uint8 once at the very end. Kept here as an oracle so the optimisation is
+    checked against the algorithm it replaced rather than against itself: if
+    the two ever diverge, this test says so instead of the user seeing it.
+    """
+    height, width = image.shape[:2]
+    grid = plan_tiles(width, height, tile_size=tile, tile_pad=tile_pad)
+    canvas = np.zeros((height * upscaler.scale, width * upscaler.scale, 3), dtype=np.float32)
+
+    for planned in grid.tiles():
+        rows, columns = planned.input_slice
+        patch = image[rows, columns]
+
+        with torch.inference_mode():
+            tensor = _to_tensor(patch, device="cpu", dtype=torch.float32)
+            output = upscaler.module(tensor)
+            block = output.squeeze(0).float().clamp_(0.0, 1.0).permute(1, 2, 0).cpu().numpy()
+
+        crop_rows, crop_columns = planned.crop_slice(upscaler.scale)
+        out_rows, out_columns = planned.output_slice(upscaler.scale)
+        canvas[out_rows, out_columns] = block[crop_rows, crop_columns]
+
+    return (canvas * 255.0).round().astype(np.uint8)
+
+
+@pytest.mark.parametrize(
+    ("width", "height", "tile", "tile_pad"),
+    [
+        (96, 96, 32, 8),  # square, divides exactly
+        (129, 65, 32, 8),  # ragged last tile in both directions
+        (70, 50, 32, 4),  # narrower padding
+        (40, 30, 0, 0),  # untiled, the single-tile path
+    ],
+)
+def test_the_uint8_canvas_is_bit_identical_to_the_float32_one(
+    width: int, height: int, tile: int, tile_pad: int
+) -> None:
+    """Rounding per tile equals rounding once over an fp32 canvas.
+
+    `plan_tiles` gives every tile a disjoint output rectangle - the padding is
+    context and is cropped away again - so each output pixel is written exactly
+    once. That makes the two orderings the same single rounding per pixel, and
+    is what lets the canvas be a quarter of the size.
+    """
+    image = make_image(width, height, seed=11)
+    module = ConvUpscale(2)
+
+    produced = make_upscaler(module).upscale(image, tile=tile, tile_pad=tile_pad)
+    reference = _float32_canvas_reference(
+        make_upscaler(module), image, tile=tile, tile_pad=tile_pad
+    )
+
+    assert produced.dtype == np.uint8
+    assert produced.shape == reference.shape
+    assert np.array_equal(produced, reference)
+
+
+def test_the_canvas_is_uint8_so_a_large_output_does_not_need_four_bytes_a_channel() -> None:
+    """The allocation that failed in production was a float32 output canvas.
+
+    Guarding the dtype directly: the seam tests would still pass with a float32
+    canvas, so nothing else here would notice a regression to four bytes per
+    channel on a full-resolution buffer.
+    """
+    result = make_upscaler(NearestUpscale(2)).upscale(make_image(64, 64), tile=16, tile_pad=8)
+
+    assert result.dtype == np.uint8
+    assert result.nbytes == 128 * 128 * 3
