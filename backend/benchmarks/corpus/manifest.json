@@ -1,0 +1,131 @@
+{
+  "description": "Real photographs for the AuraScale image-quality benchmark. Fetched from Wikimedia Commons; licence and attribution are recorded as the API reported them. Images are centre-cropped from the originals and never resampled, because downscaling would average away the sensor noise the benchmark measures.",
+  "generated_by": "benchmarks/fetch_corpus.py",
+  "images": [
+    {
+      "filename": "landscape-detail/landscape-detail.jpg",
+      "category": "landscape-detail",
+      "source": "https://commons.wikimedia.org/wiki/File:Mountains_in_snow,_Mountain_lake,_Chola_Valley,_Nepal,_Himalayas.jpg",
+      "source_file": "File:Mountains in snow, Mountain lake, Chola Valley, Nepal, Himalayas.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "attribution": "Vyacheslav Argenberg",
+      "original_dimensions": {
+        "width": 4032,
+        "height": 2688
+      },
+      "dimensions": {
+        "width": 1732,
+        "height": 1154
+      },
+      "crop_box": {
+        "left": 1150,
+        "top": 767,
+        "right": 2882,
+        "bottom": 1921
+      },
+      "processing": "centre crop only; never resampled, so sensor noise is untouched",
+      "notes": "Distant rock and snow texture; fine high-frequency structure across the frame."
+    },
+    {
+      "filename": "portrait-skin/portrait-skin.jpg",
+      "category": "portrait-skin",
+      "source": "https://commons.wikimedia.org/wiki/File:Headshot_Prof_Shafi_AHmed_001_photo.jpg",
+      "source_file": "File:Headshot Prof Shafi AHmed 001 photo.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "attribution": "Unknown authorUnknown author",
+      "original_dimensions": {
+        "width": 3393,
+        "height": 3972
+      },
+      "dimensions": {
+        "width": 1307,
+        "height": 1530
+      },
+      "crop_box": {
+        "left": 1043,
+        "top": 1221,
+        "right": 2350,
+        "bottom": 2751
+      },
+      "processing": "centre crop only; never resampled, so sensor noise is untouched",
+      "notes": "Skin gradients and hair. Over-denoising shows here first as waxy skin."
+    },
+    {
+      "filename": "text-signage/text-signage.jpg",
+      "category": "text-signage",
+      "source": "https://commons.wikimedia.org/wiki/File:SE_Ankeny_Street_sign,_Portland,_Oregon.jpg",
+      "source_file": "File:SE Ankeny Street sign, Portland, Oregon.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "attribution": "PortlandAppraisalBlog",
+      "original_dimensions": {
+        "width": 4032,
+        "height": 3024
+      },
+      "dimensions": {
+        "width": 1632,
+        "height": 1224
+      },
+      "crop_box": {
+        "left": 1200,
+        "top": 900,
+        "right": 2832,
+        "bottom": 2124
+      },
+      "processing": "centre crop only; never resampled, so sensor noise is untouched",
+      "notes": "Hard lettering edges; ringing and halos are obvious to the eye."
+    },
+    {
+      "filename": "foliage-texture/foliage-texture.jpg",
+      "category": "foliage-texture",
+      "source": "https://commons.wikimedia.org/wiki/File:(Cephalomanes_fern_foliage_close-up_in_Espiritu_Santo,_Vanuatu)_-_DPLA_-_970b3b811cfb7b136fe34d425d0e9741.jpg",
+      "source_file": "File:(Cephalomanes fern foliage close-up in Espiritu Santo, Vanuatu) - DPLA - 970b3b811cfb7b136fe34d425d0e9741.jpg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "attribution": "Carlquist, Sherwin John, 1930-2021",
+      "original_dimensions": {
+        "width": 1500,
+        "height": 2224
+      },
+      "dimensions": {
+        "width": 1161,
+        "height": 1722
+      },
+      "crop_box": {
+        "left": 169,
+        "top": 251,
+        "right": 1330,
+        "bottom": 1973
+      },
+      "processing": "centre crop only; never resampled, so sensor noise is untouched",
+      "notes": "Dense stochastic leaf texture - the first thing denoising erases."
+    },
+    {
+      "filename": "low-light-noise/low-light-noise.jpg",
+      "category": "low-light-noise",
+      "source": "https://commons.wikimedia.org/wiki/File:Sz%C3%A9chenyi_Chain_Bridge_in_Budapest_at_night.jpg",
+      "source_file": "File:Széchenyi Chain Bridge in Budapest at night.jpg",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "attribution": "Wilfredor",
+      "original_dimensions": {
+        "width": 3580,
+        "height": 2000
+      },
+      "dimensions": {
+        "width": 1892,
+        "height": 1057
+      },
+      "crop_box": {
+        "left": 844,
+        "top": 471,
+        "right": 2736,
+        "bottom": 1528
+      },
+      "processing": "centre crop only; never resampled, so sensor noise is untouched",
+      "notes": "Night exposure with real shadow noise, to separate denoising from detail loss."
+    }
+  ]
+}

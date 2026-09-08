@@ -1,1 +1,7 @@
-corpus/
+# The corpus photographs themselves are never committed. They are openly
+# licensed but carry attribution obligations, and redistributing them from
+# here would put this repository in the business of hosting other people's
+# images. `manifest.json` records where each one came from and under what
+# licence, so the corpus is reproducible with `python -m benchmarks.fetch_corpus`.
+corpus/*
+!corpus/manifest.json
