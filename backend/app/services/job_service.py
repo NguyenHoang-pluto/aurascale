@@ -16,6 +16,7 @@ service; there are no accounts to isolate between):
 
 from __future__ import annotations
 
+import asyncio
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -292,6 +293,41 @@ class JobService:
 
         return job, path
 
+    async def preview_path(self, job_id: str) -> tuple[Job, Path]:
+        """The cached, resolution-capped preview, built on first request.
+
+        Generated off the event loop: encoding a large result is CPU-bound, and
+        blocking here would stall the progress stream of whatever job is
+        running.
+        """
+        job, output = await self.result_path(job_id)
+        preview = self._storage.preview_path(job_id)
+
+        if not preview.is_file():
+            await asyncio.to_thread(self._images.write_preview, output, preview)
+            logger.info("preview generated", extra={"job_id": job_id})
+
+        return job, preview
+
+    async def crop_jpeg(self, job_id: str, x: int, y: int, width: int, height: int) -> bytes:
+        """A full-resolution slice of the result, for inspection above 100%.
+
+        Validated against the result's real dimensions, and refused rather than
+        clamped: a silently moved crop would put the wrong pixels under the
+        user's crosshair.
+        """
+        job, output = await self.result_path(job_id)
+
+        bounds = (job.output_width or 0, job.output_height or 0)
+        if bounds[0] <= 0 or bounds[1] <= 0:  # pragma: no cover - completed implies dimensions
+            raise JobNotFoundError(
+                "The result for that job is no longer available.",
+                technical="completed job has no recorded dimensions",
+            )
+
+        region = self._images.validate_crop(x, y, width, height, bounds=bounds)
+        return await asyncio.to_thread(self._images.crop_to_jpeg, output, region)
+
     def download_name(self, job: Job) -> str:
         """A descriptive filename for the download.
 
@@ -331,7 +367,12 @@ class JobService:
         return "cancelled"
 
     async def _delete(self, job: Job) -> None:
-        removed = self._storage.delete(job.input_path, job.output_path, job.thumbnail_path)
+        removed = self._storage.delete(
+            job.input_path,
+            job.output_path,
+            job.thumbnail_path,
+            self._storage.preview_path(job.id),
+        )
         await self._repository.delete(job.id)
         self._broker.forget(job.id)
         logger.info("job deleted", extra={"job_id": job.id, "files_removed": removed})

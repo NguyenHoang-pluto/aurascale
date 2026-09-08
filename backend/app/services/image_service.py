@@ -17,6 +17,9 @@ The order is deliberate and each step protects the next:
 
 from __future__ import annotations
 
+import io
+import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO
@@ -45,6 +48,30 @@ SIGNATURE_BYTES = 12
 UPLOAD_CHUNK_BYTES = 1024 * 64
 
 JPEG_QUALITY_RANGE = (50, 100)
+
+# The comparison viewer's base layer. Long edge capped so a 200 MP result is
+# never handed to a browser whole; JPEG because this is a view, not a download.
+PREVIEW_MAX_EDGE = 4096
+PREVIEW_QUALITY = 92
+
+# The largest region a crop request may ask for. A "crop" the size of the whole
+# result is not a crop, and serving one would defeat the cap above.
+MAX_CROP_PIXELS = 4096 * 4096
+
+
+@dataclass(frozen=True, slots=True)
+class CropRegion:
+    """A validated region of a result, in output pixels."""
+
+    x: int
+    y: int
+    width: int
+    height: int
+
+    @property
+    def box(self) -> tuple[int, int, int, int]:
+        """Pillow's (left, upper, right, lower)."""
+        return (self.x, self.y, self.x + self.width, self.y + self.height)
 
 
 @dataclass(frozen=True, slots=True)
@@ -338,6 +365,110 @@ class ImageService:
             options["exif"] = source.exif
 
         return options
+
+    # ----------------------------------------------------------------- preview
+
+    def write_preview(self, source: Path, destination: Path) -> Path:
+        """A resolution-capped JPEG of a result, written atomically.
+
+        Never upscales: a result smaller than the cap is re-encoded at its own
+        size rather than blown up, because inventing pixels for a preview would
+        misrepresent what the model produced.
+
+        The write goes to a temporary file and is moved into place, so two
+        requests racing to build the same preview cannot leave a half-written
+        file for a third to serve.
+        """
+        destination.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with Image.open(source) as opened:
+                # draft() lets the JPEG decoder skip straight to a reduced
+                # resolution, so a large JPEG result never fully decodes here.
+                # It is a no-op for other formats.
+                opened.draft("RGB", (PREVIEW_MAX_EDGE, PREVIEW_MAX_EDGE))
+                image = opened.convert("RGB")
+                image.thumbnail((PREVIEW_MAX_EDGE, PREVIEW_MAX_EDGE), Image.Resampling.LANCZOS)
+
+                handle, temporary_name = tempfile.mkstemp(
+                    prefix=f".{destination.stem}.", suffix=".part", dir=destination.parent
+                )
+                os.close(handle)
+                temporary = Path(temporary_name)
+
+                try:
+                    image.save(temporary, format="JPEG", quality=PREVIEW_QUALITY, optimize=True)
+                    temporary.replace(destination)
+                except Exception:
+                    temporary.unlink(missing_ok=True)
+                    raise
+        except (UnidentifiedImageError, OSError, ValueError) as exc:
+            raise CorruptedImageError(
+                "The result could not be prepared for viewing.",
+                technical=f"{type(exc).__name__}: {exc}",
+            ) from exc
+
+        return destination
+
+    def crop_to_jpeg(self, source: Path, region: CropRegion) -> bytes:
+        """A full-resolution slice of a result, encoded as JPEG.
+
+        Not cached: a crop is specific to where the user happens to be looking,
+        and caching every region a pan produces would fill the disk faster than
+        the sweeper empties it.
+        """
+        buffer = io.BytesIO()
+
+        try:
+            with Image.open(source) as opened:
+                cropped = opened.convert("RGB").crop(region.box)
+                cropped.save(buffer, format="JPEG", quality=PREVIEW_QUALITY)
+        except (UnidentifiedImageError, OSError, ValueError) as exc:
+            raise CorruptedImageError(
+                "That region of the result could not be read.",
+                technical=f"{type(exc).__name__}: {exc}",
+            ) from exc
+
+        return buffer.getvalue()
+
+    def validate_crop(
+        self, x: int, y: int, width: int, height: int, *, bounds: tuple[int, int]
+    ) -> CropRegion:
+        """Check a requested region against the result it will be taken from.
+
+        Invalid requests are refused rather than clamped. Silently returning a
+        different region than the one asked for would put the wrong pixels
+        under the viewer's crosshair, which is worse than an error.
+        """
+        limit_width, limit_height = bounds
+
+        if width <= 0 or height <= 0:
+            raise ValidationError(
+                "A crop needs a positive width and height.",
+                technical=f"w={width} h={height}",
+                context={"width": width, "height": height},
+            )
+
+        if x < 0 or y < 0 or x + width > limit_width or y + height > limit_height:
+            raise ValidationError(
+                "That region lies outside the result.",
+                technical=f"crop={x},{y},{width},{height} result={limit_width}x{limit_height}",
+                context={
+                    "resultWidth": limit_width,
+                    "resultHeight": limit_height,
+                    "requested": {"x": x, "y": y, "width": width, "height": height},
+                },
+            )
+
+        if width * height > MAX_CROP_PIXELS:
+            raise ValidationError(
+                f"That region is too large to serve at full resolution. Ask for at most "
+                f"{MAX_CROP_PIXELS // 1_000_000} MP.",
+                technical=f"requested={width * height} limit={MAX_CROP_PIXELS}",
+                context={"limitPixels": MAX_CROP_PIXELS},
+            )
+
+        return CropRegion(x=x, y=y, width=width, height=height)
 
     def validate_quality(self, quality: int | None) -> int:
         """Clamp-free validation: an out-of-range quality is a client error."""

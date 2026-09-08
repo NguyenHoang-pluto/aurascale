@@ -64,7 +64,12 @@ class CleanupService:
 
         async with self._scope() as repository:
             for job in await repository.list_expired(moment, limit=SWEEP_BATCH):
-                files += self._storage.delete(job.input_path, job.output_path, job.thumbnail_path)
+                files += self._storage.delete(
+                    job.input_path,
+                    job.output_path,
+                    job.thumbnail_path,
+                    self._storage.preview_path(job.id),
+                )
                 await repository.delete(job.id)
                 expired += 1
 

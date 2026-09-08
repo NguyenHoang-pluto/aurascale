@@ -514,6 +514,151 @@ async def test_a_range_request_returns_part_of_the_file(app_context: dict[str, A
     assert len(response.content) == 100
 
 
+# ------------------------------------------------------------------- preview
+
+
+async def completed_job(app_context: dict[str, Any]) -> str:
+    """Submit and wait, for the tests that need a finished result."""
+    client = app_context["client"]
+    created = (await submit(client, model="realesr-general-x4v3", scale=4)).json()
+    await wait_for_status(client, created["jobId"])
+    return str(created["jobId"])
+
+
+async def test_the_preview_is_a_capped_jpeg(app_context: dict[str, Any]) -> None:
+    client = app_context["client"]
+    job_id = await completed_job(app_context)
+
+    response = await client.get(f"/api/jobs/{job_id}/preview")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/jpeg"
+    with Image.open(io.BytesIO(response.content)) as image:
+        assert image.format == "JPEG"
+        # This result is well inside the cap, so it is served at its own size.
+        assert image.size == (256, 192)
+
+
+async def test_the_preview_is_cached_and_reused(app_context: dict[str, Any]) -> None:
+    """Re-encoding a large result on every request is the cost this avoids."""
+    client = app_context["client"]
+    settings = app_context["settings"]
+    job_id = await completed_job(app_context)
+
+    await client.get(f"/api/jobs/{job_id}/preview")
+    cached = settings.previews_dir / f"{job_id}.jpg"
+    assert cached.is_file()
+
+    stamped = cached.stat().st_mtime_ns
+    cached.write_bytes(cached.read_bytes())  # touch without changing content
+    await client.get(f"/api/jobs/{job_id}/preview")
+
+    # A second request does not rebuild the file it already has.
+    assert cached.stat().st_mtime_ns >= stamped
+
+
+async def test_a_crop_returns_the_requested_region(app_context: dict[str, Any]) -> None:
+    client = app_context["client"]
+    job_id = await completed_job(app_context)
+
+    response = await client.get(
+        f"/api/jobs/{job_id}/preview", params={"x": 10, "y": 20, "w": 64, "h": 48}
+    )
+
+    assert response.status_code == 200
+    with Image.open(io.BytesIO(response.content)) as image:
+        assert image.size == (64, 48)
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"x": 0, "y": 0, "w": 0, "h": 10},
+        {"x": 0, "y": 0, "w": 10, "h": 0},
+        {"x": -5, "y": 0, "w": 10, "h": 10},
+        {"x": 9000, "y": 0, "w": 10, "h": 10},
+        {"x": 0, "y": 0, "w": 9000, "h": 10},
+    ],
+)
+async def test_an_invalid_crop_is_refused(
+    app_context: dict[str, Any], params: dict[str, int]
+) -> None:
+    client = app_context["client"]
+    job_id = await completed_job(app_context)
+
+    response = await client.get(f"/api/jobs/{job_id}/preview", params=params)
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "invalid_parameters"
+
+
+async def test_a_partial_crop_is_refused(app_context: dict[str, Any]) -> None:
+    """Three of four parameters is a mistake, not a request to guess."""
+    client = app_context["client"]
+    job_id = await completed_job(app_context)
+
+    response = await client.get(f"/api/jobs/{job_id}/preview", params={"x": 0, "y": 0, "w": 10})
+
+    assert response.status_code == 422
+    assert "all four" in response.json()["detail"]
+
+
+async def test_a_malformed_crop_value_is_refused(app_context: dict[str, Any]) -> None:
+    client = app_context["client"]
+    job_id = await completed_job(app_context)
+
+    response = await client.get(
+        f"/api/jobs/{job_id}/preview", params={"x": "left", "y": 0, "w": 10, "h": 10}
+    )
+
+    assert response.status_code == 422
+
+
+async def test_a_preview_before_completion_is_a_conflict(app_context: dict[str, Any]) -> None:
+    client = app_context["client"]
+    app_context["enhancement"].delay = 0.2
+    created = (await submit(client, model="realesr-general-x4v3", scale=4)).json()
+
+    response = await client.get(f"/api/jobs/{created['jobId']}/preview")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "job_not_completed"
+    await wait_for_status(client, created["jobId"])
+
+
+async def test_a_preview_for_an_unknown_job_is_a_404(app_context: dict[str, Any]) -> None:
+    response = await app_context["client"].get(f"/api/jobs/{'0' * 32}/preview")
+
+    assert response.status_code == 404
+
+
+async def test_a_preview_for_a_swept_result_is_a_404(app_context: dict[str, Any]) -> None:
+    """The record can outlive the file; the endpoint must say so plainly."""
+    client = app_context["client"]
+    settings = app_context["settings"]
+    job_id = await completed_job(app_context)
+
+    for path in settings.outputs_dir.iterdir():
+        path.unlink()
+
+    response = await client.get(f"/api/jobs/{job_id}/preview")
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "job_not_found"
+
+
+async def test_deleting_a_job_removes_its_cached_preview(app_context: dict[str, Any]) -> None:
+    client = app_context["client"]
+    settings = app_context["settings"]
+    job_id = await completed_job(app_context)
+    await client.get(f"/api/jobs/{job_id}/preview")
+    assert (settings.previews_dir / f"{job_id}.jpg").is_file()
+
+    await client.delete(f"/api/jobs/{job_id}")
+
+    assert list(settings.previews_dir.iterdir()) == []
+
+
 # ------------------------------------------------------------ cancel/delete
 
 

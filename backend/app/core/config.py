@@ -137,9 +137,20 @@ class Settings(BaseSettings):
     def thumbs_dir(self) -> Path:
         return self.storage_dir / "thumbs"
 
+    @property
+    def previews_dir(self) -> Path:
+        """Cached view-sized copies of results. Rebuildable, never authoritative."""
+        return self.storage_dir / "previews"
+
     def ensure_directories(self) -> None:
         """Create the storage tree. Safe to call repeatedly."""
-        for path in (self.inputs_dir, self.outputs_dir, self.thumbs_dir, self.models_dir):
+        for path in (
+            self.inputs_dir,
+            self.outputs_dir,
+            self.thumbs_dir,
+            self.previews_dir,
+            self.models_dir,
+        ):
             path.mkdir(parents=True, exist_ok=True)
 
 

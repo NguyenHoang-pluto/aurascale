@@ -342,10 +342,26 @@ so a large download can resume.
 
 Resolution-capped JPEG of the result for the comparison viewer, so a 200 MP
 output is never loaded into the DOM. Long edge capped at 4096 px, quality 92.
-*Phase 9.*
+
+**Status: implemented (Phase 9).**
+
+A result already inside the cap is re-encoded at its own size, never upscaled.
+The capped copy is built on first request and cached on disk, so a large result
+is encoded once rather than per request; the cache is removed with the job, by
+deletion or by the retention sweeper.
 
 Optional query parameters for high-zoom inspection: `x`, `y`, `w`, `h` request a
-full-resolution crop of the source region instead of a downscaled whole.
+full-resolution crop of the source region instead of a downscaled whole. All
+four are required together, in output pixels.
+
+An invalid region is **refused, never clamped** — a silently moved crop would
+put the wrong pixels under the viewer's crosshair. `invalid_parameters` (422)
+covers a non-positive width or height, a region that does not fit inside the
+result, a partial set of parameters, and a region above 16 MP, which is not a
+crop and would defeat the cap.
+
+Returns `job_not_completed` (409) before the job finishes, and `job_not_found`
+(404) for an unknown job or a result that has already been swept.
 
 ### `GET /api/jobs/{jobId}/thumbnail`
 

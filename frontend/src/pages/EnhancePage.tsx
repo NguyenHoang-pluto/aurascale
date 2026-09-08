@@ -4,6 +4,8 @@ import { ErrorPanel } from '@/components/feedback/ErrorPanel'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Button } from '@/components/ui/button'
 import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/panel'
+import { ResultCanvas } from '@/features/compare/ResultCanvas'
+import { useCompletedResult } from '@/features/compare/useCompletedResult'
 import { EnhancePanels } from '@/features/enhance/EnhancePanels'
 import { Dropzone } from '@/features/upload/Dropzone'
 import { ImageInfoPanel } from '@/features/viewer/ImageInfoPanel'
@@ -53,6 +55,9 @@ export function EnhancePage() {
     [loadFile],
   )
 
+  // Null until a job has completed with a result to show.
+  const result = useCompletedResult()
+
   return (
     <WorkspaceLayout
       toolbar={<FlowSummary />}
@@ -76,23 +81,40 @@ export function EnhancePage() {
             </div>
           </div>
         ) : (
-          <ImageViewer
-            image={source}
-            toolbarSlot={
-              <div className="ml-auto flex items-center gap-2">
-                <span
-                  className="max-w-[16rem] truncate text-xs text-muted-foreground"
-                  title={source.metadata.name}
-                >
-                  {source.metadata.name}
-                </span>
-                <Button variant="ghost" size="sm" onClick={clear}>
-                  <X aria-hidden="true" />
-                  Remove
-                </Button>
-              </div>
-            }
-          />
+          // A completed job replaces the single-image view with the
+          // comparison; everything else - queued, running, failed, cancelled -
+          // has no result to compare, so the viewer stays as it was.
+          (result !== null ? (
+            <ResultCanvas
+              result={result}
+              toolbarSlot={
+                <div className="ml-auto flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={clear}>
+                    <X aria-hidden="true" />
+                    Remove
+                  </Button>
+                </div>
+              }
+            />
+          ) : (
+            <ImageViewer
+              image={source}
+              toolbarSlot={
+                <div className="ml-auto flex items-center gap-2">
+                  <span
+                    className="max-w-[16rem] truncate text-xs text-muted-foreground"
+                    title={source.metadata.name}
+                  >
+                    {source.metadata.name}
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={clear}>
+                    <X aria-hidden="true" />
+                    Remove
+                  </Button>
+                </div>
+              }
+            />
+          ))
         )
       }
       rail={

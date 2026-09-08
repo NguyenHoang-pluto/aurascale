@@ -4,13 +4,14 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 8 of 14 complete.**
+> **Build status — Phase 9 of 14 complete.**
 > The whole loop works in the browser: drop an image in, choose a model, scale
-> and output settings, watch real per-tile progress, and download the result.
+> and output settings, watch real per-tile progress, then compare before and
+> after with a slider, side by side or a fixed split, and download the result.
 > Real-ESRGAN runs on your GPU (or CPU) with a denoise control backed by DNI
-> weight interpolation. **Before and after are not yet shown side by side** —
-> the comparison viewer is Phase 9 and history is Phase 10. Every unbuilt
-> region states which phase delivers it. See [Roadmap](#roadmap).
+> weight interpolation. **Past results are not kept** — enhancement history is
+> Phase 10. Every unbuilt region states which phase delivers it.
+> See [Roadmap](#roadmap).
 
 ---
 
@@ -46,7 +47,7 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phases 1-8):
+Implemented today (Phases 1-9):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
@@ -102,13 +103,18 @@ Implemented today (Phases 1-8):
   planner that validates a job, and the UI greys out the rest
 - Live job progress from the event stream, with polling as the fallback, and a
   download that streams from the server rather than through JavaScript
+- Before/after comparison in three modes — a draggable slider, side by side,
+  and a fixed split — all driven by one zoom/pan transform so the two images
+  can never drift out of alignment
+- A resolution-capped preview keeps large results out of the DOM, and above
+  100% zoom the viewer fetches a full-resolution crop of just the visible
+  region
 - Environment diagnostic script that explains CUDA problems in plain language
 
 Planned, with the phase that delivers each:
 
 | Feature | Phase |
 | --- | --- |
-| Before/after comparison (slider, side-by-side, split) | 9 |
 | Enhancement history (SQLite) | 10 |
 | Docker images, CPU and GPU profiles | 12 |
 
@@ -430,7 +436,7 @@ aurascale/
 | 6b | Denoise strength via DNI | Done |
 | 7 | Async jobs, SSE progress, cancellation | Done |
 | 8 | Frontend/backend integration | Done |
-| 9 | Comparison viewer | Pending |
+| 9 | Comparison viewer | Done |
 | 10 | History | Pending |
 | 11 | Test suites | Pending |
 | 12 | Docker | Pending |

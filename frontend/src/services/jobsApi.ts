@@ -58,6 +58,30 @@ export function resultUrl(jobId: string): string {
   return `${env.apiBaseUrl}/api/jobs/${encodeURIComponent(jobId)}/result`
 }
 
+/**
+ * A view-sized copy of the result.
+ *
+ * The comparison viewer's base layer: capped on its long edge by the server,
+ * so a 200 MP result never reaches the DOM whole.
+ */
+export function previewUrl(jobId: string): string {
+  return `${env.apiBaseUrl}/api/jobs/${encodeURIComponent(jobId)}/preview`
+}
+
+/** A full-resolution slice of the result, for inspecting detail above 100%. */
+export function cropUrl(
+  jobId: string,
+  region: { x: number; y: number; w: number; h: number },
+): string {
+  const query = new URLSearchParams({
+    x: String(region.x),
+    y: String(region.y),
+    w: String(region.w),
+    h: String(region.h),
+  })
+  return `${previewUrl(jobId)}?${query.toString()}`
+}
+
 /** The Server-Sent Events endpoint for a job's progress. */
 export function eventsUrl(jobId: string): string {
   return `${env.apiBaseUrl}/api/jobs/${encodeURIComponent(jobId)}/events`

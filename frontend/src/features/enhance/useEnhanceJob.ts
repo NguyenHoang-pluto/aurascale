@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { toApiError } from '@/services/apiClient'
 import { cancelJob, createJob } from '@/services/jobsApi'
+import { useComparisonStore } from '@/stores/useComparisonStore'
 import { useEnhancementStore, isLossy } from '@/stores/useEnhancementStore'
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore'
 import type { ProblemDetail } from '@/types/api'
@@ -54,6 +55,8 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
   const denoiseStrength = useEnhancementStore((s) => s.denoiseStrength)
   const activeJobId = useEnhancementStore((s) => s.activeJobId)
   const setActiveJob = useEnhancementStore((s) => s.setActiveJob)
+  const captureBefore = useComparisonStore((s) => s.captureBefore)
+  const clearBefore = useComparisonStore((s) => s.clearBefore)
 
   const submission = useMutation({
     mutationFn: () => {
@@ -79,6 +82,15 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
       return createJob(request)
     },
     onSuccess: (created) => {
+      // Snapshot what was actually submitted, with its own object URL. Reading
+      // the workspace later would compare against whatever image happens to be
+      // loaded then, which need not be the one this job ran on.
+      if (source !== null) {
+        captureBefore(source.file, {
+          width: source.metadata.width,
+          height: source.metadata.height,
+        })
+      }
       setActiveJob(created.jobId)
       // Seed the record so the panel has a status immediately instead of a
       // blank frame while the first poll lands.
@@ -100,9 +112,10 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
 
   const reset = useCallback(() => {
     setActiveJob(null)
+    clearBefore()
     submission.reset()
     cancellation.reset()
-  }, [cancellation, setActiveJob, submission])
+  }, [cancellation, clearBefore, setActiveJob, submission])
 
   const failure = submission.error ?? cancellation.error
 

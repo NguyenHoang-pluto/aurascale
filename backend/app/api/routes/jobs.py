@@ -7,11 +7,12 @@ import json
 from collections.abc import AsyncIterator
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, Request, Response, UploadFile, status
+from fastapi import APIRouter, File, Form, Query, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from sse_starlette.sse import EventSourceResponse
 
 from app.api.deps import JobServiceDep, ProgressBrokerDep
+from app.core.exceptions import ValidationError
 from app.core.logging import get_logger
 from app.models.db import Job
 from app.models.enums import JobStatus, OutputFormat
@@ -23,6 +24,10 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 # Keeps idle streams alive through proxies that reap quiet connections.
 HEARTBEAT_SECONDS = 15
+
+# A result never changes, and job ids are unguessable, so a client may cache
+# hard; "private" keeps intermediaries out of it.
+IMMUTABLE_CACHE = {"Cache-Control": "private, max-age=86400"}
 
 MEDIA_TYPE = {
     OutputFormat.PNG: "image/png",
@@ -148,10 +153,51 @@ async def download_result(job_id: str, service: JobServiceDep) -> FileResponse:
         path,
         media_type=media_type,
         filename=service.download_name(job),
-        # Results are immutable and job ids are unguessable, so a client may
-        # cache aggressively; "private" keeps intermediaries out of it.
-        headers={"Cache-Control": "private, max-age=86400"},
+        headers=IMMUTABLE_CACHE,
     )
+
+
+@router.get(
+    "/{job_id}/preview",
+    summary="A view-sized copy of the result, or a full-resolution crop",
+    description=(
+        "Without parameters: the result re-encoded as JPEG with its long edge "
+        "capped, so a 200 MP output is never loaded into a browser whole. The "
+        "capped copy is built once and cached; a result already inside the cap "
+        "is not upscaled. "
+        "With `x`, `y`, `w` and `h`: a full-resolution crop of that region "
+        "instead, for inspecting detail above 100% zoom. The region is checked "
+        "against the result and refused if it does not fit — never clamped, "
+        "because a silently moved crop shows the wrong pixels."
+    ),
+    responses={
+        200: {"content": {"image/jpeg": {}}},
+        409: {"description": "The job has not completed"},
+        422: {"description": "The requested region is invalid"},
+    },
+)
+async def get_preview(
+    job_id: str,
+    service: JobServiceDep,
+    x: Annotated[int | None, Query(description="Crop origin, in output pixels")] = None,
+    y: Annotated[int | None, Query(description="Crop origin, in output pixels")] = None,
+    w: Annotated[int | None, Query(description="Crop width, in output pixels")] = None,
+    h: Annotated[int | None, Query(description="Crop height, in output pixels")] = None,
+) -> Response:
+    requested = (x, y, w, h)
+
+    if any(value is not None for value in requested):
+        if any(value is None for value in requested):
+            raise ValidationError(
+                "A crop needs all four of x, y, w and h.",
+                technical=f"received x={x} y={y} w={w} h={h}",
+            )
+
+        crop = await service.crop_jpeg(job_id, x or 0, y or 0, w or 0, h or 0)
+        return Response(content=crop, media_type="image/jpeg", headers=IMMUTABLE_CACHE)
+
+    _, path = await service.preview_path(job_id)
+    return FileResponse(path, media_type="image/jpeg", headers=IMMUTABLE_CACHE)
 
 
 @router.delete(

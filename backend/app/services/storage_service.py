@@ -1,4 +1,4 @@
-"""Filesystem storage for job inputs, outputs and thumbnails.
+"""Filesystem storage for job inputs, outputs, previews and thumbnails.
 
 Every filename is generated here from a job id; nothing derived from a client
 string ever reaches the filesystem (§ 16). Paths are checked to be inside the
@@ -29,6 +29,7 @@ class JobPaths:
     input: Path
     output: Path
     thumbnail: Path
+    preview: Path
 
 
 def new_job_id() -> str:
@@ -78,7 +79,20 @@ class StorageService:
             input=self._settings.inputs_dir / f"{job_id}.{input_ext}",
             output=self._settings.outputs_dir / f"{job_id}.{output_ext}",
             thumbnail=self._settings.thumbs_dir / f"{job_id}.webp",
+            preview=self.preview_path(job_id),
         )
+
+    def preview_path(self, job_id: str) -> Path:
+        """Where a job's cached preview lives.
+
+        Derived from the id rather than stored: the file is a rebuildable
+        cache, and a column for it would be a migration plus a second source of
+        truth that could disagree with the disk.
+        """
+        if not job_id or not all(character in "0123456789abcdef" for character in job_id):
+            raise ValueError(f"job_id must be lowercase hex, got {job_id!r}")
+
+        return self._settings.previews_dir / f"{job_id}.jpg"
 
     @staticmethod
     def _normalise_extension(extension: str) -> str:
@@ -161,6 +175,7 @@ class StorageService:
             self._settings.inputs_dir,
             self._settings.outputs_dir,
             self._settings.thumbs_dir,
+            self._settings.previews_dir,
         ):
             if not directory.is_dir():
                 continue
