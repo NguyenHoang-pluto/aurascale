@@ -1,0 +1,39 @@
+{
+  "actions": {
+    "tryAgain": "Try again",
+    "dismiss": "Dismiss",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "keep": "Keep",
+    "download": "Download",
+    "view": "View",
+    "refresh": "Refresh",
+    "remove": "Remove",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "state": {
+    "comingSoon": "Coming soon",
+    "unknown": "Unknown",
+    "none": "—",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "phaseNotice": {
+    "badge": "Arrives in {{phase}}"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "That route does not exist.",
+    "back": "Back to workspace"
+  },
+  "flow": {
+    "upload": "Upload",
+    "compare": "Compare",
+    "enhance": "Enhance",
+    "download": "Download"
+  }
+}

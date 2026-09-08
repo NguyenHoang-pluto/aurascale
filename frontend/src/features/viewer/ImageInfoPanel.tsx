@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/panel'
 import { PhaseNotice } from '@/components/feedback/PhaseNotice'
 import { formatBytes, formatDimensions, formatMegapixels } from '@/lib/format'
@@ -20,29 +21,33 @@ function InfoRow({ label, value }: { label: string; value: string }) {
  * states which phase produces it.
  */
 export function ImageInfoPanel({ metadata }: { metadata: ImageMetadata }) {
+  const { t, i18n } = useTranslation('viewer')
+  const locale = i18n.language
+
   return (
     <Panel>
       <PanelHeader>
-        <PanelTitle>Image information</PanelTitle>
+        <PanelTitle>{t('info.title')}</PanelTitle>
       </PanelHeader>
       <PanelContent>
-        <p className="mb-1 text-xs font-medium text-foreground">Original</p>
+        <p className="mb-1 text-xs font-medium text-foreground">{t('info.original')}</p>
         <dl>
           <InfoRow
-            label="Dimensions"
-            value={formatDimensions(metadata.width, metadata.height)}
+            label={t('info.dimensions')}
+            value={formatDimensions(metadata.width, metadata.height, locale)}
           />
           <InfoRow
-            label="Resolution"
-            value={formatMegapixels(metadata.width, metadata.height)}
+            label={t('info.resolution')}
+            value={formatMegapixels(metadata.width, metadata.height, locale)}
           />
-          <InfoRow label="File size" value={formatBytes(metadata.sizeBytes)} />
-          <InfoRow label="Format" value={metadata.format} />
+          <InfoRow label={t('info.fileSize')} value={formatBytes(metadata.sizeBytes, 1, locale)} />
+          {/* A format name is an identifier: PNG is PNG in both languages. */}
+          <InfoRow label={t('info.format')} value={metadata.format} />
         </dl>
 
         <PhaseNotice
-          title="Enhanced"
-          description="Output dimensions, file size, format, upscale factor, processing time and model appear here once a job has run."
+          title={t('info.enhancedTitle')}
+          description={t('info.enhancedDescription')}
           phase="Phase 7"
           className="mt-3 px-3 py-4"
         />

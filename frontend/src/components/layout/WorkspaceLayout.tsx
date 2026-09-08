@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 
 /**
@@ -25,10 +26,12 @@ export function WorkspaceLayout({
   toolbar?: ReactNode
   className?: string
 }) {
+  const { t } = useTranslation('nav')
+
   return (
     <div className={cn('flex min-h-0 flex-1 flex-col lg:flex-row', className)}>
       <section
-        aria-label="Image workspace"
+        aria-label={t('regions.workspace')}
         className="flex min-h-0 min-w-0 flex-1 flex-col"
       >
         {toolbar !== undefined && (
@@ -42,7 +45,7 @@ export function WorkspaceLayout({
       </section>
 
       <aside
-        aria-label="Enhancement settings"
+        aria-label={t('regions.settings')}
         className={cn(
           'shrink-0 overflow-y-auto border-border bg-background',
           'border-t lg:w-[320px] lg:border-t-0 lg:border-l xl:w-[360px]',

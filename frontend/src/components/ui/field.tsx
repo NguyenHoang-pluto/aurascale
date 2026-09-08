@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 import { Badge } from './badge'
 import { Label } from './label'
@@ -29,6 +30,7 @@ export function Field({
   className?: string
   children: (ids: { id: string; describedBy: string | undefined }) => ReactNode
 }) {
+  const { t } = useTranslation('common')
   const id = useId()
   const descriptionId = `${id}-description`
   const describedBy = description !== undefined ? descriptionId : undefined
@@ -48,7 +50,7 @@ export function Field({
           <Label htmlFor={id}>{label}</Label>
           {comingSoon && (
             <Badge tone="neutral" className="font-normal">
-              Coming soon
+              {t('state.comingSoon')}
             </Badge>
           )}
         </div>

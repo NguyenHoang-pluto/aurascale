@@ -1,0 +1,17 @@
+{
+  "RealESRGAN_x4plus": {
+    "description": "General-purpose 4x upscaler. Best default for photographs."
+  },
+  "RealESRGAN_x4plus_anime_6B": {
+    "description": "6-block variant tuned for illustration and anime line art. Faster than x4plus."
+  },
+  "RealESRGAN_x2plus": {
+    "description": "Native 2x upscaler. Used for the 2x preset and as the second pass of 8x."
+  },
+  "realesr-general-x4v3": {
+    "description": "Compact 4x model. Paired with the wdn variant it provides a real denoise-strength control via DNI weight interpolation."
+  },
+  "realesr-general-wdn-x4v3": {
+    "description": "Denoising counterpart of realesr-general-x4v3. Not selectable on its own; blended with its pair by the denoise-strength control."
+  }
+}

@@ -131,12 +131,12 @@ export interface CancelledEventData {
   jobId: string
 }
 
-/** Human-readable stage names for the UI. Keep in step with `JobStage`. */
-export const STAGE_LABELS: Record<JobStage, string> = {
-  validating: 'Validating',
-  loading_model: 'Loading model',
-  preprocessing: 'Preparing image',
-  running_inference: 'Enhancing',
-  postprocessing: 'Post-processing',
-  encoding: 'Encoding',
+/**
+ * The `job:stage.*` key naming a stage. The caller translates it.
+ *
+ * A key rather than a label, so the stage a job reports over SSE stays a
+ * protocol value and only becomes words at the point it is shown.
+ */
+export function stageKey(stage: JobStage): string {
+  return `stage.${stage}`
 }

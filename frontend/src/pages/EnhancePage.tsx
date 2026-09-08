@@ -1,6 +1,7 @@
 import { ArrowRight, Download, ImageUp, SlidersHorizontal, Sparkles, X } from 'lucide-react'
 import { useCallback } from 'react'
-import { ErrorPanel } from '@/components/feedback/ErrorPanel'
+import { useTranslation } from 'react-i18next'
+import { ProblemErrorPanel } from '@/components/feedback/ProblemErrorPanel'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Button } from '@/components/ui/button'
 import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/panel'
@@ -12,11 +13,12 @@ import { ImageInfoPanel } from '@/features/viewer/ImageInfoPanel'
 import { ImageViewer } from '@/features/viewer/ImageViewer'
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore'
 
+/** The four steps, each named by a key rather than by its English word. */
 const FLOW_STEPS = [
-  { icon: ImageUp, label: 'Upload' },
-  { icon: SlidersHorizontal, label: 'Compare' },
-  { icon: Sparkles, label: 'Enhance' },
-  { icon: Download, label: 'Download' },
+  { icon: ImageUp, key: 'flow.upload' },
+  { icon: SlidersHorizontal, key: 'flow.compare' },
+  { icon: Sparkles, key: 'flow.enhance' },
+  { icon: Download, key: 'flow.download' },
 ] as const
 
 /**
@@ -25,13 +27,15 @@ const FLOW_STEPS = [
  * job is reported by the Enhance panel, which has real measurements to show.
  */
 function FlowSummary() {
+  const { t } = useTranslation('common')
+
   return (
     <ol className="flex flex-wrap items-center gap-x-1 gap-y-2 text-xs text-muted-foreground">
       {FLOW_STEPS.map((step, index) => (
-        <li key={step.label} className="flex items-center gap-1">
+        <li key={step.key} className="flex items-center gap-1">
           <span className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1">
             <step.icon aria-hidden="true" className="size-3.5" />
-            {step.label}
+            {t(step.key)}
           </span>
           {index < FLOW_STEPS.length - 1 && (
             <ArrowRight aria-hidden="true" className="size-3 opacity-50" />
@@ -43,6 +47,7 @@ function FlowSummary() {
 }
 
 export function EnhancePage() {
+  const { t } = useTranslation(['common', 'errors', 'upload'])
   const source = useWorkspaceStore((s) => s.source)
   const problem = useWorkspaceStore((s) => s.problem)
   const isLoading = useWorkspaceStore((s) => s.isLoading)
@@ -67,15 +72,10 @@ export function EnhancePage() {
             <div className="flex w-full max-w-xl flex-col gap-4">
               <Dropzone onFileSelected={onFileSelected} isLoading={isLoading} />
               {problem !== null && (
-                <ErrorPanel
-                  title={problem.title}
-                  detail={problem.detail}
-                  code={problem.code}
-                  {...(problem.technical !== undefined
-                    ? { technical: problem.technical }
-                    : {})}
+                <ProblemErrorPanel
+                  problem={problem}
                   onRetry={dismissProblem}
-                  retryLabel="Dismiss"
+                  retryLabel={t('errors:dismiss')}
                 />
               )}
             </div>
@@ -91,7 +91,7 @@ export function EnhancePage() {
                 <div className="ml-auto flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={clear}>
                     <X aria-hidden="true" />
-                    Remove
+                    {t('common:actions.remove')}
                   </Button>
                 </div>
               }
@@ -109,7 +109,7 @@ export function EnhancePage() {
                   </span>
                   <Button variant="ghost" size="sm" onClick={clear}>
                     <X aria-hidden="true" />
-                    Remove
+                    {t('common:actions.remove')}
                   </Button>
                 </div>
               }
@@ -123,20 +123,15 @@ export function EnhancePage() {
             <>
               <ImageInfoPanel metadata={source.metadata} />
               {problem !== null && (
-                <ErrorPanel
-                  title={problem.title}
-                  detail={problem.detail}
-                  code={problem.code}
-                  {...(problem.technical !== undefined
-                    ? { technical: problem.technical }
-                    : {})}
+                <ProblemErrorPanel
+                  problem={problem}
                   onRetry={dismissProblem}
-                  retryLabel="Dismiss"
+                  retryLabel={t('errors:dismiss')}
                 />
               )}
               <Panel>
                 <PanelHeader>
-                  <PanelTitle>Replace image</PanelTitle>
+                  <PanelTitle>{t('upload:replaceTitle')}</PanelTitle>
                 </PanelHeader>
                 <PanelContent>
                   <Dropzone compact onFileSelected={onFileSelected} isLoading={isLoading} />

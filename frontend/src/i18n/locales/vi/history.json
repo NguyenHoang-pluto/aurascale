@@ -1,0 +1,57 @@
+{
+  "page": {
+    "title": "Lịch sử",
+    "description": "Các ảnh vừa được nâng cấp, kèm mô hình, hệ số phóng và thời gian xử lý của từng ảnh."
+  },
+  "filter": {
+    "label": "Lọc theo trạng thái",
+    "all": "Tất cả",
+    "completed": "Hoàn tất",
+    "failed": "Thất bại",
+    "cancelled": "Đã huỷ"
+  },
+  "retention": "Tác vụ và ảnh của chúng sẽ bị xoá 24 giờ sau khi hoàn tất. Đây là danh sách công việc gần đây chứ không phải kho lưu trữ — hãy tải về những gì bạn muốn giữ lại.",
+  "loading": "Đang tải lịch sử",
+  "empty": {
+    "title": "Chưa có gì ở đây",
+    "description": "Hãy nâng cấp một ảnh, nó sẽ xuất hiện ở đây kèm mô hình và thiết lập đã dùng.",
+    "filteredTitle": "Không có mục nào khớp bộ lọc",
+    "filteredDescription": "Hãy thử trạng thái khác."
+  },
+  "error": {
+    "loadTitle": "Không tải được lịch sử",
+    "deleteTitle": "Không xoá được tác vụ đó"
+  },
+  "showing": "Hiển thị {{first}}–{{last}} trong {{total}}",
+  "pager": {
+    "label": "Trang lịch sử",
+    "position": "Trang {{page}}/{{pages}}"
+  },
+  "card": {
+    "label": "Tác vụ lúc {{timestamp}}",
+    "thumbnailAlt": "Kết quả của tác vụ lúc {{timestamp}}",
+    "noResult": "Không có kết quả",
+    "previewUnavailable": "Không có ảnh xem trước",
+    "model": "Mô hình",
+    "size": "Kích thước",
+    "took": "Thời gian",
+    "created": "Tạo lúc",
+    "deleteLabel": "Xoá tác vụ lúc {{timestamp}}",
+    "deleting": "Đang xoá…"
+  },
+  "confirm": {
+    "label": "Xác nhận xoá",
+    "question": "Xoá tác vụ này và ảnh của nó? Tệp sẽ bị xoá khỏi máy chủ và không thể khôi phục."
+  },
+  "sizes": {
+    "change": "{{input}} → {{output}}"
+  },
+  "time": {
+    "today": "Hôm nay {{time}}",
+    "dated": "{{date}} {{time}}"
+  },
+  "viewer": {
+    "label": "Trình xem kết quả",
+    "surfaceLabel": "Trình xem kết quả. Phím cộng và trừ để phóng, 0 vừa màn hình, 1 xem kích thước thật, phím mũi tên để di chuyển."
+  }
+}

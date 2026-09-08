@@ -1,6 +1,8 @@
 import { Menu, Moon, Settings, Sun, X } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip } from '@/components/ui/tooltip'
@@ -9,10 +11,11 @@ import { MOBILE_QUERY, useMediaQuery } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/cn'
 import { useThemeStore } from '@/stores/useThemeStore'
 
+/** The routes, paired with the key that names each one. */
 const NAV_ITEMS = [
-  { to: '/', label: 'Enhance', end: true },
-  { to: '/history', label: 'History', end: false },
-  { to: '/settings', label: 'Settings', end: false },
+  { to: '/', key: 'links.enhance', end: true },
+  { to: '/history', key: 'links.history', end: false },
+  { to: '/settings', key: 'links.settings', end: false },
 ] as const
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
@@ -24,18 +27,16 @@ function navLinkClass({ isActive }: { isActive: boolean }): string {
 }
 
 function ThemeToggle() {
+  const { t } = useTranslation('nav')
   const resolved = useThemeStore((s) => s.resolved)
   const toggleTheme = useThemeStore((s) => s.toggleTheme)
-  const target = resolved === 'dark' ? 'light' : 'dark'
+  // Two whole keys rather than a sentence with the theme name interpolated:
+  // "light"/"dark" do not inflect the same way in both languages.
+  const label = resolved === 'dark' ? t('theme.toLight') : t('theme.toDark')
 
   return (
-    <Tooltip content={`Switch to ${target} theme`}>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleTheme}
-        aria-label={`Switch to ${target} theme`}
-      >
+    <Tooltip content={label}>
+      <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={label}>
         {resolved === 'dark' ? (
           <Sun aria-hidden="true" />
         ) : (
@@ -47,6 +48,7 @@ function ThemeToggle() {
 }
 
 export function TopNav() {
+  const { t } = useTranslation('nav')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   // Branching in JS rather than hiding with CSS: a display:none nav is
   // removed from the accessibility tree by the browser, but keeping both in
@@ -59,7 +61,7 @@ export function TopNav() {
         <NavLink
           to="/"
           className="flex shrink-0 items-center gap-2 rounded-md"
-          aria-label="PixelForge AI, go to workspace"
+          aria-label={t('brand')}
         >
           <span
             aria-hidden="true"
@@ -71,10 +73,10 @@ export function TopNav() {
         </NavLink>
 
         {!isCompact && (
-          <nav aria-label="Main" className="flex items-center gap-1">
+          <nav aria-label={t('main')} className="flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end} className={navLinkClass}>
-                {item.label}
+                {t(item.key)}
               </NavLink>
             ))}
           </nav>
@@ -83,6 +85,7 @@ export function TopNav() {
         <div className="ml-auto flex items-center gap-2">
           <BackendStatusIndicator />
           <Separator orientation="vertical" className="hidden h-5 sm:block" />
+          <LanguageSwitcher compact />
           <ThemeToggle />
 
           {/*
@@ -93,9 +96,9 @@ export function TopNav() {
             navigating by links with a screen reader.
           */}
           {isCompact && (
-            <Tooltip content="Settings">
+            <Tooltip content={t('links.settings')}>
               <Button variant="ghost" size="icon" asChild>
-                <NavLink to="/settings" aria-label="Settings">
+                <NavLink to="/settings" aria-label={t('links.settings')}>
                   <Settings aria-hidden="true" />
                 </NavLink>
               </Button>
@@ -106,7 +109,7 @@ export function TopNav() {
             <Button
               variant="ghost"
               size="icon"
-              aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-label={isMenuOpen ? t('menu.close') : t('menu.open')}
               aria-expanded={isMenuOpen}
               aria-controls="mobile-nav"
               onClick={() => { setIsMenuOpen((open) => !open) }}
@@ -120,7 +123,7 @@ export function TopNav() {
       {isCompact && isMenuOpen && (
         <nav
           id="mobile-nav"
-          aria-label="Main"
+          aria-label={t('main')}
           className="flex flex-col gap-1 border-t border-border px-4 py-2"
         >
           {NAV_ITEMS.map((item) => (
@@ -134,7 +137,7 @@ export function TopNav() {
               // the target route is the current one.
               onClick={() => { setIsMenuOpen(false) }}
             >
-              {item.label}
+              {t(item.key)}
             </NavLink>
           ))}
         </nav>

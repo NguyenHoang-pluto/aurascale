@@ -1,7 +1,8 @@
 import { Clock, History } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/feedback/EmptyState'
-import { ErrorPanel } from '@/components/feedback/ErrorPanel'
+import { ProblemErrorPanel } from '@/components/feedback/ProblemErrorPanel'
 import { Button } from '@/components/ui/button'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -18,16 +19,23 @@ import { PAGE_SIZE, useDeleteJob, useHistory } from './useHistory'
  * stakeholder in a decision that is none of its business.
  */
 
+/**
+ * The filter values, paired with the key that names each one.
+ *
+ * The value is what the API is asked for and never changes with language; the
+ * key is what the user reads.
+ */
 const FILTERS = [
-  { value: 'any', label: 'All' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'failed', label: 'Failed' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'any', key: 'filter.all' },
+  { value: 'completed', key: 'filter.completed' },
+  { value: 'failed', key: 'filter.failed' },
+  { value: 'cancelled', key: 'filter.cancelled' },
 ] as const
 
 type FilterValue = (typeof FILTERS)[number]['value']
 
 export function HistoryGrid({ onView }: { onView: (job: JobRecord) => void }) {
+  const { t } = useTranslation(['history', 'common'])
   const [page, setPage] = useState(0)
   const [filter, setFilter] = useState<FilterValue>('any')
   const [pendingDelete, setPendingDelete] = useState<JobRecord | null>(null)
@@ -51,50 +59,47 @@ export function HistoryGrid({ onView }: { onView: (job: JobRecord) => void }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SegmentedControl
           name="history-filter"
-          label="Filter by status"
+          label={t('history:filter.label')}
           value={filter}
           onChange={changeFilter}
-          options={FILTERS.map((option) => ({ ...option }))}
+          options={FILTERS.map((option) => ({
+            value: option.value,
+            label: t(`history:${option.key}`),
+          }))}
           size="sm"
           className="w-auto"
         />
         {total > 0 && (
           <p className="text-xs text-muted-foreground">
-            Showing {range.first}–{range.last} of {total}
+            {t('history:showing', { first: range.first, last: range.last, total })}
           </p>
         )}
       </div>
 
       <p className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
         <Clock aria-hidden="true" className="size-3.5 shrink-0" />
-        Jobs and their images are removed 24 hours after they finish. This is a
-        record of recent work, not an archive — download anything you want to keep.
+        {t('history:retention')}
       </p>
 
       {history.isError && history.problem !== undefined && (
-        <ErrorPanel
-          title="Could not load history"
-          detail={history.problem.detail}
-          code={history.problem.code}
-          {...(history.problem.technical !== undefined
-            ? { technical: history.problem.technical }
-            : {})}
+        <ProblemErrorPanel
+          problem={history.problem}
+          title={t('history:error.loadTitle')}
           onRetry={history.refetch}
         />
       )}
 
       {deletion.problem !== undefined && (
-        <ErrorPanel
-          title="Could not delete that job"
-          detail={deletion.problem.detail}
-          code={deletion.problem.code}
+        <ProblemErrorPanel
+          problem={deletion.problem}
+          title={t('history:error.deleteTitle')}
         />
       )}
 
       {history.isPending && (
         <div
           aria-busy="true"
-          aria-label="Loading history"
+          aria-label={t('history:loading')}
           className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
         >
           {Array.from({ length: 6 }, (_, index) => (
@@ -106,11 +111,15 @@ export function HistoryGrid({ onView }: { onView: (job: JobRecord) => void }) {
       {!history.isPending && !history.isError && total === 0 && (
         <EmptyState
           icon={History}
-          title={filter === 'any' ? 'Nothing here yet' : 'Nothing matches that filter'}
+          title={
+            filter === 'any'
+              ? t('history:empty.title')
+              : t('history:empty.filteredTitle')
+          }
           description={
             filter === 'any'
-              ? 'Enhance an image and it will appear here, alongside the model and settings it used.'
-              : 'Try a different status.'
+              ? t('history:empty.description')
+              : t('history:empty.filteredDescription')
           }
         />
       )}
@@ -131,17 +140,20 @@ export function HistoryGrid({ onView }: { onView: (job: JobRecord) => void }) {
       )}
 
       {pages > 1 && (
-        <nav aria-label="History pages" className="flex items-center justify-center gap-2">
+        <nav
+          aria-label={t('history:pager.label')}
+          className="flex items-center justify-center gap-2"
+        >
           <Button
             variant="secondary"
             size="sm"
             onClick={() => { setPage((current) => Math.max(0, current - 1)) }}
             disabled={page === 0}
           >
-            Previous
+            {t('common:actions.previous')}
           </Button>
           <span className="text-xs text-muted-foreground">
-            Page {page + 1} of {pages}
+            {t('history:pager.position', { page: page + 1, pages })}
           </span>
           <Button
             variant="secondary"
@@ -149,7 +161,7 @@ export function HistoryGrid({ onView }: { onView: (job: JobRecord) => void }) {
             onClick={() => { setPage((current) => Math.min(pages - 1, current + 1)) }}
             disabled={page >= pages - 1}
           >
-            Next
+            {t('common:actions.next')}
           </Button>
         </nav>
       )}
@@ -183,22 +195,21 @@ function ConfirmDelete({
   onCancel: () => void
   onConfirm: () => void
 }) {
+  const { t } = useTranslation(['history', 'common'])
+
   return (
     <div
       role="alertdialog"
-      aria-label="Confirm deletion"
+      aria-label={t('history:confirm.label')}
       className="flex flex-wrap items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/8 p-4"
     >
-      <p className="min-w-0 flex-1 text-sm">
-        Delete this job and its image? The file is removed from the server and cannot
-        be recovered.
-      </p>
+      <p className="min-w-0 flex-1 text-sm">{t('history:confirm.question')}</p>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel}>
-          Keep
+          {t('common:actions.keep')}
         </Button>
         <Button variant="destructive" size="sm" onClick={onConfirm} autoFocus>
-          Delete
+          {t('common:actions.delete')}
         </Button>
       </div>
       <span className="sr-only">{job.jobId}</span>

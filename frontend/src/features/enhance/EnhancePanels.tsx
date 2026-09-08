@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/panel'
 import { useModels } from '@/features/system/useSystemInfo'
 import { useEnhancementStore } from '@/stores/useEnhancementStore'
@@ -18,6 +19,7 @@ import { useJobProgress } from './useJobProgress'
  * the same capability data and must not disagree about it.
  */
 export function EnhancePanels() {
+  const { t } = useTranslation(['enhance', 'job'])
   const source = useWorkspaceStore((s) => s.source)
   const models = useModels()
 
@@ -44,7 +46,7 @@ export function EnhancePanels() {
     <>
       <Panel>
         <PanelHeader>
-          <PanelTitle>Enhancement</PanelTitle>
+          <PanelTitle>{t('enhance:panel.enhancement')}</PanelTitle>
         </PanelHeader>
         <PanelContent>
           <fieldset disabled={isRunning} className="contents">
@@ -55,10 +57,8 @@ export function EnhancePanels() {
               {...(models.isError
                 ? {
                     problem: {
-                      title: 'Cannot load the model list',
-                      detail:
-                        models.reason ??
-                        'The backend did not return the available models. Check that it is running.',
+                      title: t('enhance:model.loadFailed'),
+                      detail: models.reason ?? t('enhance:model.loadFailedDetail'),
                     },
                   }
                 : {})}
@@ -69,7 +69,7 @@ export function EnhancePanels() {
 
       <Panel>
         <PanelHeader>
-          <PanelTitle>Output</PanelTitle>
+          <PanelTitle>{t('enhance:panel.output')}</PanelTitle>
         </PanelHeader>
         <PanelContent>
           <fieldset disabled={isRunning} className="contents">
@@ -80,14 +80,14 @@ export function EnhancePanels() {
 
       <Panel>
         <PanelHeader>
-          <PanelTitle>Job</PanelTitle>
+          <PanelTitle>{t('enhance:panel.job')}</PanelTitle>
         </PanelHeader>
         <PanelContent>
           <JobPanel
             job={job}
             live={live}
             canSubmit={source !== null && selected !== undefined && selected.downloaded}
-            disabledReason={describeBlocker(source !== null, selected)}
+            disabledReason={describeBlocker(t, source !== null, selected)}
             isSubmitting={enhancement.isSubmitting}
             isCancelling={enhancement.isCancelling}
             problem={enhancement.problem}

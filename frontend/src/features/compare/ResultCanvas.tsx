@@ -1,5 +1,6 @@
 import { Download } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ErrorPanel } from '@/components/feedback/ErrorPanel'
 import { Button } from '@/components/ui/button'
 import { resultUrl } from '@/services/jobsApi'
@@ -20,6 +21,7 @@ export function ResultCanvas({
   result: CompletedResult
   toolbarSlot?: React.ReactNode
 }) {
+  const { t } = useTranslation('compare')
   const [previewFailed, setPreviewFailed] = useState(false)
 
   return (
@@ -36,8 +38,8 @@ export function ResultCanvas({
       {previewFailed && (
         <div className="flex shrink-0 flex-col gap-3 border-t border-border p-4">
           <ErrorPanel
-            title="The enhanced view could not be loaded"
-            detail="The original is still shown, and the result itself can still be downloaded. Previews are removed along with the rest of a job once its retention window passes."
+            title={t('previewFailed.title')}
+            detail={t('previewFailed.detail')}
             code="job_not_found"
             onRetry={() => { setPreviewFailed(false) }}
           />
@@ -46,7 +48,7 @@ export function ResultCanvas({
           <Button asChild variant="secondary" size="sm" className="self-start">
             <a href={resultUrl(result.jobId)} download>
               <Download aria-hidden="true" />
-              Download result
+              {t('previewFailed.download')}
             </a>
           </Button>
         </div>

@@ -1,19 +1,22 @@
 import { Download, Eye, ImageOff, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import type { TFunction } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import { Badge, MetricBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { StatusIndicator } from '@/components/ui/status'
+import { useErrorMessage } from '@/i18n/errorMessages'
 import { formatDuration } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { resultUrl, thumbnailUrl } from '@/services/jobsApi'
 import type { JobRecord } from '@/types/job'
 import {
-  describeSizes,
-  formatTimestamp,
   hasResult,
   isRunning,
-  statusLabel,
+  sizeParts,
+  statusKey,
   statusTone,
+  timestampParts,
 } from './historyPresentation'
 
 /**
@@ -38,12 +41,19 @@ export function HistoryCard({
   onDelete: (job: JobRecord) => void
   isDeleting?: boolean
 }) {
+  const { t, i18n } = useTranslation(['history', 'job', 'common'])
+  const translateError = useErrorMessage()
   const [thumbnailFailed, setThumbnailFailed] = useState(false)
+
+  const locale = i18n.language
   const showThumbnail = hasResult(job) && !thumbnailFailed
+  const timestamp = formatCreated(t, job.createdAt, locale)
+  const sizes = sizeParts(job, locale)
+  const errorText = job.error === null ? null : translateError(job.error).detail
 
   return (
     <article
-      aria-label={`Job from ${formatTimestamp(job.createdAt)}`}
+      aria-label={t('history:card.label', { timestamp })}
       className={cn(
         'flex flex-col overflow-hidden rounded-lg border border-border bg-surface',
         isDeleting && 'opacity-50',
@@ -53,7 +63,7 @@ export function HistoryCard({
         {showThumbnail ? (
           <img
             src={thumbnailUrl(job.jobId)}
-            alt={`Result of the job from ${formatTimestamp(job.createdAt)}`}
+            alt={t('history:card.thumbnailAlt', { timestamp })}
             loading="lazy"
             decoding="async"
             onError={() => { setThumbnailFailed(true) }}
@@ -65,7 +75,9 @@ export function HistoryCard({
           <div className="flex size-full flex-col items-center justify-center gap-1.5 text-muted-foreground">
             <ImageOff aria-hidden="true" className="size-5" />
             <span className="text-xs">
-              {hasResult(job) ? 'Preview unavailable' : 'No result'}
+              {hasResult(job)
+                ? t('history:card.previewUnavailable')
+                : t('history:card.noResult')}
             </span>
           </div>
         )}
@@ -73,32 +85,41 @@ export function HistoryCard({
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-3">
         <div className="flex items-center justify-between gap-2">
-          <StatusIndicator tone={statusTone(job.status)} label={statusLabel(job.status)} />
+          <StatusIndicator
+            tone={statusTone(job.status)}
+            label={t(`job:${statusKey(job.status)}`)}
+          />
+          {/* The factor is a number and an "x", the same in every language. */}
           <Badge tone="neutral">{job.scale}x</Badge>
         </div>
 
         <dl className="flex flex-col gap-1 text-xs">
-          <Row label="Model">
+          <Row label={t('history:card.model')}>
+            {/* A model id is an identifier, never translated. */}
             <span className="truncate" title={job.model}>
               {job.model}
             </span>
           </Row>
-          <Row label="Size">
-            <MetricBadge>{describeSizes(job)}</MetricBadge>
+          <Row label={t('history:card.size')}>
+            <MetricBadge>
+              {sizes.output === null
+                ? sizes.input
+                : t('history:sizes.change', { input: sizes.input, output: sizes.output })}
+            </MetricBadge>
           </Row>
           {job.processingMs !== null && (
-            <Row label="Took">
-              <MetricBadge>{formatDuration(job.processingMs)}</MetricBadge>
+            <Row label={t('history:card.took')}>
+              <MetricBadge>{formatDuration(job.processingMs, locale)}</MetricBadge>
             </Row>
           )}
-          <Row label="Created">
-            <span className="text-muted-foreground">{formatTimestamp(job.createdAt)}</span>
+          <Row label={t('history:card.created')}>
+            <span className="text-muted-foreground">{timestamp}</span>
           </Row>
         </dl>
 
-        {job.error !== null && (
-          <p className="line-clamp-2 text-xs text-destructive" title={job.error.detail}>
-            {job.error.detail}
+        {errorText !== null && (
+          <p className="line-clamp-2 text-xs text-destructive" title={errorText}>
+            {errorText}
           </p>
         )}
 
@@ -107,12 +128,12 @@ export function HistoryCard({
             <>
               <Button variant="secondary" size="sm" onClick={() => { onView(job) }}>
                 <Eye aria-hidden="true" />
-                View
+                {t('common:actions.view')}
               </Button>
               <Button asChild variant="ghost" size="sm">
                 <a href={resultUrl(job.jobId)} download>
                   <Download aria-hidden="true" />
-                  Download
+                  {t('common:actions.download')}
                 </a>
               </Button>
             </>
@@ -125,16 +146,29 @@ export function HistoryCard({
               className="ml-auto text-muted-foreground hover:text-destructive"
               onClick={() => { onDelete(job) }}
               disabled={isDeleting}
-              aria-label={`Delete the job from ${formatTimestamp(job.createdAt)}`}
+              aria-label={t('history:card.deleteLabel', { timestamp })}
             >
               <Trash2 aria-hidden="true" />
-              {isDeleting ? 'Deleting…' : 'Delete'}
+              {isDeleting ? t('history:card.deleting') : t('common:actions.delete')}
             </Button>
           )}
         </div>
       </div>
     </article>
   )
+}
+
+/**
+ * A timestamp assembled from its parts, in the order this language uses.
+ *
+ * The parts are joined by a translation key rather than here, because "Today
+ * 10:32" and "8 thg 9 10:32" do not put the pieces in the same order.
+ */
+function formatCreated(t: TFunction, iso: string, locale: string): string {
+  const parts = timestampParts(iso, new Date(), locale)
+
+  if (parts.key === 'unknown') return t('common:state.unknown')
+  return t(`history:time.${parts.key}`, { time: parts.time, date: parts.date })
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {

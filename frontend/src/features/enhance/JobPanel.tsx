@@ -1,5 +1,6 @@
 import { Ban, Download, RotateCcw, Sparkles } from 'lucide-react'
-import { ErrorPanel } from '@/components/feedback/ErrorPanel'
+import { useTranslation } from 'react-i18next'
+import { ProblemErrorPanel } from '@/components/feedback/ProblemErrorPanel'
 import { Badge, MetricBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -8,7 +9,7 @@ import { formatBytes, formatDimensions, formatDuration } from '@/lib/format'
 import { resultUrl } from '@/services/jobsApi'
 import type { ProblemDetail } from '@/types/api'
 import type { JobRecord, JobStatus } from '@/types/job'
-import { describeProgress, statusLabel } from './jobPresentation'
+import { describeProgress, statusKey } from './jobPresentation'
 import type { LiveProgress } from './useJobProgress'
 
 /**
@@ -52,6 +53,8 @@ export function JobPanel({
   onCancel: () => void
   onReset: () => void
 }) {
+  const { t, i18n } = useTranslation(['job', 'errors', 'common'])
+  const locale = i18n.language
   const isRunning =
     job !== undefined && (job.status === 'queued' || job.status === 'processing')
   const isFinished = job !== undefined && !isRunning
@@ -67,7 +70,7 @@ export function JobPanel({
             aria-busy={isSubmitting}
           >
             <Sparkles aria-hidden="true" />
-            {isSubmitting ? 'Submitting…' : 'Enhance'}
+            {isSubmitting ? t('job:actions.submitting') : t('job:actions.submit')}
           </Button>
           {!canSubmit && disabledReason !== undefined && (
             <p className="text-xs text-muted-foreground">{disabledReason}</p>
@@ -81,16 +84,16 @@ export function JobPanel({
             <StatusIndicator
               live={isRunning}
               tone={STATUS_TONE[job.status]}
-              label={statusLabel(job.status)}
+              label={t(`job:${statusKey(job.status)}`)}
             />
             {job.device !== null && <Badge tone="neutral">{job.device.toUpperCase()}</Badge>}
           </div>
 
           {isRunning && (
             <>
-              <Progress value={live.progress} label="Enhancement progress" />
+              <Progress value={live.progress} label={t('job:progress.label')} />
               <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                <span>{describeProgress(live, job.status)}</span>
+                <span>{describeProgress(t, live, job.status)}</span>
                 <span aria-hidden="true">{live.progress}%</span>
               </div>
               <Button
@@ -101,7 +104,7 @@ export function JobPanel({
                 aria-busy={isCancelling}
               >
                 <Ban aria-hidden="true" />
-                {isCancelling ? 'Stopping…' : 'Cancel'}
+                {isCancelling ? t('job:actions.cancelling') : t('job:actions.cancel')}
               </Button>
             </>
           )}
@@ -109,17 +112,17 @@ export function JobPanel({
           {job.status === 'completed' && job.output !== null && (
             <>
               <dl className="flex flex-col gap-1.5 text-xs">
-                <Row label="Result">
+                <Row label={t('job:result.size')}>
                   <MetricBadge>
-                    {formatDimensions(job.output.width, job.output.height)}
+                    {formatDimensions(job.output.width, job.output.height, locale)}
                   </MetricBadge>
                 </Row>
-                <Row label="File size">
-                  <MetricBadge>{formatBytes(job.output.sizeBytes)}</MetricBadge>
+                <Row label={t('job:result.fileSize')}>
+                  <MetricBadge>{formatBytes(job.output.sizeBytes, 1, locale)}</MetricBadge>
                 </Row>
                 {job.processingMs !== null && (
-                  <Row label="Took">
-                    <MetricBadge>{formatDuration(job.processingMs)}</MetricBadge>
+                  <Row label={t('job:result.took')}>
+                    <MetricBadge>{formatDuration(job.processingMs, locale)}</MetricBadge>
                   </Row>
                 )}
               </dl>
@@ -129,44 +132,34 @@ export function JobPanel({
                     passing through JavaScript. */}
                 <a href={resultUrl(job.jobId)} download>
                   <Download aria-hidden="true" />
-                  Download result
+                  {t('job:actions.download')}
                 </a>
               </Button>
             </>
           )}
 
           {job.status === 'failed' && job.error !== null && (
-            <ErrorPanel
-              title="Enhancement failed"
-              detail={job.error.detail}
-              code={job.error.code}
-              {...(job.error.technical != null ? { technical: job.error.technical } : {})}
-            />
+            <ProblemErrorPanel problem={job.error} title={t('job:failedTitle')} />
           )}
 
           {job.status === 'cancelled' && (
-            <p className="text-xs text-muted-foreground">
-              Stopped before it finished, so no result was produced.
-            </p>
+            <p className="text-xs text-muted-foreground">{t('job:cancelledNote')}</p>
           )}
 
           {isFinished && (
             <Button variant="ghost" size="sm" onClick={onReset}>
               <RotateCcw aria-hidden="true" />
-              Enhance again
+              {t('job:actions.again')}
             </Button>
           )}
         </div>
       )}
 
       {problem !== undefined && (
-        <ErrorPanel
-          title={problem.title}
-          detail={problem.detail}
-          code={problem.code}
-          {...(problem.technical !== undefined ? { technical: problem.technical } : {})}
+        <ProblemErrorPanel
+          problem={problem}
           onRetry={onReset}
-          retryLabel="Dismiss"
+          retryLabel={t('errors:dismiss')}
         />
       )}
     </div>

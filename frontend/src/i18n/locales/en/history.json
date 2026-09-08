@@ -1,0 +1,57 @@
+{
+  "page": {
+    "title": "History",
+    "description": "Recently enhanced images, with the model, scale and processing time used for each."
+  },
+  "filter": {
+    "label": "Filter by status",
+    "all": "All",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "retention": "Jobs and their images are removed 24 hours after they finish. This is a record of recent work, not an archive — download anything you want to keep.",
+  "loading": "Loading history",
+  "empty": {
+    "title": "Nothing here yet",
+    "description": "Enhance an image and it will appear here, alongside the model and settings it used.",
+    "filteredTitle": "Nothing matches that filter",
+    "filteredDescription": "Try a different status."
+  },
+  "error": {
+    "loadTitle": "Could not load history",
+    "deleteTitle": "Could not delete that job"
+  },
+  "showing": "Showing {{first}}–{{last}} of {{total}}",
+  "pager": {
+    "label": "History pages",
+    "position": "Page {{page}} of {{pages}}"
+  },
+  "card": {
+    "label": "Job from {{timestamp}}",
+    "thumbnailAlt": "Result of the job from {{timestamp}}",
+    "noResult": "No result",
+    "previewUnavailable": "Preview unavailable",
+    "model": "Model",
+    "size": "Size",
+    "took": "Took",
+    "created": "Created",
+    "deleteLabel": "Delete the job from {{timestamp}}",
+    "deleting": "Deleting…"
+  },
+  "confirm": {
+    "label": "Confirm deletion",
+    "question": "Delete this job and its image? The file is removed from the server and cannot be recovered."
+  },
+  "sizes": {
+    "change": "{{input}} → {{output}}"
+  },
+  "time": {
+    "today": "Today {{time}}",
+    "dated": "{{date}} {{time}}"
+  },
+  "viewer": {
+    "label": "Result viewer",
+    "surfaceLabel": "Result viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan."
+  }
+}

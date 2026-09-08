@@ -1,0 +1,42 @@
+{
+  "status": {
+    "queued": "Queued",
+    "processing": "In progress",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "stage": {
+    "validating": "Validating",
+    "loading_model": "Loading model",
+    "preprocessing": "Preparing image",
+    "running_inference": "Enhancing",
+    "postprocessing": "Post-processing",
+    "encoding": "Encoding"
+  },
+  "progress": {
+    "label": "Enhancement progress",
+    "queued": "Waiting for a free worker",
+    "tile": "{{stage}} · tile {{done}} of {{total}}"
+  },
+  "actions": {
+    "submit": "Enhance",
+    "submitting": "Submitting…",
+    "cancel": "Cancel",
+    "cancelling": "Stopping…",
+    "download": "Download result",
+    "again": "Enhance again"
+  },
+  "blocked": {
+    "noImage": "Load an image to enhance.",
+    "noModels": "Waiting for the model list.",
+    "notDownloaded": "{{model}} is not downloaded yet."
+  },
+  "result": {
+    "size": "Result",
+    "fileSize": "File size",
+    "took": "Took"
+  },
+  "failedTitle": "Enhancement failed",
+  "cancelledNote": "Stopped before it finished, so no result was produced."
+}

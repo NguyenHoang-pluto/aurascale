@@ -3,14 +3,15 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { HistoryPage } from '@/pages/HistoryPage'
 import {
-  describeSizes,
-  formatTimestamp,
   hasResult,
   isRunning,
   pageCount,
   pageRange,
-  statusLabel,
+  sizeParts,
+  statusKey,
+  timestampParts,
 } from './historyPresentation'
+import { i18n } from '@/i18n'
 import { jsonResponse, renderWithProviders } from '@/test/renderWithProviders'
 import { GPU_SYSTEM, HEALTH } from '@/test/systemFixtures'
 import type { JobRecord } from '@/types/job'
@@ -227,8 +228,9 @@ describe('a history entry', () => {
     expect(entry.getByText('No result')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /Download/ })).not.toBeInTheDocument()
-    // The reason is shown, not swallowed.
-    expect(entry.getByText(/Not enough memory/)).toBeInTheDocument()
+    // The reason is shown, not swallowed — translated from the code rather
+    // than echoing the server's English sentence.
+    expect(entry.getByText(/not enough memory to enhance an image this large/)).toBeInTheDocument()
   })
 
   it('offers no result for a cancelled job', async () => {
@@ -503,11 +505,18 @@ describe('accessibility', () => {
 
 describe('presentation helpers', () => {
   it('describes the size change in one line', () => {
-    expect(describeSizes(job(1))).toBe('320 × 240 → 1,280 × 960')
+    const parts = sizeParts(job(1), 'en')
+
+    expect(i18n.t('history:sizes.change', { input: parts.input, output: parts.output })).toBe(
+      '320 × 240 → 1,280 × 960',
+    )
   })
 
   it('shows only the input when there is no output', () => {
-    expect(describeSizes(job(1, { output: null }))).toBe('320 × 240')
+    const parts = sizeParts(job(1, { output: null }), 'en')
+
+    expect(parts.input).toBe('320 × 240')
+    expect(parts.output).toBeNull()
   })
 
   it('knows which jobs have a file behind them', () => {
@@ -525,7 +534,12 @@ describe('presentation helpers', () => {
 
   it('labels every status', () => {
     for (const status of ['queued', 'processing', 'completed', 'failed', 'cancelled'] as const) {
-      expect(statusLabel(status)).not.toBe('')
+      const key = `job:${statusKey(status)}`
+
+      // A missing key makes i18next echo the key back, which is how a status
+      // with no translation would reach the screen.
+      expect(i18n.t(key)).not.toBe(key)
+      expect(i18n.t(key)).not.toBe('')
     }
   })
 
@@ -547,18 +561,26 @@ describe('presentation helpers', () => {
     // literal can fall on either side of local midnight.
     const now = new Date()
     const earlier = new Date(now.getTime() - 60 * 60 * 1000)
+    const parts = timestampParts(earlier.toISOString(), now, 'en')
 
-    expect(formatTimestamp(earlier.toISOString(), now)).toMatch(/^Today /)
+    expect(parts.key).toBe('today')
+    expect(i18n.t('history:time.today', { time: parts.time, date: parts.date })).toMatch(
+      /^Today /,
+    )
   })
 
   it('dates anything older', () => {
     const now = new Date()
     const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const parts = timestampParts(lastWeek.toISOString(), now, 'en')
 
-    expect(formatTimestamp(lastWeek.toISOString(), now)).not.toMatch(/^Today /)
+    expect(parts.key).toBe('dated')
+    expect(i18n.t('history:time.dated', { time: parts.time, date: parts.date })).not.toMatch(
+      /^Today /,
+    )
   })
 
   it('does not pretend to read a broken timestamp', () => {
-    expect(formatTimestamp('not a date')).toBe('Unknown')
+    expect(timestampParts('not a date').key).toBe('unknown')
   })
 })

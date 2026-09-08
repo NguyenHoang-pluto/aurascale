@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 import { ZoomControls } from '@/features/viewer/ZoomControls'
 import { useZoomPan } from '@/features/viewer/useZoomPan'
@@ -50,6 +51,7 @@ export function ComparisonViewer({
   onPreviewError,
   previewFailed = false,
 }: ComparisonViewerProps) {
+  const { t } = useTranslation('compare')
   const mode = useComparisonStore((s) => s.mode)
   const setMode = useComparisonStore((s) => s.setMode)
   const divider = useComparisonStore((s) => s.divider)
@@ -108,7 +110,7 @@ export function ComparisonViewer({
         ref={attach}
         tabIndex={0}
         role="group"
-        aria-label="Comparison viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan."
+        aria-label={t('surface.label')}
         onPointerDown={handlers.onPointerDown}
         onPointerMove={handlers.onPointerMove}
         onPointerUp={handlers.onPointerUp}
@@ -159,7 +161,7 @@ export function ComparisonViewer({
             aria-live="polite"
             className="absolute top-2 right-2 rounded-md border border-border bg-surface-raised/90 px-2 py-1 text-xs text-muted-foreground"
           >
-            {isPreviewLoading ? 'Loading result…' : 'Loading detail…'}
+            {isPreviewLoading ? t('loading.result') : t('loading.detail')}
           </p>
         )}
       </div>
@@ -256,6 +258,7 @@ interface PaneProps {
 
 /** Slider and split: one frame, the after clipped at the divider. */
 function Wipe({ position, ...props }: PaneProps & { position: number }) {
+  const { t } = useTranslation('compare')
   const { before, jobId, output, transform, crop, previewFailed, onPreviewLoad, onPreviewError } =
     props
 
@@ -263,7 +266,7 @@ function Wipe({ position, ...props }: PaneProps & { position: number }) {
     <>
       <Layer
         src={before.objectUrl}
-        alt={`Original: ${before.name}`}
+        alt={t('layer.originalAlt', { name: before.name })}
         output={output}
         transform={transform}
       />
@@ -277,7 +280,7 @@ function Wipe({ position, ...props }: PaneProps & { position: number }) {
         >
           <Layer
             src={previewUrl(jobId)}
-            alt="Enhanced result"
+            alt={t('layer.enhancedAlt')}
             output={output}
             transform={transform}
             onLoad={onPreviewLoad}
@@ -294,15 +297,16 @@ function Wipe({ position, ...props }: PaneProps & { position: number }) {
 
 /** Two panes, one transform. Panning either pans both, because there is one. */
 function SideBySide(props: PaneProps) {
+  const { t } = useTranslation('compare')
   const { before, jobId, output, transform, crop, previewFailed, onPreviewLoad, onPreviewError } =
     props
 
   return (
     <div className="absolute inset-0 flex">
-      <section aria-label="Original" className="relative min-w-0 flex-1 overflow-hidden">
+      <section aria-label={t('layer.original')} className="relative min-w-0 flex-1 overflow-hidden">
         <Layer
           src={before.objectUrl}
-          alt={`Original: ${before.name}`}
+          alt={t('layer.originalAlt', { name: before.name })}
           output={output}
           transform={transform}
         />
@@ -310,12 +314,12 @@ function SideBySide(props: PaneProps) {
 
       <div aria-hidden="true" className="w-px shrink-0 bg-border" />
 
-      <section aria-label="Enhanced" className="relative min-w-0 flex-1 overflow-hidden">
+      <section aria-label={t('layer.enhanced')} className="relative min-w-0 flex-1 overflow-hidden">
         {!previewFailed && (
           <>
             <Layer
               src={previewUrl(jobId)}
-              alt="Enhanced result"
+              alt={t('layer.enhancedAlt')}
               output={output}
               transform={transform}
               onLoad={onPreviewLoad}
@@ -349,6 +353,7 @@ function Divider({
   onMove: (position: number) => void
   surfaceRef: React.RefObject<HTMLDivElement | null>
 }) {
+  const { t } = useTranslation('compare')
   const isDragging = useRef(false)
 
   const moveTo = useCallback(
@@ -383,11 +388,11 @@ function Divider({
       {draggable && (
         <div
           role="slider"
-          aria-label="Comparison divider"
+          aria-label={t('divider.label')}
           aria-valuenow={Math.round(position)}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuetext={`${String(Math.round(position))}% enhanced`}
+          aria-valuetext={t('divider.valueText', { percent: Math.round(position) })}
           tabIndex={0}
           onKeyDown={onKeyDown}
           onPointerDown={(event) => {

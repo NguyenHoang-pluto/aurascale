@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TopNav } from './TopNav'
 
 /**
@@ -9,6 +10,8 @@ import { TopNav } from './TopNav'
  * without the page scrolling behind it.
  */
 export function AppShell({ children }: { children: ReactNode }) {
+  const { t } = useTranslation('nav')
+
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background">
       <a
@@ -19,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           'focus:px-3 focus:py-2 focus:text-sm focus:font-medium'
         }
       >
-        Skip to content
+        {t('skipToContent')}
       </a>
       <TopNav />
       <main id="main" className="flex min-h-0 flex-1 flex-col overflow-hidden">

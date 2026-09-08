@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { StatusTone } from '@/components/ui/status'
 import type { SystemInfo } from '@/types/system'
 
@@ -14,17 +15,26 @@ export interface StatusPresentation {
  * wrong. Only once the system report has arrived is a device claim made.
  *
  * Lives apart from the indicator so it can be tested — and reused — without
- * mounting a component.
+ * mounting a component. It takes `t` rather than returning a key, because tone
+ * and label are one decision and splitting them across the call site would let
+ * the two drift apart.
  */
 export function describeStatus(
+  t: TFunction,
   connection: 'checking' | 'online' | 'offline',
   system: SystemInfo | undefined,
 ): StatusPresentation {
-  if (connection === 'offline') return { tone: 'danger', label: 'Backend offline' }
-  if (connection === 'checking') return { tone: 'pending', label: 'Checking backend' }
-  if (system === undefined) return { tone: 'pending', label: 'Reading capabilities' }
+  if (connection === 'offline') {
+    return { tone: 'danger', label: t('system:indicator.offline') }
+  }
+  if (connection === 'checking') {
+    return { tone: 'pending', label: t('system:indicator.checking') }
+  }
+  if (system === undefined) {
+    return { tone: 'pending', label: t('system:indicator.reading') }
+  }
 
   return system.device === 'cuda'
-    ? { tone: 'success', label: 'GPU acceleration enabled' }
-    : { tone: 'warning', label: 'CPU mode' }
+    ? { tone: 'success', label: t('system:indicator.gpu') }
+    : { tone: 'warning', label: t('system:indicator.cpu') }
 }

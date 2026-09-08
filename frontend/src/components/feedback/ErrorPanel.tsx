@@ -1,6 +1,7 @@
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { AlertCircle, ChevronRight, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 import { Button } from '@/components/ui/button'
 
@@ -17,7 +18,7 @@ export function ErrorPanel({
   technical,
   code,
   onRetry,
-  retryLabel = 'Try again',
+  retryLabel,
   className,
 }: {
   title: string
@@ -26,9 +27,11 @@ export function ErrorPanel({
   /** Stable error code, shown alongside the technical detail for bug reports. */
   code?: string
   onRetry?: () => void
+  /** Overrides the default "Try again"; already-translated text. */
   retryLabel?: string
   className?: string
 }) {
+  const { t } = useTranslation('errors')
   const [isOpen, setIsOpen] = useState(false)
   const hasTechnical = technical !== undefined || code !== undefined
 
@@ -66,7 +69,7 @@ export function ErrorPanel({
                       isOpen && 'rotate-90',
                     )}
                   />
-                  Technical details
+                  {t('technicalDetails')}
                 </button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -87,7 +90,7 @@ export function ErrorPanel({
           {onRetry !== undefined && (
             <Button variant="outline" size="sm" onClick={onRetry} className="mt-3">
               <RotateCcw aria-hidden="true" />
-              {retryLabel}
+              {retryLabel ?? t('retry')}
             </Button>
           )}
         </div>

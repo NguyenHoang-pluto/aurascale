@@ -1,4 +1,5 @@
 import { Construction } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/cn'
 
@@ -21,6 +22,8 @@ export function PhaseNotice({
   phase: string
   className?: string
 }) {
+  const { t } = useTranslation('common')
+
   return (
     <div
       className={cn(
@@ -34,7 +37,7 @@ export function PhaseNotice({
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
       </div>
-      <Badge tone="accent">Arrives in {phase}</Badge>
+      <Badge tone="accent">{t('phaseNotice.badge', { phase })}</Badge>
     </div>
   )
 }

@@ -1,0 +1,31 @@
+{
+  "surface": {
+    "label": "Trình so sánh. Phím cộng và trừ để phóng, 0 vừa màn hình, 1 xem kích thước thật, phím mũi tên để di chuyển."
+  },
+  "mode": {
+    "label": "Chế độ so sánh",
+    "slider": "Thanh trượt",
+    "sliderHint": "kéo",
+    "sideBySide": "Cạnh nhau",
+    "split": "Chia đôi"
+  },
+  "layer": {
+    "original": "Ảnh gốc",
+    "originalAlt": "Ảnh gốc: {{name}}",
+    "enhanced": "Sau nâng cấp",
+    "enhancedAlt": "Kết quả sau nâng cấp"
+  },
+  "divider": {
+    "label": "Thanh chia so sánh",
+    "valueText": "{{percent}}% là ảnh sau nâng cấp"
+  },
+  "loading": {
+    "result": "Đang tải kết quả…",
+    "detail": "Đang tải chi tiết…"
+  },
+  "previewFailed": {
+    "title": "Không tải được ảnh sau nâng cấp",
+    "detail": "Ảnh gốc vẫn hiển thị và bạn vẫn tải được kết quả về. Ảnh xem trước bị xoá cùng với tác vụ khi hết thời gian lưu giữ.",
+    "download": "Tải kết quả"
+  }
+}

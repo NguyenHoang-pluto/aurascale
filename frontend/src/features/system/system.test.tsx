@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BackendStatusIndicator } from './BackendStatusIndicator'
 import { describeStatus } from './describeStatus'
 import { SystemPanel } from './SystemPanel'
+import { i18n } from '@/i18n'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { CPU_SYSTEM, GPU_SYSTEM, HEALTH, MODELS, stubApi } from '@/test/systemFixtures'
 
@@ -14,28 +15,28 @@ afterEach(() => {
 describe('describeStatus', () => {
   it('prioritises reachability over any device claim', () => {
     // Claiming "CPU mode" while the server is down would be a guess.
-    expect(describeStatus('offline', GPU_SYSTEM)).toEqual({
+    expect(describeStatus(i18n.t, 'offline', GPU_SYSTEM)).toEqual({
       tone: 'danger',
       label: 'Backend offline',
     })
   })
 
   it('waits for the system report before naming a device', () => {
-    expect(describeStatus('online', undefined)).toEqual({
+    expect(describeStatus(i18n.t, 'online', undefined)).toEqual({
       tone: 'pending',
       label: 'Reading capabilities',
     })
   })
 
   it('reports GPU acceleration only when the server confirmed a CUDA device', () => {
-    expect(describeStatus('online', GPU_SYSTEM)).toEqual({
+    expect(describeStatus(i18n.t, 'online', GPU_SYSTEM)).toEqual({
       tone: 'success',
       label: 'GPU acceleration enabled',
     })
   })
 
   it('reports CPU mode as a warning, not a failure', () => {
-    expect(describeStatus('online', CPU_SYSTEM)).toEqual({
+    expect(describeStatus(i18n.t, 'online', CPU_SYSTEM)).toEqual({
       tone: 'warning',
       label: 'CPU mode',
     })

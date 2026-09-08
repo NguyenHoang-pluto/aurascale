@@ -1,0 +1,111 @@
+{
+  "unknown": {
+    "title": "Đã xảy ra lỗi",
+    "detail": "Máy chủ báo về một lỗi mà phiên bản ứng dụng này chưa nhận biết được."
+  },
+  "unsupported_format": {
+    "title": "Định dạng không được hỗ trợ",
+    "detail": "Tệp này không thuộc các định dạng ứng dụng có thể đọc. Hãy dùng JPEG, PNG hoặc WEBP."
+  },
+  "corrupted_image": {
+    "title": "Không đọc được ảnh",
+    "detail": "Tệp trông giống ảnh nhưng không giải mã được. Có thể tệp bị cắt cụt hoặc hỏng."
+  },
+  "file_too_large": {
+    "title": "Tệp quá lớn",
+    "detail": "Tệp này lớn hơn giới hạn {{limit}}.",
+    "detailGeneric": "Tệp đó lớn hơn giới hạn tải lên."
+  },
+  "image_too_large": {
+    "title": "Ảnh quá lớn",
+    "detail": "Ảnh này là {{actual}}, vượt quá giới hạn {{limit}}.",
+    "detailGeneric": "Ảnh đó có nhiều điểm ảnh hơn mức một tác vụ xử lý được."
+  },
+  "image_too_small": {
+    "title": "Ảnh quá nhỏ",
+    "detail": "Mỗi cạnh của ảnh cần ít nhất {{minimum}} pixel thì mới có đủ chi tiết để tái tạo.",
+    "detailGeneric": "Ảnh đó quá nhỏ, không có đủ chi tiết để tái tạo."
+  },
+  "output_too_large": {
+    "title": "Kết quả sẽ quá lớn",
+    "detail": "Ảnh sau khi phóng to sẽ là {{projected}}, vượt quá giới hạn {{limit}}. Hãy chọn hệ số phóng nhỏ hơn.",
+    "detailGeneric": "Ảnh sau khi phóng sẽ vượt quá giới hạn kích thước. Hãy thử hệ số phóng nhỏ hơn."
+  },
+  "invalid_parameters": {
+    "title": "Thiết lập không hợp lệ",
+    "detail": "Không thể dùng các thiết lập này cùng nhau."
+  },
+  "out_of_memory": {
+    "title": "Không đủ bộ nhớ",
+    "detail": "Không đủ bộ nhớ để xử lý ảnh lớn như vậy. Hãy thử ảnh nhỏ hơn hoặc hệ số phóng thấp hơn."
+  },
+  "gpu_unavailable": {
+    "title": "GPU không khả dụng",
+    "detail": "Đã yêu cầu chạy trên GPU nhưng không tìm thấy thiết bị CUDA nào dùng được. Hãy kiểm tra driver và bản PyTorch có hỗ trợ CUDA."
+  },
+  "storage_full": {
+    "title": "Hết dung lượng lưu trữ",
+    "detail": "Máy chủ đã hết chỗ cho ảnh mới. Các kết quả cũ sẽ được tự động xoá; hãy thử lại sau giây lát."
+  },
+  "model_not_found": {
+    "title": "Không tìm thấy mô hình",
+    "detail": "Không có mô hình nào tên {{requested}}.",
+    "detailGeneric": "Mô hình đó không có trong danh sách."
+  },
+  "model_load_failed": {
+    "title": "Không tải được mô hình",
+    "detail": "Không nạp được trọng số của mô hình. Có thể tệp bị thiếu hoặc chưa tải xong."
+  },
+  "model_download_failed": {
+    "title": "Tải mô hình thất bại",
+    "detail": "Không tải xuống được trọng số của mô hình. Hãy kiểm tra kết nối mạng rồi thử lại."
+  },
+  "inference_failed": {
+    "title": "Xử lý thất bại",
+    "detail": "Mô hình gặp lỗi trong lúc xử lý ảnh này."
+  },
+  "job_not_found": {
+    "title": "Không tìm thấy tác vụ",
+    "detail": "Tác vụ này không tồn tại. Có thể nó đã bị xoá sau thời gian lưu giữ."
+  },
+  "job_not_completed": {
+    "title": "Tác vụ chưa hoàn tất",
+    "detail": "Tác vụ này chưa tạo ra kết quả."
+  },
+  "job_cancelled": {
+    "title": "Tác vụ đã bị huỷ",
+    "detail": "Tác vụ đã dừng trước khi hoàn tất nên không có kết quả nào được tạo ra."
+  },
+  "queue_full": {
+    "title": "Máy chủ đang bận",
+    "detail": "Máy chủ đang xử lý các ảnh khác. Hãy thử lại sau giây lát."
+  },
+  "timeout": {
+    "title": "Hết thời gian chờ",
+    "detail": "Máy chủ phản hồi quá lâu. Có thể máy chủ vẫn đang khởi động."
+  },
+  "internal_error": {
+    "title": "Đã xảy ra lỗi",
+    "detail": "Máy chủ gặp lỗi ngoài dự kiến."
+  },
+  "network_error": {
+    "title": "Lỗi mạng",
+    "detail": "Yêu cầu không tới được máy chủ. Hãy kiểm tra kết nối của bạn."
+  },
+  "backend_unavailable": {
+    "title": "Không kết nối được máy chủ",
+    "detail": "Máy chủ PixelForge AI không phản hồi. Hãy kiểm tra xem nó đã chạy chưa."
+  },
+  "request_cancelled": {
+    "title": "Yêu cầu đã bị huỷ",
+    "detail": "Yêu cầu đã bị huỷ."
+  },
+  "malformed_response": {
+    "title": "Phản hồi không hợp lệ",
+    "detail": "Máy chủ trả về phản hồi không đọc được."
+  },
+  "detailFromServer": "Chi tiết từ máy chủ",
+  "technicalDetails": "Chi tiết kỹ thuật",
+  "retry": "Thử lại",
+  "dismiss": "Bỏ qua"
+}

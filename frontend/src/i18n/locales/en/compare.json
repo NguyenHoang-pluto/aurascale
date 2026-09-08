@@ -1,0 +1,31 @@
+{
+  "surface": {
+    "label": "Comparison viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan."
+  },
+  "mode": {
+    "label": "Comparison mode",
+    "slider": "Slider",
+    "sliderHint": "drag",
+    "sideBySide": "Side by side",
+    "split": "Split"
+  },
+  "layer": {
+    "original": "Original",
+    "originalAlt": "Original: {{name}}",
+    "enhanced": "Enhanced",
+    "enhancedAlt": "Enhanced result"
+  },
+  "divider": {
+    "label": "Comparison divider",
+    "valueText": "{{percent}}% enhanced"
+  },
+  "loading": {
+    "result": "Loading result…",
+    "detail": "Loading detail…"
+  },
+  "previewFailed": {
+    "title": "The enhanced view could not be loaded",
+    "detail": "The original is still shown, and the result itself can still be downloaded. Previews are removed along with the rest of a job once its retention window passes.",
+    "download": "Download result"
+  }
+}

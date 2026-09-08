@@ -1,0 +1,27 @@
+{
+  "brand": "PixelForge AI, go to workspace",
+  "skipToContent": "Skip to content",
+  "main": "Main",
+  "links": {
+    "enhance": "Enhance",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "menu": {
+    "open": "Open navigation menu",
+    "close": "Close navigation menu"
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "regions": {
+    "workspace": "Image workspace",
+    "settings": "Enhancement settings"
+  }
+}

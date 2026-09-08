@@ -1,4 +1,5 @@
 import { Download, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { MetricBadge } from '@/components/ui/badge'
 import { ZoomControls } from '@/features/viewer/ZoomControls'
@@ -21,6 +22,8 @@ import type { JobRecord } from '@/types/job'
  * expensive to look at here than in the workspace.
  */
 export function ResultViewer({ job, onClose }: { job: JobRecord; onClose: () => void }) {
+  const { t, i18n } = useTranslation(['history', 'compare', 'common'])
+  const locale = i18n.language
   const output = job.output
   const {
     attachContainer,
@@ -40,7 +43,7 @@ export function ResultViewer({ job, onClose }: { job: JobRecord; onClose: () => 
 
   return (
     <section
-      aria-label="Result viewer"
+      aria-label={t('history:viewer.label')}
       className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-surface"
     >
       <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-3 py-2">
@@ -54,17 +57,17 @@ export function ResultViewer({ job, onClose }: { job: JobRecord; onClose: () => 
           onActualSize={actualSize}
         />
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <MetricBadge>{formatDimensions(output.width, output.height)}</MetricBadge>
-          <MetricBadge>{formatBytes(output.sizeBytes)}</MetricBadge>
+          <MetricBadge>{formatDimensions(output.width, output.height, locale)}</MetricBadge>
+          <MetricBadge>{formatBytes(output.sizeBytes, 1, locale)}</MetricBadge>
           <Button asChild variant="secondary" size="sm">
             <a href={resultUrl(job.jobId)} download>
               <Download aria-hidden="true" />
-              Download
+              {t('common:actions.download')}
             </a>
           </Button>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X aria-hidden="true" />
-            Close
+            {t('common:actions.close')}
           </Button>
         </div>
       </div>
@@ -73,7 +76,7 @@ export function ResultViewer({ job, onClose }: { job: JobRecord; onClose: () => 
         ref={attachContainer}
         tabIndex={0}
         role="group"
-        aria-label="Result viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan."
+        aria-label={t('history:viewer.surfaceLabel')}
         onPointerDown={handlers.onPointerDown}
         onPointerMove={handlers.onPointerMove}
         onPointerUp={handlers.onPointerUp}
@@ -86,7 +89,7 @@ export function ResultViewer({ job, onClose }: { job: JobRecord; onClose: () => 
       >
         <img
           src={previewUrl(job.jobId)}
-          alt="Enhanced result"
+          alt={t('compare:layer.enhancedAlt')}
           draggable={false}
           className="absolute top-0 left-0 max-w-none origin-top-left select-none"
           style={{

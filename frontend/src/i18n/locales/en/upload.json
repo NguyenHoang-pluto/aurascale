@@ -1,0 +1,10 @@
+{
+  "dropzone": {
+    "idle": "Drop an image here",
+    "loading": "Reading image…",
+    "browse": "or click to browse",
+    "limits": "{{formats}} · up to {{maxSize}}",
+    "label": "Drop an image here or click to browse"
+  },
+  "replaceTitle": "Replace image"
+}

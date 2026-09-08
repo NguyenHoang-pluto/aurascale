@@ -1,0 +1,27 @@
+{
+  "zoom": {
+    "in": "Phóng to",
+    "out": "Thu nhỏ",
+    "level": "Mức phóng",
+    "fit": "Vừa màn hình",
+    "actualSize": "Kích thước thật",
+    "outHint": "Thu nhỏ (-)",
+    "inHint": "Phóng to (+)",
+    "fitHint": "Vừa màn hình (0)",
+    "actualSizeHint": "Kích thước thật, 100% (1)"
+  },
+  "surface": {
+    "label": "Trình xem ảnh. Phím cộng và trừ để phóng, 0 vừa màn hình, 1 xem kích thước thật, phím mũi tên để di chuyển.",
+    "uploadedImage": "Ảnh đã tải lên: {{name}}"
+  },
+  "info": {
+    "title": "Thông tin ảnh",
+    "dimensions": "Kích thước",
+    "resolution": "Độ phân giải",
+    "fileSize": "Dung lượng",
+    "format": "Định dạng",
+    "enhancedTitle": "Sau khi nâng cấp",
+    "enhancedDescription": "Kích thước, dung lượng, định dạng, hệ số phóng, thời gian xử lý và mô hình của kết quả sẽ hiện ở đây sau khi chạy một tác vụ.",
+    "original": "Ảnh gốc"
+  }
+}

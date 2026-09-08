@@ -5,6 +5,7 @@ import { EnhancePanels } from './EnhancePanels'
 import { buildSettings } from './useEnhanceJob'
 import { describeBlocker, describeProgress, projectedSize, scaleOptions } from './jobPresentation'
 import { mergeProgress } from './useJobProgress'
+import { changeLanguage, i18n } from '@/i18n'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { jsonResponse } from '@/test/renderWithProviders'
 import { GPU_SYSTEM, HEALTH } from '@/test/systemFixtures'
@@ -283,6 +284,137 @@ describe('the enhancement controls', () => {
 
 // -------------------------------------------------------------------- output
 
+// -------------------------------------------------------------- localisation
+
+describe('model descriptions in the selector', () => {
+  /**
+   * Open the model dropdown and return the option list.
+   *
+   * The descriptions live inside the options, which Radix only mounts once the
+   * trigger is opened.
+   */
+  async function openModelList(user: ReturnType<typeof userEvent.setup>) {
+    // The field's own label is translated too, so it is looked up rather than
+    // spelled — "Model" in English, "Mô hình" in Vietnamese.
+    const label = i18n.t('enhance:model.label')
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(label)).toBeInTheDocument()
+    })
+    await user.click(screen.getByLabelText(label))
+    return within(await screen.findByRole('listbox'))
+  }
+
+  it('describes each model in English', async () => {
+    stubBackend()
+    const user = userEvent.setup()
+    renderWithProviders(<EnhancePanels />)
+
+    const list = await openModelList(user)
+
+    expect(
+      list.getByText('General-purpose 4x upscaler. Best default for photographs.'),
+    ).toBeInTheDocument()
+    expect(list.getByText(/Native 2x upscaler/)).toBeInTheDocument()
+  })
+
+  it('describes each model in Vietnamese', async () => {
+    changeLanguage('vi')
+    stubBackend()
+    const user = userEvent.setup()
+    renderWithProviders(<EnhancePanels />)
+
+    const list = await openModelList(user)
+
+    expect(list.getByText(/Mô hình phóng 4x đa dụng/)).toBeInTheDocument()
+    // The English the backend sent is gone from the screen entirely.
+    expect(
+      list.queryByText('General-purpose 4x upscaler. Best default for photographs.'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('updates the description when the language changes, with no reload', async () => {
+    stubBackend()
+    const user = userEvent.setup()
+    renderWithProviders(<EnhancePanels />)
+
+    let list = await openModelList(user)
+    expect(list.getByText(/General-purpose 4x upscaler/)).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+
+    // The same mounted tree, only the language moved.
+    changeLanguage('vi')
+
+    list = await openModelList(user)
+    await waitFor(() => {
+      expect(list.getByText(/Mô hình phóng 4x đa dụng/)).toBeInTheDocument()
+    })
+    expect(list.queryByText(/General-purpose 4x upscaler/)).not.toBeInTheDocument()
+  })
+
+  it('leaves the model names untranslated in either language', async () => {
+    changeLanguage('vi')
+    stubBackend()
+    const user = userEvent.setup()
+    renderWithProviders(<EnhancePanels />)
+
+    const list = await openModelList(user)
+
+    // Names match the manifest and the weights files, so they do not move.
+    for (const name of [
+      'Real-ESRGAN x4 Plus',
+      'Real-ESRGAN x2 Plus',
+      'Real-ESRGAN General v3',
+      'Real-ESRGAN x4 Plus Anime',
+    ]) {
+      expect(list.getByText(name), name).toBeInTheDocument()
+    }
+  })
+
+  it('prefers its own wording over whatever sentence the server sent', async () => {
+    // The server's description is deliberately different from the locale file.
+    // If the UI still passed the payload straight through, this would show.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) => {
+        if (url.includes('/api/models')) {
+          return Promise.resolve(
+            jsonResponse([
+              { ...MODELS[0], description: 'SERVER TEXT THAT MUST NOT BE RENDERED' },
+            ]),
+          )
+        }
+        if (url.includes('/api/system')) return Promise.resolve(jsonResponse(GPU_SYSTEM))
+        if (url.includes('/api/health')) return Promise.resolve(jsonResponse(HEALTH))
+        return Promise.reject(new TypeError('Failed to fetch'))
+      }),
+    )
+
+    const user = userEvent.setup()
+    renderWithProviders(<EnhancePanels />)
+
+    const list = await openModelList(user)
+
+    expect(list.getByText(/General-purpose 4x upscaler/)).toBeInTheDocument()
+    expect(list.queryByText(/SERVER TEXT/)).not.toBeInTheDocument()
+  })
+
+  it('translates the description of a model whose weights are missing', async () => {
+    changeLanguage('vi')
+    stubBackend()
+    const user = userEvent.setup()
+    renderWithProviders(<EnhancePanels />)
+
+    const list = await openModelList(user)
+
+    // The anime model is the undownloaded one in this fixture; its description
+    // is wrapped in the "not downloaded" phrasing, and both halves translate.
+    const anime = list.getByText(/Biến thể 6 khối/)
+    expect(anime).toBeInTheDocument()
+    expect(anime.textContent).toContain('chưa tải về')
+  })
+})
+
 describe('the output controls', () => {
   it('disables quality for a lossless format', async () => {
     stubBackend()
@@ -373,7 +505,10 @@ describe('submitting a job', () => {
                 title: 'Image too large',
                 status: 413,
                 code: 'image_too_large',
+                // The English detail is the server's; the UI builds its own
+                // sentence from the code and this context.
                 detail: 'That image is 81 MP, which is larger than the 16 MP limit.',
+                context: { actualPixels: 81_000_000, limitPixels: 16_000_000 },
               },
               413,
             ),
@@ -392,7 +527,7 @@ describe('submitting a job', () => {
     await user.click(screen.getByRole('button', { name: 'Enhance' }))
 
     await waitFor(() => {
-      expect(screen.getByText(/larger than the 16 MP limit/)).toBeInTheDocument()
+      expect(screen.getByText(/larger than the 16.0 MP limit/)).toBeInTheDocument()
     })
     expect(useEnhancementStore.getState().activeJobId).toBeNull()
   })
@@ -548,7 +683,7 @@ describe('submitting a job', () => {
 
 describe('scaleOptions', () => {
   it('disables everything the model cannot produce', () => {
-    const options = scaleOptions([2])
+    const options = scaleOptions(i18n.t, [2])
 
     expect(options.map((option) => [option.value, option.disabled])).toEqual([
       ['2', false],
@@ -558,7 +693,7 @@ describe('scaleOptions', () => {
   })
 
   it('labels 8x as the two-pass route it is', () => {
-    expect(scaleOptions([4, 8]).find((option) => option.value === '8')?.hint).toBe('two-pass')
+    expect(scaleOptions(i18n.t, [4, 8]).find((option) => option.value === '8')?.hint).toBe('two-pass')
   })
 })
 
@@ -605,17 +740,17 @@ describe('describeProgress', () => {
   const live = { progress: 52, stage: 'running_inference' as const, tilesDone: 1, tilesTotal: 2 }
 
   it('names the tile during inference, because that is what the number means', () => {
-    expect(describeProgress(live, 'processing')).toBe('Enhancing · tile 1 of 2')
+    expect(describeProgress(i18n.t, live, 'processing')).toBe('Enhancing · tile 1 of 2')
   })
 
   it('names only the stage when there are no tiles to count', () => {
-    expect(describeProgress({ ...live, tilesDone: null, tilesTotal: null }, 'processing')).toBe(
+    expect(describeProgress(i18n.t, { ...live, tilesDone: null, tilesTotal: null }, 'processing')).toBe(
       'Enhancing',
     )
   })
 
   it('says a queued job is waiting rather than working', () => {
-    expect(describeProgress(live, 'queued')).toBe('Waiting for a free worker')
+    expect(describeProgress(i18n.t, live, 'queued')).toBe('Waiting for a free worker')
   })
 })
 
@@ -649,21 +784,21 @@ describe('mergeProgress', () => {
 
 describe('describeBlocker', () => {
   it('asks for an image first', () => {
-    expect(describeBlocker(false, undefined)).toBe('Load an image to enhance.')
+    expect(describeBlocker(i18n.t, false, undefined)).toBe('Load an image to enhance.')
   })
 
   it('waits for the registry before blaming anything else', () => {
-    expect(describeBlocker(true, undefined)).toBe('Waiting for the model list.')
+    expect(describeBlocker(i18n.t, true, undefined)).toBe('Waiting for the model list.')
   })
 
   it('names a model whose weights are missing', () => {
-    expect(describeBlocker(true, { downloaded: false, name: 'Anime' })).toBe(
+    expect(describeBlocker(i18n.t, true, { downloaded: false, name: 'Anime' })).toBe(
       'Anime is not downloaded yet.',
     )
   })
 
   it('has nothing to say when everything is ready', () => {
-    expect(describeBlocker(true, { downloaded: true, name: 'x4plus' })).toBeUndefined()
+    expect(describeBlocker(i18n.t, true, { downloaded: true, name: 'x4plus' })).toBeUndefined()
   })
 })
 

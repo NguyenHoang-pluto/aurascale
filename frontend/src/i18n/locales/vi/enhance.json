@@ -1,0 +1,57 @@
+{
+  "panel": {
+    "enhancement": "Nâng cấp ảnh",
+    "output": "Kết quả",
+    "job": "Tác vụ"
+  },
+  "model": {
+    "label": "Mô hình",
+    "description": "Bộ trọng số nào sẽ được chạy.",
+    "placeholder": "Chọn một mô hình",
+    "notDownloadedSuffix": "{{description}} — chưa tải về",
+    "notDownloadedBadge": "Chưa tải về",
+    "notDownloadedHint": "Hãy chạy scripts/download_models.py trước khi dùng mô hình này.",
+    "loadFailed": "Không tải được danh sách mô hình",
+    "loadFailedDetail": "Máy chủ không trả về danh sách mô hình. Hãy kiểm tra xem nó đã chạy chưa."
+  },
+  "scale": {
+    "label": "Hệ số phóng",
+    "descriptionTwoPass": "Mọi hệ số đều do mô hình tạo ra. 8x chạy hai lượt: 4x rồi 2x.",
+    "descriptionLimited": "Các hệ số mô hình này không tạo được sẽ bị vô hiệu hoá.",
+    "twoPassHint": "hai lượt"
+  },
+  "denoise": {
+    "label": "Giảm nhiễu",
+    "description": "Nội suy trọng số của mô hình. 100% là mô hình gốc, giảm nhiễu mạnh nhất; hạ xuống sẽ pha dần sang bộ trọng số giữ lại nhiều hạt nhiễu hơn.",
+    "unavailable": "{{model}} không có bộ trọng số giảm nhiễu để pha trộn.",
+    "unavailableGeneric": "Mô hình này không có bộ trọng số giảm nhiễu để pha trộn."
+  },
+  "sharpen": {
+    "label": "Làm nét",
+    "description": "Bộ lọc unsharp mask áp dụng sau khi phóng to. Đây là xử lý hậu kỳ, không phải tính năng của mô hình.",
+    "sliderLabel": "Mức làm nét"
+  },
+  "artifacts": {
+    "label": "Giảm nhiễu nén",
+    "description": "Cần một mô hình phục hồi JPEG riêng. Dùng bộ lọc làm mờ ở đây sẽ làm nhoè chi tiết trong khi tự nhận là thêm chi tiết."
+  },
+  "format": {
+    "label": "Định dạng",
+    "description": "Kết quả được mã hoá thế nào.",
+    "groupLabel": "Định dạng kết quả",
+    "losslessHint": "không mất dữ liệu"
+  },
+  "quality": {
+    "label": "Chất lượng",
+    "sliderLabel": "Chất lượng kết quả",
+    "descriptionLossy": "Giá trị cao giữ nhiều chi tiết hơn và cho tệp lớn hơn.",
+    "descriptionLossless": "PNG không mất dữ liệu nên không có chất lượng để đánh đổi."
+  },
+  "metadata": {
+    "label": "Giữ metadata",
+    "description": "Giữ lại EXIF và hồ sơ màu ICC. Tắt đi sẽ loại bỏ thông tin vị trí và máy ảnh."
+  },
+  "projected": {
+    "label": "Kích thước kết quả"
+  }
+}

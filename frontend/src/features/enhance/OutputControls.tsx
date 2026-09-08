@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { MetricBadge } from '@/components/ui/badge'
 import { Field } from '@/components/ui/field'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -17,13 +18,20 @@ import { projectedSize } from './jobPresentation'
  * saying once rather than leaving the user to infer it.
  */
 
+/**
+ * The encodings on offer.
+ *
+ * The labels are format names, identical in every language; only PNG's hint is
+ * a word, so only that one is translated.
+ */
 const FORMAT_OPTIONS = [
-  { value: 'png', label: 'PNG', hint: 'lossless' },
-  { value: 'jpeg', label: 'JPEG' },
-  { value: 'webp', label: 'WEBP' },
+  { value: 'png', label: 'PNG', translateHint: true },
+  { value: 'jpeg', label: 'JPEG', translateHint: false },
+  { value: 'webp', label: 'WEBP', translateHint: false },
 ] as const
 
 export function OutputControls({ source }: { source: ImageMetadata | undefined }) {
+  const { t, i18n } = useTranslation('enhance')
   const format = useEnhancementStore((s) => s.format)
   const setFormat = useEnhancementStore((s) => s.setFormat)
   const quality = useEnhancementStore((s) => s.quality)
@@ -37,26 +45,28 @@ export function OutputControls({ source }: { source: ImageMetadata | undefined }
 
   return (
     <div className="flex flex-col gap-5">
-      <Field label="Format" description="How the result is encoded.">
+      <Field label={t('format.label')} description={t('format.description')}>
         {({ describedBy }) => (
           <div aria-describedby={describedBy}>
             <SegmentedControl
               name="output-format"
-              label="Output format"
+              label={t('format.groupLabel')}
               value={format}
               onChange={(value) => { setFormat(value as OutputFormat) }}
-              options={FORMAT_OPTIONS.map((option) => ({ ...option }))}
+              options={FORMAT_OPTIONS.map((option) => ({
+                value: option.value,
+                label: option.label,
+                ...(option.translateHint ? { hint: t('format.losslessHint') } : {}),
+              }))}
             />
           </div>
         )}
       </Field>
 
       <Field
-        label="Quality"
+        label={t('quality.label')}
         description={
-          lossy
-            ? 'Higher keeps more detail and makes a larger file.'
-            : 'PNG is lossless, so there is no quality to trade.'
+          lossy ? t('quality.descriptionLossy') : t('quality.descriptionLossless')
         }
       >
         {({ id, describedBy }) => (
@@ -64,7 +74,7 @@ export function OutputControls({ source }: { source: ImageMetadata | undefined }
             <Slider
               id={id}
               aria-describedby={describedBy}
-              aria-label="Output quality"
+              aria-label={t('quality.sliderLabel')}
               value={[quality]}
               onValueChange={([value]) => { setQuality(value ?? QUALITY_RANGE.max) }}
               min={QUALITY_RANGE.min}
@@ -78,8 +88,8 @@ export function OutputControls({ source }: { source: ImageMetadata | undefined }
       </Field>
 
       <Field
-        label="Preserve metadata"
-        description="Keep EXIF and the ICC colour profile. Turning this off drops location and camera tags."
+        label={t('metadata.label')}
+        description={t('metadata.description')}
         orientation="horizontal"
       >
         {({ id, describedBy }) => (
@@ -94,9 +104,11 @@ export function OutputControls({ source }: { source: ImageMetadata | undefined }
 
       {projected !== undefined && (
         <dl className="flex items-center justify-between border-t border-border pt-3 text-xs">
-          <dt className="text-muted-foreground">Result size</dt>
+          <dt className="text-muted-foreground">{t('projected.label')}</dt>
           <dd>
-            <MetricBadge>{formatDimensions(projected.width, projected.height)}</MetricBadge>
+            <MetricBadge>
+              {formatDimensions(projected.width, projected.height, i18n.language)}
+            </MetricBadge>
           </dd>
         </dl>
       )}

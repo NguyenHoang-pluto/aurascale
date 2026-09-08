@@ -1,10 +1,12 @@
 import { RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ErrorPanel } from '@/components/feedback/ErrorPanel'
 import { Badge, MetricBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatusIndicator } from '@/components/ui/status'
+import { formatNumber } from '@/lib/format'
 import type { ModelInfo, SystemInfo } from '@/types/system'
 import { useModels, useSystemInfo } from './useSystemInfo'
 
@@ -17,17 +19,20 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-function gb(megabytes: number): string {
-  return `${(megabytes / 1024).toFixed(1)} GB`
+/** GB is a unit symbol, identical in both languages; only the number moves. */
+function gb(megabytes: number, locale: string): string {
+  return `${formatNumber(megabytes / 1024, locale, 1)} GB`
 }
 
 function DeviceSummary({ system }: { system: SystemInfo }) {
+  const { t } = useTranslation('system')
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       {system.device === 'cuda' ? (
-        <StatusIndicator tone="success" label="GPU acceleration enabled" />
+        <StatusIndicator tone="success" label={t('indicator.gpu')} />
       ) : (
-        <StatusIndicator tone="warning" label="CPU mode" />
+        <StatusIndicator tone="warning" label={t('indicator.cpu')} />
       )}
       <span className="text-xs text-muted-foreground">{system.deviceReason}</span>
     </div>
@@ -35,6 +40,8 @@ function DeviceSummary({ system }: { system: SystemInfo }) {
 }
 
 function ModelList({ models }: { models: ModelInfo[] }) {
+  const { t } = useTranslation('system')
+
   return (
     <ul className="flex flex-col gap-2">
       {models.map((model) => (
@@ -42,15 +49,17 @@ function ModelList({ models }: { models: ModelInfo[] }) {
           <div className="min-w-0">
             <p className="truncate text-xs font-medium text-foreground">{model.name}</p>
             <p className="truncate font-mono text-[11px] text-muted-foreground">
-              {model.arch} · {model.scale}x{model.supportsDenoise && ' · denoise'}
+              {/* Architecture names and the factor are identifiers. */}
+              {model.arch} · {model.scale}x
+              {model.supportsDenoise && ` · ${t('panel.denoiseSuffix')}`}
             </p>
           </div>
           {model.downloaded ? (
             <Badge tone="success">
-              {model.sizeMb !== null ? `${String(model.sizeMb)} MB` : 'Downloaded'}
+              {model.sizeMb !== null ? `${String(model.sizeMb)} MB` : t('panel.downloaded')}
             </Badge>
           ) : (
-            <Badge tone="neutral">Not downloaded</Badge>
+            <Badge tone="neutral">{t('panel.notDownloaded')}</Badge>
           )}
         </li>
       ))}
@@ -66,16 +75,18 @@ function ModelList({ models }: { models: ModelInfo[] }) {
  * is what will actually happen.
  */
 export function SystemPanel() {
+  const { t, i18n } = useTranslation(['system', 'common'])
+  const locale = i18n.language
   const { data: system, isPending, isError, reason, refetch } = useSystemInfo()
   const models = useModels()
 
   if (isError) {
     return (
       <ErrorPanel
-        title="Cannot reach the backend"
-        detail={reason ?? 'The backend is not responding.'}
+        title={t('system:panel.loadFailed')}
+        detail={reason ?? t('system:panel.loadFailedDetail')}
         code="backend_unavailable"
-        technical="GET /api/system failed. Start the backend with scripts/dev.ps1 or ./scripts/dev.sh"
+        technical={t('system:panel.loadFailedTechnical')}
         onRetry={refetch}
       />
     )
@@ -95,9 +106,14 @@ export function SystemPanel() {
     <div className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <DeviceSummary system={system} />
-        <Button variant="ghost" size="sm" onClick={refetch} aria-label="Refresh system status">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={refetch}
+          aria-label={t('system:panel.refresh')}
+        >
           <RefreshCw aria-hidden="true" />
-          Refresh
+          {t('common:actions.refresh')}
         </Button>
       </div>
 
@@ -106,48 +122,71 @@ export function SystemPanel() {
       <dl>
         {system.gpu !== null ? (
           <>
-            <Row label="GPU" value={system.gpu.name} />
+            <Row label={t('system:panel.gpu')} value={system.gpu.name} />
             <Row
-              label="VRAM"
-              value={`${gb(system.gpu.vramFreeMb)} free / ${gb(system.gpu.vramTotalMb)}`}
+              label={t('system:panel.vram')}
+              value={t('system:panel.vramValue', {
+                free: gb(system.gpu.vramFreeMb, locale),
+                total: gb(system.gpu.vramTotalMb, locale),
+              })}
             />
-            <Row label="Compute capability" value={system.gpu.capability} />
+            <Row label={t('system:panel.capability')} value={system.gpu.capability} />
           </>
         ) : (
-          <Row label="GPU" value="None detected" />
+          <Row label={t('system:panel.gpu')} value={t('system:panel.noGpu')} />
         )}
 
-        <Row label="CUDA available" value={system.torch.cudaAvailable ? 'Yes' : 'No'} />
-        <Row label="CUDA version" value={system.torch.cudaVersion ?? '—'} />
-        <Row label="PyTorch" value={system.torch.version ?? 'Not available'} />
-        <Row label="Half precision (fp16)" value={system.fp16 ? 'Enabled' : 'Disabled'} />
+        <Row
+          label={t('system:panel.cudaAvailable')}
+          value={system.torch.cudaAvailable ? t('common:state.yes') : t('common:state.no')}
+        />
+        <Row
+          label={t('system:panel.cudaVersion')}
+          value={system.torch.cudaVersion ?? t('common:state.none')}
+        />
+        <Row
+          label={t('system:panel.torch')}
+          value={system.torch.version ?? t('system:panel.notAvailable')}
+        />
+        <Row
+          label={t('system:panel.fp16')}
+          value={system.fp16 ? t('common:state.enabled') : t('common:state.disabled')}
+        />
 
         <Separator className="my-2" />
 
-        <Row label="CPU" value={system.cpuName} />
+        <Row label={t('system:panel.cpu')} value={system.cpuName} />
         <Row
-          label="Cores"
+          label={t('system:panel.cores')}
           value={
             system.cpuCoresPhysical !== null && system.cpuCoresLogical !== null
-              ? `${String(system.cpuCoresPhysical)} physical / ${String(system.cpuCoresLogical)} logical`
-              : '—'
+              ? t('system:panel.coresValue', {
+                  physical: system.cpuCoresPhysical,
+                  logical: system.cpuCoresLogical,
+                })
+              : t('common:state.none')
           }
         />
         <Row
-          label="Memory"
-          value={`${gb(system.ramAvailableMb)} available / ${gb(system.ramTotalMb)}`}
+          label={t('system:panel.memory')}
+          value={t('system:panel.memoryValue', {
+            available: gb(system.ramAvailableMb, locale),
+            total: gb(system.ramTotalMb, locale),
+          })}
         />
-        <Row label="Platform" value={system.platform} />
-        <Row label="Python" value={system.pythonVersion} />
+        <Row label={t('system:panel.platform')} value={system.platform} />
+        <Row label={t('system:panel.python')} value={system.pythonVersion} />
 
         <Separator className="my-2" />
 
         <Row
-          label="Tile size"
+          label={t('system:panel.tileSize')}
           value={
             <>
               <MetricBadge>{system.tileSize}px</MetricBadge>{' '}
-              <span className="text-muted-foreground">pad {system.tilePad}px</span>
+              <span className="text-muted-foreground">
+                {t('system:panel.tilePad', { pad: system.tilePad })}
+              </span>
             </>
           }
         />
@@ -156,10 +195,10 @@ export function SystemPanel() {
       <Separator />
 
       <div>
-        <p className="mb-2 text-xs font-medium text-foreground">Models</p>
+        <p className="mb-2 text-xs font-medium text-foreground">{t('system:panel.models')}</p>
         {models.isError ? (
           <p className="text-xs text-muted-foreground">
-            {models.reason ?? 'The model list could not be loaded.'}
+            {models.reason ?? t('system:panel.modelsFailed')}
           </p>
         ) : models.data === undefined ? (
           <Skeleton className="h-8 w-full" />
@@ -168,8 +207,7 @@ export function SystemPanel() {
             <ModelList models={models.data} />
             {models.data.every((model) => !model.downloaded) && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Weights are downloaded on first use, or ahead of time with
-                scripts/download_models.py (Phase 6).
+                {t('system:panel.weightsHint')}
               </p>
             )}
           </>

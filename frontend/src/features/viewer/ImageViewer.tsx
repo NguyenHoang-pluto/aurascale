@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 import type { LoadedImage } from '@/types/image'
 import { useZoomPan } from './useZoomPan'
@@ -23,6 +24,7 @@ export function ImageViewer({
   /** Rendered beside the zoom controls, e.g. the file name. */
   toolbarSlot?: React.ReactNode
 }) {
+  const { t } = useTranslation('viewer')
   const { metadata } = image
   // Destructured at the call site: the React Compiler lint treats repeated
   // member access on a hook result that carries a callback ref as accessing a
@@ -63,7 +65,7 @@ export function ImageViewer({
         // any other way.
         tabIndex={0}
         role="group"
-        aria-label="Image viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan."
+        aria-label={t('surface.label')}
         onPointerDown={handlers.onPointerDown}
         onPointerMove={handlers.onPointerMove}
         onPointerUp={handlers.onPointerUp}
@@ -81,7 +83,7 @@ export function ImageViewer({
       >
         <img
           src={image.objectUrl}
-          alt={`Uploaded image: ${metadata.name}`}
+          alt={t('surface.uploadedImage', { name: metadata.name })}
           width={metadata.width}
           height={metadata.height}
           draggable={false}

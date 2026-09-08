@@ -1,0 +1,10 @@
+{
+  "dropzone": {
+    "idle": "Kéo ảnh vào đây",
+    "loading": "Đang đọc ảnh…",
+    "browse": "hoặc bấm để chọn tệp",
+    "limits": "{{formats}} · tối đa {{maxSize}}",
+    "label": "Kéo ảnh vào đây hoặc bấm để chọn tệp"
+  },
+  "replaceTitle": "Thay ảnh khác"
+}

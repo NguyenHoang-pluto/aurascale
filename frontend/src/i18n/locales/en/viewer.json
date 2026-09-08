@@ -1,0 +1,27 @@
+{
+  "zoom": {
+    "in": "Zoom in",
+    "out": "Zoom out",
+    "level": "Zoom level",
+    "fit": "Fit to screen",
+    "actualSize": "Actual size",
+    "outHint": "Zoom out (-)",
+    "inHint": "Zoom in (+)",
+    "fitHint": "Fit to screen (0)",
+    "actualSizeHint": "Actual size, 100% (1)"
+  },
+  "surface": {
+    "label": "Image viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan.",
+    "uploadedImage": "Uploaded image: {{name}}"
+  },
+  "info": {
+    "title": "Image information",
+    "dimensions": "Dimensions",
+    "resolution": "Resolution",
+    "fileSize": "File size",
+    "format": "Format",
+    "enhancedTitle": "Enhanced",
+    "enhancedDescription": "Output dimensions, file size, format, upscale factor, processing time and model appear here once a job has run.",
+    "original": "Original"
+  }
+}

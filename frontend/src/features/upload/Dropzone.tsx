@@ -1,5 +1,6 @@
 import { ImageUp, Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ACCEPTED_EXTENSIONS,
   ACCEPTED_MIME_TYPES,
@@ -28,6 +29,7 @@ export function Dropzone({
   compact?: boolean
   className?: string
 }) {
+  const { t, i18n } = useTranslation('upload')
   const [isDraggingOver, setIsDraggingOver] = useState(false)
   // dragenter/dragleave fire for every descendant, so a boolean alone flickers
   // as the pointer crosses child elements. Counting enters and leaves is the
@@ -57,7 +59,7 @@ export function Dropzone({
     return () => { window.removeEventListener('paste', onPaste) }
   }, [onFileSelected])
 
-  const maxSize = formatBytes(DEFAULT_UPLOAD_LIMITS.maxFileSizeBytes, 0)
+  const maxSize = formatBytes(DEFAULT_UPLOAD_LIMITS.maxFileSizeBytes, 0, i18n.language)
 
   return (
     <label
@@ -128,16 +130,18 @@ export function Dropzone({
 
       <div>
         <p className={cn('font-medium text-foreground', compact ? 'text-sm' : 'text-base')}>
-          {isLoading ? 'Reading image…' : 'Drop an image here'}
+          {isLoading ? t('dropzone.loading') : t('dropzone.idle')}
         </p>
         {!isLoading && (
-          <p className="mt-0.5 text-sm text-muted-foreground">or click to browse</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{t('dropzone.browse')}</p>
         )}
       </div>
 
       {!compact && !isLoading && (
         <p className="text-xs text-muted-foreground">
-          {ACCEPTED_EXTENSIONS.join(' · ')} · up to {maxSize}
+          {/* Extensions and byte units are the same in every language; only the
+              word joining them changes. */}
+          {t('dropzone.limits', { formats: ACCEPTED_EXTENSIONS.join(' · '), maxSize })}
         </p>
       )}
     </label>

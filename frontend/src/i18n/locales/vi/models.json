@@ -1,0 +1,17 @@
+{
+  "RealESRGAN_x4plus": {
+    "description": "Mô hình phóng 4x đa dụng. Lựa chọn mặc định tốt nhất cho ảnh chụp."
+  },
+  "RealESRGAN_x4plus_anime_6B": {
+    "description": "Biến thể 6 khối được tinh chỉnh cho tranh minh hoạ và nét vẽ anime. Nhanh hơn x4plus."
+  },
+  "RealESRGAN_x2plus": {
+    "description": "Mô hình phóng 2x gốc. Dùng cho mức 2x và cho lượt xử lý thứ hai của 8x."
+  },
+  "realesr-general-x4v3": {
+    "description": "Mô hình 4x gọn nhẹ. Khi ghép với biến thể wdn, nó cho phép điều chỉnh mức khử nhiễu thật sự bằng cách nội suy trọng số DNI."
+  },
+  "realesr-general-wdn-x4v3": {
+    "description": "Bản khử nhiễu đi kèm của realesr-general-x4v3. Không chọn riêng được; nó được pha trộn với mô hình cặp thông qua thanh điều chỉnh mức khử nhiễu."
+  }
+}

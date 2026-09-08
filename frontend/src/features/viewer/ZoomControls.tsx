@@ -1,4 +1,5 @@
 import { Maximize2, Minus, Plus, Scan } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip } from '@/components/ui/tooltip'
@@ -21,15 +22,16 @@ export function ZoomControls({
   onFit: () => void
   onActualSize: () => void
 }) {
+  const { t } = useTranslation('viewer')
   const percent = Math.round(scale * 100)
 
   return (
     <div className="flex flex-wrap items-center gap-1">
-      <Tooltip content="Zoom out (-)">
+      <Tooltip content={t('zoom.outHint')}>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Zoom out"
+          aria-label={t('zoom.out')}
           disabled={scale <= MIN_SCALE + 1e-6}
           onClick={onZoomOut}
         >
@@ -44,7 +46,7 @@ export function ZoomControls({
         live value is offered as an extra option rather than being snapped.
       */}
       <label className="sr-only" htmlFor="zoom-level">
-        Zoom level
+        {t('zoom.level')}
       </label>
       <select
         id="zoom-level"
@@ -65,11 +67,11 @@ export function ZoomControls({
         ))}
       </select>
 
-      <Tooltip content="Zoom in (+)">
+      <Tooltip content={t('zoom.inHint')}>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Zoom in"
+          aria-label={t('zoom.in')}
           disabled={scale >= MAX_SCALE - 1e-6}
           onClick={onZoomIn}
         >
@@ -79,11 +81,11 @@ export function ZoomControls({
 
       <Separator orientation="vertical" className="mx-1 h-5" />
 
-      <Tooltip content="Fit to screen (0)">
+      <Tooltip content={t('zoom.fitHint')}>
         <Button
           variant={isFitted ? 'secondary' : 'ghost'}
           size="icon-sm"
-          aria-label="Fit to screen"
+          aria-label={t('zoom.fit')}
           aria-pressed={isFitted}
           onClick={onFit}
         >
@@ -91,11 +93,11 @@ export function ZoomControls({
         </Button>
       </Tooltip>
 
-      <Tooltip content="Actual size, 100% (1)">
+      <Tooltip content={t('zoom.actualSizeHint')}>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Actual size"
+          aria-label={t('zoom.actualSize')}
           onClick={onActualSize}
         >
           <Maximize2 aria-hidden="true" />

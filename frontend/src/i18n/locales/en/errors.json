@@ -1,0 +1,111 @@
+{
+  "unknown": {
+    "title": "Something went wrong",
+    "detail": "The server reported a problem this version of the app does not recognise."
+  },
+  "unsupported_format": {
+    "title": "Unsupported file type",
+    "detail": "That file is not one of the formats this app can read. Use JPEG, PNG or WEBP."
+  },
+  "corrupted_image": {
+    "title": "Image could not be read",
+    "detail": "That file looks like an image but could not be decoded. It may be truncated or damaged."
+  },
+  "file_too_large": {
+    "title": "File too large",
+    "detail": "That file is larger than the {{limit}} limit.",
+    "detailGeneric": "That file is larger than the upload limit."
+  },
+  "image_too_large": {
+    "title": "Image too large",
+    "detail": "That image is {{actual}}, which is larger than the {{limit}} limit.",
+    "detailGeneric": "That image has more pixels than one job will process."
+  },
+  "image_too_small": {
+    "title": "Image too small",
+    "detail": "Images need to be at least {{minimum}} pixels on each side to have something to reconstruct.",
+    "detailGeneric": "That image is too small to have anything to reconstruct."
+  },
+  "output_too_large": {
+    "title": "Result would be too large",
+    "detail": "The enlarged image would be {{projected}}, beyond the {{limit}} limit. Try a smaller upscale factor.",
+    "detailGeneric": "The enlarged image would be beyond the size limit. Try a smaller upscale factor."
+  },
+  "invalid_parameters": {
+    "title": "Invalid settings",
+    "detail": "Those settings cannot be used together."
+  },
+  "out_of_memory": {
+    "title": "Not enough memory",
+    "detail": "There is not enough memory to enhance an image this large. Try a smaller image or a lower upscale factor."
+  },
+  "gpu_unavailable": {
+    "title": "GPU unavailable",
+    "detail": "GPU mode was requested but no usable CUDA device was found. Check the driver and that a CUDA build of PyTorch is installed."
+  },
+  "storage_full": {
+    "title": "Storage full",
+    "detail": "The server has run out of space for new images. Older results are removed automatically; try again shortly."
+  },
+  "model_not_found": {
+    "title": "Unknown model",
+    "detail": "There is no model called {{requested}}.",
+    "detailGeneric": "That model is not in the registry."
+  },
+  "model_load_failed": {
+    "title": "Model failed to load",
+    "detail": "The model weights could not be loaded. They may be missing or incomplete."
+  },
+  "model_download_failed": {
+    "title": "Model download failed",
+    "detail": "The model weights could not be downloaded. Check the network connection and try again."
+  },
+  "inference_failed": {
+    "title": "Enhancement failed",
+    "detail": "The model failed while processing this image."
+  },
+  "job_not_found": {
+    "title": "Job not found",
+    "detail": "That job does not exist. It may have been removed after its retention window."
+  },
+  "job_not_completed": {
+    "title": "Job is not finished",
+    "detail": "That job has not produced a result yet."
+  },
+  "job_cancelled": {
+    "title": "Job cancelled",
+    "detail": "That job was stopped before it finished, so no result was produced."
+  },
+  "queue_full": {
+    "title": "Server busy",
+    "detail": "The server is busy with other images. Try again in a moment."
+  },
+  "timeout": {
+    "title": "Timed out",
+    "detail": "The server took too long to respond. It may still be starting up."
+  },
+  "internal_error": {
+    "title": "Something went wrong",
+    "detail": "An unexpected error occurred on the server."
+  },
+  "network_error": {
+    "title": "Network error",
+    "detail": "The request could not reach the server. Check your connection."
+  },
+  "backend_unavailable": {
+    "title": "Cannot reach the backend",
+    "detail": "The PixelForge AI backend is not responding. Check that it is running."
+  },
+  "request_cancelled": {
+    "title": "Request cancelled",
+    "detail": "The request was cancelled."
+  },
+  "malformed_response": {
+    "title": "Unexpected response",
+    "detail": "The server returned a response that could not be understood."
+  },
+  "detailFromServer": "Server detail",
+  "technicalDetails": "Technical details",
+  "retry": "Try again",
+  "dismiss": "Dismiss"
+}

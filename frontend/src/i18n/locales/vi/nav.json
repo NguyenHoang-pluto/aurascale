@@ -1,0 +1,27 @@
+{
+  "brand": "PixelForge AI, tới khu làm việc",
+  "skipToContent": "Tới nội dung chính",
+  "main": "Chính",
+  "links": {
+    "enhance": "Nâng cấp",
+    "history": "Lịch sử",
+    "settings": "Cài đặt"
+  },
+  "menu": {
+    "open": "Mở menu điều hướng",
+    "close": "Đóng menu điều hướng"
+  },
+  "theme": {
+    "toLight": "Chuyển sang giao diện sáng",
+    "toDark": "Chuyển sang giao diện tối"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "regions": {
+    "workspace": "Khu làm việc với ảnh",
+    "settings": "Thiết lập nâng cấp"
+  }
+}

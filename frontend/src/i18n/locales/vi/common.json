@@ -1,0 +1,39 @@
+{
+  "actions": {
+    "tryAgain": "Thử lại",
+    "dismiss": "Bỏ qua",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "delete": "Xoá",
+    "keep": "Giữ lại",
+    "download": "Tải xuống",
+    "view": "Xem",
+    "refresh": "Làm mới",
+    "remove": "Gỡ bỏ",
+    "previous": "Trước",
+    "next": "Sau"
+  },
+  "state": {
+    "comingSoon": "Sắp có",
+    "unknown": "Không rõ",
+    "none": "—",
+    "enabled": "Đang bật",
+    "disabled": "Đang tắt",
+    "yes": "Có",
+    "no": "Không"
+  },
+  "phaseNotice": {
+    "badge": "Sẽ có ở {{phase}}"
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Đường dẫn này không tồn tại.",
+    "back": "Về khu làm việc"
+  },
+  "flow": {
+    "upload": "Tải lên",
+    "compare": "So sánh",
+    "enhance": "Nâng cấp",
+    "download": "Tải về"
+  }
+}

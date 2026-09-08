@@ -1,0 +1,42 @@
+{
+  "status": {
+    "queued": "Đang chờ",
+    "processing": "Đang chạy",
+    "completed": "Hoàn tất",
+    "failed": "Thất bại",
+    "cancelled": "Đã huỷ"
+  },
+  "stage": {
+    "validating": "Đang kiểm tra",
+    "loading_model": "Đang nạp mô hình",
+    "preprocessing": "Đang chuẩn bị ảnh",
+    "running_inference": "Đang nâng cấp",
+    "postprocessing": "Đang xử lý hậu kỳ",
+    "encoding": "Đang mã hoá"
+  },
+  "progress": {
+    "label": "Tiến độ nâng cấp",
+    "queued": "Đang chờ tới lượt xử lý",
+    "tile": "{{stage}} · ô {{done}}/{{total}}"
+  },
+  "actions": {
+    "submit": "Nâng cấp",
+    "submitting": "Đang gửi…",
+    "cancel": "Huỷ",
+    "cancelling": "Đang dừng…",
+    "download": "Tải kết quả",
+    "again": "Nâng cấp ảnh khác"
+  },
+  "blocked": {
+    "noImage": "Hãy tải một ảnh lên để nâng cấp.",
+    "noModels": "Đang chờ danh sách mô hình.",
+    "notDownloaded": "{{model}} chưa được tải về."
+  },
+  "result": {
+    "size": "Kết quả",
+    "fileSize": "Dung lượng",
+    "took": "Thời gian"
+  },
+  "failedTitle": "Nâng cấp thất bại",
+  "cancelledNote": "Đã dừng trước khi hoàn tất nên không có kết quả nào được tạo ra."
+}

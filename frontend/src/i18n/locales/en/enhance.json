@@ -1,0 +1,57 @@
+{
+  "panel": {
+    "enhancement": "Enhancement",
+    "output": "Output",
+    "job": "Job"
+  },
+  "model": {
+    "label": "Model",
+    "description": "Which trained weights to run.",
+    "placeholder": "Select a model",
+    "notDownloadedSuffix": "{{description}} — not downloaded",
+    "notDownloadedBadge": "Not downloaded",
+    "notDownloadedHint": "Run scripts/download_models.py before enhancing with this model.",
+    "loadFailed": "Cannot load the model list",
+    "loadFailedDetail": "The backend did not return the available models. Check that it is running."
+  },
+  "scale": {
+    "label": "Upscale factor",
+    "descriptionTwoPass": "Every factor is produced by neural passes. 8x runs two: 4x then 2x.",
+    "descriptionLimited": "Factors this model cannot produce are unavailable.",
+    "twoPassHint": "two-pass"
+  },
+  "denoise": {
+    "label": "Noise reduction",
+    "description": "Interpolates the model weights. 100% is the model as shipped, which denoises the most; lowering it blends toward weights that keep more grain.",
+    "unavailable": "{{model}} has no denoise weights to blend.",
+    "unavailableGeneric": "This model has no denoise weights to blend."
+  },
+  "sharpen": {
+    "label": "Sharpening",
+    "description": "An unsharp mask applied after upscaling. A post-process, not a model feature.",
+    "sliderLabel": "Sharpening strength"
+  },
+  "artifacts": {
+    "label": "Artifact reduction",
+    "description": "Needs a dedicated JPEG restoration model. A blur filter here would smear detail while claiming to add it."
+  },
+  "format": {
+    "label": "Format",
+    "description": "How the result is encoded.",
+    "groupLabel": "Output format",
+    "losslessHint": "lossless"
+  },
+  "quality": {
+    "label": "Quality",
+    "sliderLabel": "Output quality",
+    "descriptionLossy": "Higher keeps more detail and makes a larger file.",
+    "descriptionLossless": "PNG is lossless, so there is no quality to trade."
+  },
+  "metadata": {
+    "label": "Preserve metadata",
+    "description": "Keep EXIF and the ICC colour profile. Turning this off drops location and camera tags."
+  },
+  "projected": {
+    "label": "Result size"
+  }
+}
