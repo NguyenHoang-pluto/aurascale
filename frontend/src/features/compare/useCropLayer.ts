@@ -7,14 +7,16 @@ import { cropForView, sameCrop } from './comparisonMath'
  * Full-resolution detail for the region on screen, above 100% zoom.
  *
  * The base layer is a preview capped at 4096 px, which is the right trade
- * until the user zooms past 1:1 — past that they are looking at interpolation
- * rather than at what the model produced. This hook fetches the actual pixels
- * for the visible region and nothing else.
+ * until the screen asks for more detail than that preview holds. For a result
+ * inside the cap that is 1:1; for a 16000 px 8x result the preview carries a
+ * quarter of a real pixel per output pixel, so it runs out at 26 % zoom rather
+ * than at 100 %. `cropForView` works that threshold out from the output size.
+ * This hook fetches the actual pixels for the visible region and nothing else.
  *
  * Four rules keep it from becoming a request firehose:
  *
- *  * nothing is fetched at or below 100 %, where the preview already has more
- *    detail than the screen can show;
+ *  * nothing is fetched while the preview still has more detail than the
+ *    screen can show, which is what `cropForView` decides;
  *  * a pan or zoom restarts a debounce, so dragging produces one request when
  *    the user stops rather than one per frame;
  *  * only one request is in flight, and a newer region supersedes an older

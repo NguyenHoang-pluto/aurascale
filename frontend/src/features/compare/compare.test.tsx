@@ -7,6 +7,7 @@ import { SPLIT_POSITION } from './comparisonMath'
 import { useCropLayer } from './useCropLayer'
 import { EnhancePage } from '@/pages/EnhancePage'
 import { renderWithProviders, jsonResponse } from '@/test/renderWithProviders'
+import { MAX_CROP_EDGE } from './comparisonMath'
 import { stubBoundingRect } from '@/test/browserStubs'
 import { GPU_SYSTEM, HEALTH } from '@/test/systemFixtures'
 import { useComparisonStore } from '@/stores/useComparisonStore'
@@ -290,6 +291,108 @@ describe('the slider divider', () => {
 
     const clipped = screen.getByAltText('Enhanced result').parentElement
     expect(clipped).toHaveStyle({ clipPath: 'inset(0 70% 0 0)' })
+  })
+})
+
+// -------------------------------------- crop layer for a result above the cap
+
+/** 2000x1500 at 8x - the case that looked soft because of the preview cap. */
+const HUGE_OUTPUT = { width: 16000, height: 12000 }
+
+describe('inspecting a result larger than the preview cap', () => {
+  it('fetches real output pixels at 100%, not the 4096 px preview', async () => {
+    // The regression. At 16000 px the preview holds a quarter of a real pixel
+    // per output pixel, so at 100% the viewer used to stretch it by four.
+    const { cropRequests } = stubBackend()
+    renderWithProviders(
+      <CropProbe transform={{ scale: 1, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />,
+    )
+
+    await waitFor(() => {
+      expect(cropRequests).toHaveLength(1)
+    })
+    expect(cropRequests[0]).toContain(`/api/jobs/${JOB_ID}/preview?`)
+    expect(cropRequests[0]).toContain('w=800&h=600')
+  })
+
+  it.each([1, 2, 4])('fetches real pixels at %sx zoom', async (scale) => {
+    const { cropRequests } = stubBackend()
+    renderWithProviders(
+      <CropProbe transform={{ scale, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />,
+    )
+
+    await waitFor(() => {
+      expect(cropRequests).toHaveLength(1)
+    })
+  })
+
+  it('still leaves fit-to-screen on the preview', async () => {
+    // 16000 px fitted into 800 px is ~0.05x, far below what the preview covers.
+    const { cropRequests } = stubBackend()
+    renderWithProviders(
+      <CropProbe transform={{ scale: 0.05, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />,
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 400))
+
+    expect(cropRequests).toEqual([])
+  })
+
+  it('never asks for a region larger than the cap', async () => {
+    // The guard that stops a 16K result turning into a 16K request.
+    const { cropRequests } = stubBackend()
+    renderWithProviders(
+      <CropProbe transform={{ scale: 1, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />,
+    )
+
+    await waitFor(() => {
+      expect(cropRequests).toHaveLength(1)
+    })
+
+    const asked = new URL(cropRequests[0]!, 'http://localhost')
+    expect(Number(asked.searchParams.get('w'))).toBeLessThanOrEqual(MAX_CROP_EDGE)
+    expect(Number(asked.searchParams.get('h'))).toBeLessThanOrEqual(MAX_CROP_EDGE)
+  })
+
+  it('does not storm the backend while the user zooms through the range', async () => {
+    const { cropRequests } = stubBackend()
+    const { rerender } = renderWithProviders(
+      <CropProbe transform={{ scale: 0.3, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />,
+    )
+
+    // A continuous zoom gesture: every step crosses the new threshold.
+    for (const scale of [0.5, 0.8, 1, 1.5, 2, 3, 4]) {
+      rerender(<CropProbe transform={{ scale, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />)
+    }
+
+    await waitFor(() => {
+      expect(cropRequests.length).toBeGreaterThan(0)
+    })
+    // Debounced to the region the gesture ended on, not one per step.
+    expect(cropRequests).toHaveLength(1)
+  })
+
+  it('releases the crop when the user zooms back out to the preview', async () => {
+    const { cropRequests } = stubBackend()
+    const revoke = vi.spyOn(URL, 'revokeObjectURL')
+    const { rerender } = renderWithProviders(
+      <CropProbe transform={{ scale: 2, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />,
+    )
+    await waitFor(() => {
+      expect(cropRequests).toHaveLength(1)
+    })
+    await waitFor(() => {
+      expect(screen.getByTestId('crop')).not.toHaveTextContent('none')
+    })
+
+    // Back below the threshold: the overlay goes and its memory with it.
+    rerender(<CropProbe transform={{ scale: 0.05, tx: 0, ty: 0 }} output={HUGE_OUTPUT} />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('crop')).toHaveTextContent('none')
+    })
+    expect(revoke).toHaveBeenCalled()
+    revoke.mockRestore()
   })
 })
 
@@ -580,7 +683,14 @@ describe('when the comparison appears', () => {
  * container and would never ask for a crop. This hands the hook the numbers it
  * would have in a browser, and nothing else about it is stubbed.
  */
-function CropProbe({ transform }: { transform: Transform }) {
-  const layer = useCropLayer(JOB_ID, transform, PROBE_CONTAINER, OUTPUT)
+function CropProbe({
+  transform,
+  output = OUTPUT,
+}: {
+  transform: Transform
+  /** The result's size. Defaults to one inside the preview cap. */
+  output?: { width: number; height: number }
+}) {
+  const layer = useCropLayer(JOB_ID, transform, PROBE_CONTAINER, output)
   return <div data-testid="crop">{layer.url ?? 'none'}</div>
 }

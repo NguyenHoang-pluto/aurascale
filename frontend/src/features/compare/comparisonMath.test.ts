@@ -3,6 +3,8 @@ import {
   DIVIDER_COARSE_STEP,
   DIVIDER_STEP,
   MAX_CROP_EDGE,
+  PREVIEW_MAX_EDGE,
+  previewDetailScale,
   MAX_DIVIDER,
   MIN_DIVIDER,
   SPLIT_POSITION,
@@ -128,7 +130,8 @@ describe('visibleRegion', () => {
 
 describe('cropForView', () => {
   it('asks for nothing at or below 100%', () => {
-    // The preview already carries more detail than the screen can show.
+    // This result is inside the preview cap, so the preview is 1:1 with the
+    // output and still has more detail than the screen can show.
     expect(cropForView({ scale: 1, tx: 0, ty: 0 }, CONTAINER, IMAGE)).toBeNull()
     expect(cropForView({ scale: 0.5, tx: 0, ty: 0 }, CONTAINER, IMAGE)).toBeNull()
   })
@@ -148,6 +151,84 @@ describe('cropForView', () => {
 
   it('asks for nothing when there is no visible area', () => {
     expect(cropForView({ scale: 4, tx: 0, ty: 0 }, { width: 0, height: 0 }, IMAGE)).toBeNull()
+  })
+})
+
+describe('previewDetailScale', () => {
+  it('is 1:1 while the result fits inside the preview cap', () => {
+    expect(previewDetailScale({ width: 4000, height: 3000 })).toBe(1)
+    expect(previewDetailScale({ width: PREVIEW_MAX_EDGE, height: 100 })).toBe(1)
+  })
+
+  it('falls as the result outgrows the cap', () => {
+    // A 16000 px 8x result is served as a 4096 px preview.
+    expect(previewDetailScale({ width: 16000, height: 12000 })).toBeCloseTo(0.256, 5)
+    expect(previewDetailScale({ width: 8000, height: 6000 })).toBeCloseTo(0.512, 5)
+  })
+
+  it('is measured on the long edge, whichever it is', () => {
+    expect(previewDetailScale({ width: 12000, height: 16000 })).toBeCloseTo(0.256, 5)
+  })
+
+  it('does not divide by a degenerate size', () => {
+    expect(previewDetailScale({ width: 0, height: 0 })).toBe(1)
+  })
+})
+
+// The reported case: 2000x1500 at 8x.
+const HUGE = { width: 16000, height: 12000 }
+
+describe('cropForView for a result larger than the preview cap', () => {
+  it('fetches real pixels at 100%, where the preview is only a quarter', () => {
+    // The regression. The old rule was `scale <= 1`, so at exactly 100% this
+    // returned null and the viewer stretched a 4096 px JPEG by four.
+    const crop = cropForView({ scale: 1, tx: 0, ty: 0 }, CONTAINER, HUGE)
+
+    expect(crop).not.toBeNull()
+    expect(crop).toEqual({ x: 0, y: 0, w: 800, h: 600 })
+  })
+
+  it('fetches real pixels at 200% and 400% too', () => {
+    for (const scale of [2, 4]) {
+      expect(cropForView({ scale, tx: 0, ty: 0 }, CONTAINER, HUGE)).not.toBeNull()
+    }
+  })
+
+  it('still uses the preview at fit-to-screen', () => {
+    // Fitting 16000 px into an 800 px container is ~0.05x - far below the
+    // 0.256 the preview covers, so a crop would be wasted bandwidth.
+    expect(cropForView({ scale: 0.05, tx: 0, ty: 0 }, CONTAINER, HUGE)).toBeNull()
+    expect(cropForView({ scale: 0.2, tx: 0, ty: 0 }, CONTAINER, HUGE)).toBeNull()
+  })
+
+  it('switches over exactly where the preview runs out', () => {
+    const threshold = previewDetailScale(HUGE)
+    // A small viewport, so the size cap cannot gate the result first and the
+    // threshold itself is what is under test. The two rules are independent:
+    // at 0.27x on an 800 px container the region is ~2976 px and the cap
+    // declines it regardless, which the next test covers.
+    const small = { width: 512, height: 512 }
+
+    expect(cropForView({ scale: threshold, tx: 0, ty: 0 }, small, HUGE)).toBeNull()
+    expect(cropForView({ scale: threshold * 1.05, tx: 0, ty: 0 }, small, HUGE)).not.toBeNull()
+  })
+
+  it('never asks for more than the cap, however far out the user zooms', () => {
+    // The bound that stops a 16K result becoming a 16K request.
+    const container = { width: 6000, height: 6000 }
+
+    for (const scale of [0.3, 0.5, 0.9, 1, 2, 4]) {
+      const crop = cropForView({ scale, tx: 0, ty: 0 }, container, HUGE)
+      if (crop === null) continue
+      expect(crop.w).toBeLessThanOrEqual(MAX_CROP_EDGE)
+      expect(crop.h).toBeLessThanOrEqual(MAX_CROP_EDGE)
+    }
+  })
+
+  it('leaves a result inside the cap behaving exactly as before', () => {
+    // No behaviour change for 2x and 4x results, which is most of them.
+    expect(cropForView({ scale: 1, tx: 0, ty: 0 }, CONTAINER, IMAGE)).toBeNull()
+    expect(cropForView({ scale: 1.5, tx: 0, ty: 0 }, CONTAINER, IMAGE)).not.toBeNull()
   })
 })
 

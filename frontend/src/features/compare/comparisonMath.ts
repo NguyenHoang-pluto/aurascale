@@ -92,19 +92,55 @@ export function visibleRegion(
 export const MAX_CROP_EDGE = 2048
 
 /**
+ * The long edge the backend caps a preview at.
+ *
+ * Mirrors `PREVIEW_MAX_EDGE` in `backend/app/services/image_service.py`. It has
+ * to be known here because it decides how much real detail the base layer
+ * actually carries, which is what `previewDetailScale` below is for.
+ */
+export const PREVIEW_MAX_EDGE = 4096
+
+/**
+ * Real output pixels per output pixel that the preview can supply.
+ *
+ * 1 while the result fits inside the cap, and progressively less above it: a
+ * 16000 px result is served as a 4096 px preview, so the preview holds 0.256
+ * of a real pixel for every output pixel.
+ */
+export function previewDetailScale(image: Size): number {
+  const longEdge = Math.max(image.width, image.height)
+  if (!Number.isFinite(longEdge) || longEdge <= 0) return 1
+
+  return Math.min(1, PREVIEW_MAX_EDGE / longEdge)
+}
+
+/**
  * The crop to request for what is on screen, or null when none is warranted.
  *
- * Two rules decide this. Below 100% the preview already carries more detail
- * than the screen can show, so a crop would be wasted bandwidth. And a region
- * larger than the cap is refused rather than shrunk around the centre: it
- * means the user is not zoomed in far enough for a crop to be worth fetching.
+ * Two rules decide this.
+ *
+ * The first is whether the preview still has more detail than the screen is
+ * asking for. Displaying the result at `scale` puts `scale` screen pixels on
+ * every output pixel, while the preview holds `previewDetailScale` real pixels
+ * for each one - so the preview runs out exactly when `scale` passes it.
+ *
+ * This used to be a flat `scale <= 1`, which is the same test only while the
+ * result fits inside the preview cap. Above it the two diverge badly: a 16000
+ * px 8x result has a preview of 4096 px, so at 100 % zoom the viewer was
+ * stretching a quarter-resolution JPEG by four and the enhancement looked
+ * softer than it was. The pixels were always in the file; the viewer just was
+ * not asking for them.
+ *
+ * The second rule is unchanged: a region larger than the cap is refused rather
+ * than shrunk around the centre. That bounds every request, and it is why
+ * zooming out cannot turn into a demand for the whole 16K image.
  */
 export function cropForView(
   transform: Transform,
   container: Size,
   image: Size,
 ): { x: number; y: number; w: number; h: number } | null {
-  if (transform.scale <= 1) return null
+  if (transform.scale <= previewDetailScale(image)) return null
 
   const region = visibleRegion(transform, container, image)
   if (region.width <= 0 || region.height <= 0) return null
