@@ -51,6 +51,11 @@ export interface ModelInfo {
   /** Native upscale factor of these weights. */
   scale: number
   supportsDenoise: boolean
+  /**
+   * Upscale factors this model can actually produce, published by the backend
+   * so the UI never offers a combination a job would refuse.
+   */
+  supportedScales: number[]
   downloaded: boolean
   sizeMb: number | null
 }

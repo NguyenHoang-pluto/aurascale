@@ -17,6 +17,7 @@ from app.core.config import Settings, get_settings
 from app.core.exceptions import ValidationError
 from app.inference.upscaler import UpscaleReport
 from app.services.enhancement_service import (
+    SUPPORTED_SCALES,
     EnhancementRequest,
     EnhancementService,
     attach_alpha,
@@ -331,3 +332,33 @@ def test_a_service_can_be_constructed_from_settings_alone() -> None:
     service = EnhancementService(Settings(environment="test"))
 
     assert service.plan("RealESRGAN_x4plus", 4) == ["RealESRGAN_x4plus"]
+
+
+# ------------------------------------------------------------- capabilities
+
+
+def test_supported_scales_are_derived_from_the_pass_planner(
+    service: EnhancementService,
+) -> None:
+    """Published capability and job validation must agree, so both come from
+    `plan` rather than from two copies of the same rule."""
+    assert service.supported_scales("RealESRGAN_x4plus") == [4, 8]
+    assert service.supported_scales("RealESRGAN_x2plus") == [2]
+
+
+def test_every_published_scale_actually_plans(service: EnhancementService) -> None:
+    for model_id in ("RealESRGAN_x4plus", "RealESRGAN_x2plus", "realesr-general-x4v3"):
+        for scale in service.supported_scales(model_id):
+            assert service.plan(model_id, scale)
+
+
+def test_a_scale_that_is_not_published_is_refused(service: EnhancementService) -> None:
+    """The two answers are the same answer: anything absent from the list is
+    rejected by the planner."""
+    published = service.supported_scales("RealESRGAN_x4plus")
+
+    for scale in SUPPORTED_SCALES:
+        if scale in published:
+            continue
+        with pytest.raises(ValidationError):
+            service.plan("RealESRGAN_x4plus", scale)

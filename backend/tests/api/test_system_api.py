@@ -107,9 +107,27 @@ class TestModelsEndpoint:
                 "arch",
                 "scale",
                 "supportsDenoise",
+                "supportedScales",
                 "downloaded",
                 "sizeMb",
             }
+
+    async def test_each_entry_publishes_the_scales_it_can_reach(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """The client offers exactly these, rather than restating the routing
+        rule and drifting from what a job would actually accept."""
+        body = (await client.get("/api/models")).json()
+        by_id = {entry["id"]: entry for entry in body}
+
+        # A 4x model reaches 8x by a second 2x pass; a 2x model reaches only 2x.
+        assert by_id["RealESRGAN_x4plus"]["supportedScales"] == [4, 8]
+        assert by_id["RealESRGAN_x2plus"]["supportedScales"] == [2]
+        assert by_id["realesr-general-x4v3"]["supportedScales"] == [4, 8]
+
+    async def test_the_native_scale_is_always_supported(self, client: httpx.AsyncClient) -> None:
+        for entry in (await client.get("/api/models")).json():
+            assert entry["scale"] in entry["supportedScales"]
 
     async def test_omits_non_selectable_weight_sets(self, client: httpx.AsyncClient) -> None:
         """The DNI denoise counterpart is blended, never chosen directly."""

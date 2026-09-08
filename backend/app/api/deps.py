@@ -17,6 +17,7 @@ from app.core.database import get_session_factory
 from app.core.runtime import runtime
 from app.repositories.base import JobRepository
 from app.repositories.job_repository import SqlAlchemyJobRepository
+from app.services.enhancement_service import EnhancementService
 from app.services.image_service import ImageService
 from app.services.job_service import JobService
 from app.services.model_service import ModelService
@@ -88,6 +89,17 @@ def get_job_queue() -> JobQueue:
     return runtime().queue
 
 
+def get_capabilities(settings: SettingsDep, models: ModelServiceDep) -> EnhancementService:
+    """Answers "what can this model do", without touching the worker runtime.
+
+    Constructing this is free: the model manager it holds resolves a device and
+    loads weights only when a job asks it to, and the capability queries here
+    never do. Reaching for the running engine instead would make `/api/models`
+    fail on a process where lifespan has not run.
+    """
+    return EnhancementService(settings, models=models)
+
+
 def get_image_service(settings: SettingsDep) -> ImageService:
     return ImageService(settings)
 
@@ -114,6 +126,7 @@ def get_job_service(
     )
 
 
+CapabilitiesDep = Annotated[EnhancementService, Depends(get_capabilities)]
 ProgressBrokerDep = Annotated[ProgressBroker, Depends(get_progress_broker)]
 JobQueueDep = Annotated[JobQueue, Depends(get_job_queue)]
 ImageServiceDep = Annotated[ImageService, Depends(get_image_service)]

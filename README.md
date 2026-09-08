@@ -4,14 +4,13 @@ Real image super-resolution in the browser, backed by Real-ESRGAN running on
 your own hardware. Upload an image, upscale it 2x/4x/8x, compare the result
 against the original, and download it.
 
-> **Build status — Phase 7 of 14 complete.**
-> The backend now enhances images end to end: upload to `POST /api/jobs`, watch
-> real per-tile progress over Server-Sent Events, cancel between tiles, and
-> download the result. Real-ESRGAN runs on your GPU (or CPU) with a denoise
-> control backed by DNI weight interpolation. **The browser cannot start a job
-> yet** — the React app is not wired to the job API until Phase 8, so the
-> workspace still uploads and inspects images locally. Every unbuilt region
-> states which phase delivers it. See [Roadmap](#roadmap).
+> **Build status — Phase 8 of 14 complete.**
+> The whole loop works in the browser: drop an image in, choose a model, scale
+> and output settings, watch real per-tile progress, and download the result.
+> Real-ESRGAN runs on your GPU (or CPU) with a denoise control backed by DNI
+> weight interpolation. **Before and after are not yet shown side by side** —
+> the comparison viewer is Phase 9 and history is Phase 10. Every unbuilt
+> region states which phase delivers it. See [Roadmap](#roadmap).
 
 ---
 
@@ -47,7 +46,7 @@ download — rather than a dashboard. The image is the interface.
 
 ## Features
 
-Implemented today (Phases 1-7):
+Implemented today (Phases 1-8):
 
 - Monorepo with strict TypeScript and strict mypy on both sides
 - Dark-first design token system (Tailwind v4, OKLCH palette)
@@ -96,6 +95,13 @@ Implemented today (Phases 1-7):
   checks are a convenience, not a control
 - Cooperative cancellation that stops between tiles and keeps no partial result
 - Retention sweeper that removes expired jobs, their files, and any orphans
+- Enhancement controls in the browser: model, upscale factor, noise reduction
+  and sharpening, with output format, quality and metadata handling
+- Impossible combinations are unselectable rather than rejected: `/api/models`
+  publishes the factors each model can actually produce, derived from the same
+  planner that validates a job, and the UI greys out the rest
+- Live job progress from the event stream, with polling as the fallback, and a
+  download that streams from the server rather than through JavaScript
 - Environment diagnostic script that explains CUDA problems in plain language
 
 Planned, with the phase that delivers each:
@@ -423,7 +429,7 @@ aurascale/
 | 6 | Real Real-ESRGAN inference with tiling | Done |
 | 6b | Denoise strength via DNI | Done |
 | 7 | Async jobs, SSE progress, cancellation | Done |
-| 8 | Frontend/backend integration | Pending |
+| 8 | Frontend/backend integration | Done |
 | 9 | Comparison viewer | Pending |
 | 10 | History | Pending |
 | 11 | Test suites | Pending |

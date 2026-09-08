@@ -135,7 +135,7 @@ build of torch, or no torch at all still gets a complete report.
 ### `GET /api/models`
 
 Available models from `models/manifest.json`, annotated with whether the weights
-are present on disk.
+are present on disk and which upscale factors each one can reach.
 
 **Status: implemented (Phase 5).**
 
@@ -148,6 +148,7 @@ are present on disk.
     "arch": "RRDBNet",
     "scale": 4,
     "supportsDenoise": false,
+    "supportedScales": [4, 8],
     "downloaded": true,
     "sizeMb": 63.9
   }
@@ -156,6 +157,11 @@ are present on disk.
 
 `downloaded` reports whether the weight file named in the manifest is present
 under `MODELS_DIR`; `sizeMb` is its on-disk size, and `null` until it is there.
+
+`supportedScales` is derived from the same pass planner that validates a job,
+so it and `POST /api/jobs` can never disagree: a factor absent from the list is
+refused with `invalid_parameters`, and a client should not offer it. A 4x model
+lists `[4, 8]` because 8x is reached by a second 2x pass; a 2x model lists `[2]`.
 
 Weight sets that are not selectable on their own are omitted — the `wdn`
 counterpart used for DNI denoise interpolation is part of
@@ -195,7 +201,8 @@ Create an enhancement job. Returns immediately; inference happens on a worker.
 ```
 
 `sharpenStrength` (0–1) drives an unsharp-mask post-process and is labelled as
-a post-process in the UI, not as an AI feature. `denoiseStrength` (0–1) applies
+a post-process in the UI, not as an AI feature. It is omitted when zero rather
+than sent as 0. `denoiseStrength` (0–1) applies
 only to models with `supportsDenoise`; it is the DNI interpolation coefficient
 between the standard and denoise weight sets. `tileSize` and `tilePad` override
 the configured defaults; `null` means "decide automatically from free VRAM".

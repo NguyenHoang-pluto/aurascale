@@ -66,14 +66,22 @@ describe('App', () => {
     expect(screen.getByText('Page not found')).toBeInTheDocument()
   })
 
-  it('presents a working upload target and marks the regions that are not built', () => {
+  it('presents a working upload target and the real enhancement controls', () => {
     render(<App />)
 
-    // The dropzone became real in Phase 4, so it is expected here now.
+    // The dropzone became real in Phase 4 and the settings rail in Phase 8.
     expect(screen.getByText('Drop an image here')).toBeInTheDocument()
     expect(screen.getByLabelText(/Drop an image here/i)).toHaveAttribute('type', 'file')
+    expect(screen.getByRole('button', { name: 'Enhance' })).toBeInTheDocument()
+  })
 
-    // Everything still unimplemented must say so rather than look functional.
+  it('still marks the regions that are not built', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    // History is Phase 10, and says so rather than looking functional.
+    await user.click(screen.getByRole('link', { name: 'History' }))
+
     expect(screen.getAllByText(/Arrives in Phase/).length).toBeGreaterThan(0)
   })
 })

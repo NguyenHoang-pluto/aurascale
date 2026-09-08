@@ -1,10 +1,10 @@
 import { ArrowRight, Download, ImageUp, SlidersHorizontal, Sparkles, X } from 'lucide-react'
 import { useCallback } from 'react'
 import { ErrorPanel } from '@/components/feedback/ErrorPanel'
-import { PhaseNotice } from '@/components/feedback/PhaseNotice'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Button } from '@/components/ui/button'
 import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/panel'
+import { EnhancePanels } from '@/features/enhance/EnhancePanels'
 import { Dropzone } from '@/features/upload/Dropzone'
 import { ImageInfoPanel } from '@/features/viewer/ImageInfoPanel'
 import { ImageViewer } from '@/features/viewer/ImageViewer'
@@ -19,8 +19,8 @@ const FLOW_STEPS = [
 
 /**
  * The four-step flow, stated plainly at the top of the workspace (§ 31).
- * A static explanation of what this screen does, not a progress tracker — live
- * step state arrives with jobs in Phase 7.
+ * A static explanation of what this screen does; the live state of a running
+ * job is reported by the Enhance panel, which has real measurements to show.
  */
 function FlowSummary() {
   return (
@@ -123,33 +123,7 @@ export function EnhancePage() {
             </>
           )}
 
-          <Panel>
-            <PanelHeader>
-              <PanelTitle>Enhancement</PanelTitle>
-            </PanelHeader>
-            <PanelContent>
-              <PhaseNotice
-                title="Model and scale"
-                description="Model selection, upscale factor and the enhancement options are wired to the backend here."
-                phase="Phase 8"
-                className="border-0 px-0 py-4"
-              />
-            </PanelContent>
-          </Panel>
-
-          <Panel>
-            <PanelHeader>
-              <PanelTitle>Output</PanelTitle>
-            </PanelHeader>
-            <PanelContent>
-              <PhaseNotice
-                title="Format and quality"
-                description="Output format, quality and metadata handling."
-                phase="Phase 8"
-                className="border-0 px-0 py-4"
-              />
-            </PanelContent>
-          </Panel>
+          <EnhancePanels />
         </>
       }
     />

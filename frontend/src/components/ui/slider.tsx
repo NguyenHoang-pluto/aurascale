@@ -12,6 +12,9 @@ import { cn } from '@/lib/cn'
  */
 export function Slider({
   className,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
   ...props
 }: ComponentPropsWithoutRef<typeof SliderPrimitive.Root>) {
   return (
@@ -27,6 +30,12 @@ export function Slider({
         <SliderPrimitive.Range className="absolute h-full bg-accent" />
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb
+        // The naming attributes belong on the thumb, not the root: Radix puts
+        // role="slider" there, so a label on the wrapper leaves the control
+        // itself anonymous to a screen reader.
+        {...(ariaLabel !== undefined ? { 'aria-label': ariaLabel } : {})}
+        {...(ariaLabelledBy !== undefined ? { 'aria-labelledby': ariaLabelledBy } : {})}
+        {...(ariaDescribedBy !== undefined ? { 'aria-describedby': ariaDescribedBy } : {})}
         className={cn(
           'block size-4 rounded-full border-2 border-accent bg-background',
           'transition-colors hover:bg-muted',

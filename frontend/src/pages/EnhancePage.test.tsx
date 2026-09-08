@@ -1,9 +1,10 @@
-import { act, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EnhancePage } from './EnhancePage'
 import { leakedObjectUrls, resizeElement } from '@/test/browserStubs'
 import { renderWithProviders } from '@/test/renderWithProviders'
+import { stubSystemApi } from '@/test/systemFixtures'
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore'
 
 const PNG_HEADER = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
@@ -35,6 +36,8 @@ function stubDecode(width: number, height: number) {
 
 describe('EnhancePage', () => {
   beforeEach(() => {
+    // The settings rail reads the model registry, so the page needs a backend.
+    stubSystemApi()
     useWorkspaceStore.setState({
       source: null,
       problem: null,
@@ -47,8 +50,11 @@ describe('EnhancePage', () => {
     renderWithProviders(<EnhancePage />)
 
     expect(screen.getByText('Drop an image here')).toBeInTheDocument()
+
+    // Scoped to the flow list: "Enhance" also names the submit button now.
+    const flow = screen.getByRole('list')
     for (const step of ['Upload', 'Compare', 'Enhance', 'Download']) {
-      expect(screen.getByText(step)).toBeInTheDocument()
+      expect(within(flow).getByText(step)).toBeInTheDocument()
     }
   })
 
@@ -67,11 +73,16 @@ describe('EnhancePage', () => {
     })
 
     expect(screen.getByRole('img')).toHaveAccessibleName('Uploaded image: holiday.png')
-    // § 8 information panel, original side.
-    expect(screen.getByText('1,280 × 720')).toBeInTheDocument()
-    expect(screen.getByText('1.8 MB')).toBeInTheDocument()
-    expect(screen.getByText('PNG')).toBeInTheDocument()
-    expect(screen.getByText('0.9 MP')).toBeInTheDocument()
+
+    // § 8 information panel, original side. Scoped to that panel: the output
+    // controls also offer PNG as a format now.
+    const info = screen.getByText('Image information').closest('div[class*="rounded"]')
+    expect(info).not.toBeNull()
+    const panel = within(info as HTMLElement)
+    expect(panel.getByText('1,280 × 720')).toBeInTheDocument()
+    expect(panel.getByText('1.8 MB')).toBeInTheDocument()
+    expect(panel.getByText('PNG')).toBeInTheDocument()
+    expect(panel.getByText('0.9 MP')).toBeInTheDocument()
   })
 
   it('reports a rejected file without entering the viewer', async () => {

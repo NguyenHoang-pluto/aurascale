@@ -142,6 +142,25 @@ class EnhancementService:
             },
         )
 
+    def supported_scales(self, model_id: str) -> list[int]:
+        """Every scale this model can reach with neural passes only.
+
+        Derived by asking `plan` rather than restating its rule, so the answer
+        the API publishes and the answer a job is validated against can never
+        drift apart. This is what lets the UI grey out an impossible
+        combination instead of duplicating the routing logic.
+        """
+        available: list[int] = []
+
+        for scale in SUPPORTED_SCALES:
+            try:
+                self.plan(model_id, scale)
+            except ValidationError:
+                continue
+            available.append(scale)
+
+        return available
+
     def _suggest_model_for(self, scale: int) -> str | None:
         """A model whose native scale matches, so the error can name one."""
         for status in self._models.list(selectable_only=True):

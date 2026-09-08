@@ -3,6 +3,7 @@ import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach } from 'vitest'
 import {
   installObjectUrl,
+  installPointerApis,
   installResizeObserver,
   resetObjectUrl,
   resetResizeObserver,
@@ -16,6 +17,7 @@ beforeEach(() => {
   installObjectUrl()
   resetResizeObserver()
   installResizeObserver()
+  installPointerApis()
 })
 
 afterEach(() => {

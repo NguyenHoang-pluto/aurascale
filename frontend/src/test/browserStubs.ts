@@ -122,3 +122,19 @@ export function stubBoundingRect(element: Element, width: number, height: number
       toJSON: () => ({}),
     }) as DOMRect) as Element['getBoundingClientRect']
 }
+
+/**
+ * Pointer-capture and scroll APIs jsdom does not implement.
+ *
+ * Radix menus and selects call these while opening. jsdom leaves them
+ * undefined, so a component that works in every browser throws here — the
+ * failure says nothing about the component, only about the environment.
+ */
+export function installPointerApis(): void {
+  const element = globalThis.Element.prototype as unknown as Record<string, unknown>
+
+  element['hasPointerCapture'] ??= () => false
+  element['setPointerCapture'] ??= () => undefined
+  element['releasePointerCapture'] ??= () => undefined
+  element['scrollIntoView'] ??= () => undefined
+}
