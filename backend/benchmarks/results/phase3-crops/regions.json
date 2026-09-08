@@ -1,0 +1,22 @@
+{
+  "text-signage": [
+    2900,
+    1550
+  ],
+  "portrait-skin": [
+    1600,
+    1750
+  ],
+  "landscape-detail": [
+    2000,
+    2500
+  ],
+  "foliage-texture": [
+    1200,
+    950
+  ],
+  "low-light-noise": [
+    4100,
+    1450
+  ]
+}

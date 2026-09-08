@@ -80,27 +80,27 @@
     {
       "filename": "foliage-texture/foliage-texture.jpg",
       "category": "foliage-texture",
-      "source": "https://commons.wikimedia.org/wiki/File:(Cephalomanes_fern_foliage_close-up_in_Espiritu_Santo,_Vanuatu)_-_DPLA_-_970b3b811cfb7b136fe34d425d0e9741.jpg",
-      "source_file": "File:(Cephalomanes fern foliage close-up in Espiritu Santo, Vanuatu) - DPLA - 970b3b811cfb7b136fe34d425d0e9741.jpg",
-      "license": "CC BY 4.0",
-      "license_url": "https://creativecommons.org/licenses/by/4.0",
-      "attribution": "Carlquist, Sherwin John, 1930-2021",
+      "source": "https://commons.wikimedia.org/wiki/File:A_Bamboo_Perspective.jpg",
+      "source_file": "File:A Bamboo Perspective.jpg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "attribution": "Derk29",
       "original_dimensions": {
-        "width": 1500,
-        "height": 2224
+        "width": 3024,
+        "height": 4032
       },
       "dimensions": {
-        "width": 1161,
-        "height": 1722
+        "width": 1224,
+        "height": 1632
       },
       "crop_box": {
-        "left": 169,
-        "top": 251,
-        "right": 1330,
-        "bottom": 1973
+        "left": 900,
+        "top": 1200,
+        "right": 2124,
+        "bottom": 2832
       },
       "processing": "centre crop only; never resampled, so sensor noise is untouched",
-      "notes": "Dense stochastic leaf texture - the first thing denoising erases."
+      "notes": "Dense sunlit bamboo leaves - the stochastic texture denoising erases first. Replaces a dark archival fern specimen whose near-black frame made every relative metric meaningless (see the Phase 2.5 report)."
     },
     {
       "filename": "low-light-noise/low-light-noise.jpg",

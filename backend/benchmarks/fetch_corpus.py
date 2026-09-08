@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -71,9 +72,10 @@ WANTED: tuple[Wanted, ...] = (
     ),
     Wanted(
         "foliage-texture",
-        "File:(Cephalomanes fern foliage close-up in Espiritu Santo, Vanuatu) - DPLA - "
-        "970b3b811cfb7b136fe34d425d0e9741.jpg",
-        "Dense stochastic leaf texture - the first thing denoising erases.",
+        "File:A Bamboo Perspective.jpg",
+        "Dense sunlit bamboo leaves - the stochastic texture denoising erases "
+        "first. Replaces a dark archival fern specimen whose near-black frame "
+        "made every relative metric meaningless (see the Phase 2.5 report).",
     ),
     Wanted(
         "low-light-noise",
@@ -215,17 +217,36 @@ def fetch(wanted: Wanted) -> dict[str, Any] | None:
     }
 
 
-def main() -> int:
-    CORPUS_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"fetching {len(WANTED)} images into {CORPUS_DIR}")
+def existing_entries() -> dict[str, dict[str, Any]]:
+    """What the manifest already records, keyed by category."""
+    if not MANIFEST.is_file():
+        return {}
+    payload = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    return {str(entry["category"]): entry for entry in payload.get("images", [])}
 
-    entries: list[dict[str, Any]] = []
-    for index, wanted in enumerate(WANTED):
+
+def main(argv: list[str] | None = None) -> int:
+    """Fetch the corpus. Name categories to refresh only those.
+
+    Refreshing one category leaves the others' manifest entries alone, so
+    replacing a single unsuitable image does not re-download the rest or
+    disturb their recorded provenance.
+    """
+    wanted_categories = set(argv or [])
+    CORPUS_DIR.mkdir(parents=True, exist_ok=True)
+
+    selected = [w for w in WANTED if not wanted_categories or w.category in wanted_categories]
+    print(f"fetching {len(selected)} of {len(WANTED)} images into {CORPUS_DIR}")
+
+    known = existing_entries()
+    for index, wanted in enumerate(selected):
         if index:
             time.sleep(REQUEST_PAUSE_SECONDS)
         entry = fetch(wanted)
         if entry is not None:
-            entries.append(entry)
+            known[wanted.category] = entry
+
+    entries = [known[w.category] for w in WANTED if w.category in known]
 
     MANIFEST.write_text(
         json.dumps(
@@ -251,4 +272,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":  # pragma: no cover - entry point
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
