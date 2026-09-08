@@ -25,7 +25,13 @@ from app.core.exceptions import (
     ValidationError,
 )
 from app.models.enums import OutputFormat
-from app.services.image_service import ImageService, sniff_format
+from app.services.image_service import (
+    PREVIEW_MAX_EDGE,
+    THUMBNAIL_MAX_EDGE,
+    ImageService,
+    open_trusted,
+    sniff_format,
+)
 
 
 @pytest.fixture
@@ -342,3 +348,161 @@ def test_an_out_of_range_quality_is_refused(service: ImageService, quality: int)
 
 def test_quality_defaults_when_unspecified(service: ImageService) -> None:
     assert service.validate_quality(None) == 92
+
+
+# ------------------------------------------------- trusted result decoding
+
+
+def test_a_result_larger_than_pillows_bomb_limit_can_be_opened(
+    service: ImageService, tmp_path: Path
+) -> None:
+    """An 8x result legitimately exceeds Pillow's limit, and is ours to read.
+
+    The limit is lowered rather than a 192 MP file being built, so the test
+    costs milliseconds instead of half a gigabyte. What is being checked is the
+    guard, and the guard does not know how big "too big" happens to be.
+    """
+    source = write_image(tmp_path / "result.jpg", make_image(320, 240), "JPEG")
+    destination = tmp_path / "preview.jpg"
+
+    previous = Image.MAX_IMAGE_PIXELS
+    Image.MAX_IMAGE_PIXELS = 16  # anything real is now "a bomb"
+    try:
+        # Plain Image.open refuses at this limit...
+        with pytest.raises(Image.DecompressionBombError), Image.open(source) as probe:
+            probe.load()
+
+        # ...but our own result is opened anyway.
+        service.write_preview(source, destination)
+    finally:
+        Image.MAX_IMAGE_PIXELS = previous
+
+    assert destination.is_file()
+    with Image.open(destination) as written:
+        assert written.size == (320, 240)
+
+
+def test_the_bomb_guard_is_restored_after_a_trusted_open(
+    service: ImageService, tmp_path: Path
+) -> None:
+    """The guard is global, so leaving it off would disarm every later open."""
+    source = write_image(tmp_path / "result.png", make_image(64, 48))
+
+    sentinel = 12_345_678
+    previous = Image.MAX_IMAGE_PIXELS
+    Image.MAX_IMAGE_PIXELS = sentinel
+    try:
+        service.write_preview(source, tmp_path / "preview.jpg")
+        assert sentinel == Image.MAX_IMAGE_PIXELS
+    finally:
+        Image.MAX_IMAGE_PIXELS = previous
+
+
+def test_the_bomb_guard_is_restored_even_when_the_open_fails(tmp_path: Path) -> None:
+    """`finally`, not a happy-path restore: an exception must not disarm it."""
+    source = write_image(tmp_path / "result.png", make_image(32, 32))
+
+    sentinel = 999_999
+    previous = Image.MAX_IMAGE_PIXELS
+    Image.MAX_IMAGE_PIXELS = sentinel
+    try:
+        with pytest.raises(RuntimeError, match="boom"), open_trusted(source):
+            raise RuntimeError("boom")
+
+        assert sentinel == Image.MAX_IMAGE_PIXELS
+    finally:
+        Image.MAX_IMAGE_PIXELS = previous
+
+
+def test_an_upload_above_the_pixel_limit_is_still_refused(
+    settings: Settings, tmp_path: Path
+) -> None:
+    """The trusted path must not have loosened anything for user uploads.
+
+    `MAX_INPUT_PIXELS` is the real upload defence - it is read from the header
+    before any decode, and is stricter than Pillow's guard by an order of
+    magnitude - so it is what this asserts.
+    """
+    tight = Settings(
+        environment="test",
+        storage_dir=settings.storage_dir,
+        models_dir=settings.models_dir,
+        max_input_pixels=1_000,
+    )
+    source = write_image(tmp_path / "upload.png", make_image(64, 48))  # 3072 px
+
+    with pytest.raises(ImageTooLargeError):
+        ImageService(tight).inspect(source)
+
+
+def test_a_bomb_error_from_a_result_becomes_a_corrupted_image_error(
+    service: ImageService, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """It should be unreachable now; if it ever fires it must not be a 500.
+
+    `DecompressionBombError` inherits from Exception, not OSError, so before
+    this it escaped the handler and left the route returning `internal_error`.
+    """
+    source = write_image(tmp_path / "result.png", make_image(64, 48))
+
+    def explode(*_: object, **__: object) -> None:
+        raise Image.DecompressionBombError("simulated")
+
+    monkeypatch.setattr(Image, "open", explode)
+
+    with pytest.raises(CorruptedImageError, match="could not be prepared for viewing"):
+        service.write_preview(source, tmp_path / "preview.jpg")
+
+
+def test_a_bomb_error_from_a_crop_becomes_a_corrupted_image_error(
+    service: ImageService, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = write_image(tmp_path / "result.png", make_image(64, 48))
+    region = service.validate_crop(0, 0, 16, 16, bounds=(64, 48))
+
+    def explode(*_: object, **__: object) -> None:
+        raise Image.DecompressionBombError("simulated")
+
+    monkeypatch.setattr(Image, "open", explode)
+
+    with pytest.raises(CorruptedImageError, match="could not be read"):
+        service.crop_to_jpeg(source, region)
+
+
+@pytest.mark.slow
+def test_a_real_16000x12000_result_produces_a_preview_and_a_thumbnail(
+    service: ImageService, tmp_path: Path
+) -> None:
+    """The reported case, at full size: 2000x1500 at 8x is 192 MP.
+
+    Marked slow because it genuinely encodes a 192 MP JPEG. The cheap tests
+    above cover the same guard; this one proves the whole path holds at the
+    size that actually failed in production, and that `draft()` still keeps the
+    decode small.
+    """
+    source = tmp_path / "result-8x.jpg"
+
+    # Built one strip at a time: a single 16000x12000x3 array would be 549 MiB.
+    with Image.new("RGB", (16000, 12000)) as canvas:
+        strip = make_image(16000, 500)
+        for top in range(0, 12000, 500):
+            canvas.paste(strip, (0, top))
+        canvas.save(source, format="JPEG", quality=80)
+
+    # `open_trusted`, because a plain open here would trip the very guard this
+    # test exists to work around.
+    with open_trusted(source) as written:
+        assert written.size == (16000, 12000)
+        assert written.size[0] * written.size[1] == 192_000_000
+
+    preview = service.write_preview(source, tmp_path / "preview.jpg")
+    thumbnail = service.write_thumbnail(source, tmp_path / "thumb.webp")
+
+    assert preview.is_file()
+    assert thumbnail.is_file()
+
+    with Image.open(preview) as opened:
+        assert max(opened.size) == PREVIEW_MAX_EDGE
+    with Image.open(thumbnail) as opened:
+        assert max(opened.size) == THUMBNAIL_MAX_EDGE
+

@@ -37,10 +37,15 @@ export function ResultCanvas({
 
       {previewFailed && (
         <div className="flex shrink-0 flex-col gap-3 border-t border-border p-4">
+          {/* No `code`. This panel is driven by an <img> onError, which tells
+              us the browser could not load the preview and nothing else - not
+              the status, not a problem document. It previously claimed
+              "job_not_found", which sent a real investigation looking for a
+              deleted job that was never deleted. Saying nothing is better than
+              naming a cause we cannot know. */}
           <ErrorPanel
             title={t('previewFailed.title')}
             detail={t('previewFailed.detail')}
-            code="job_not_found"
             onRetry={() => { setPreviewFailed(false) }}
           />
           {/* Download stays reachable: a failed preview says nothing about the

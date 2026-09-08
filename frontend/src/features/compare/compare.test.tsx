@@ -440,6 +440,33 @@ describe('states', () => {
     )
   })
 
+  it('does not blame a missing job for a preview it could not load', async () => {
+    // Regression: the panel used to hardcode code="job_not_found". An <img>
+    // onError says the browser could not load the preview and nothing more -
+    // not the status, not a problem document - so naming a cause was a guess,
+    // and it was the wrong one. An 8x result that exists and downloads fine
+    // was reported as a deleted job.
+    stubBackend()
+    renderWithProviders(
+      <ResultCanvas result={{ jobId: JOB_ID, before: BEFORE, output: OUTPUT }} />,
+    )
+
+    await act(async () => {
+      screen.getByAltText('Enhanced result').dispatchEvent(new Event('error'))
+      await Promise.resolve()
+    })
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('could not be loaded')
+
+    // No invented code, and therefore no technical disclosure claiming one.
+    expect(alert).not.toHaveTextContent('job_not_found')
+    expect(alert).not.toHaveTextContent(/code:/i)
+    expect(
+      within(alert).queryByRole('button', { name: /Technical details/i }),
+    ).not.toBeInTheDocument()
+  })
+
   it('offers a retry after a failed preview', async () => {
     stubBackend()
     renderWithProviders(

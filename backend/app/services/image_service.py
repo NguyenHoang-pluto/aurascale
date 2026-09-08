@@ -20,6 +20,9 @@ from __future__ import annotations
 import io
 import os
 import tempfile
+import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, BinaryIO
@@ -57,6 +60,48 @@ PREVIEW_QUALITY = 92
 # The largest region a crop request may ask for. A "crop" the size of the whole
 # result is not a crop, and serving one would defeat the cap above.
 MAX_CROP_PIXELS = 4096 * 4096
+
+# Serialises the `MAX_IMAGE_PIXELS` save/restore in `open_trusted`. Previews and
+# thumbnails are built on the thread pool, so two of them can overlap; without
+# this, the second to enter would save the *disabled* value as its "previous"
+# and leave the guard off for good when it restored.
+_TRUSTED_OPEN_LOCK = threading.Lock()
+
+
+@contextmanager
+def open_trusted(path: Path) -> Iterator[Image.Image]:
+    """Open a file this application produced, without the bomb guard.
+
+    Pillow refuses to open anything above `MAX_IMAGE_PIXELS` (89.5 MP, or a
+    hard error above twice that) because an image far larger than its
+    compressed size is how a decompression bomb works. That reasoning applies
+    to files a stranger uploads. It does not apply here: the only caller is the
+    preview/thumbnail/crop path, and it is reading a result *this process just
+    wrote* from pixels it had already decoded. An 8x job legitimately reaches
+    192 MP, and refusing to open our own output means a completed job whose
+    result downloads but cannot be viewed.
+
+    Deliberately not a global change:
+
+      * `MAX_INPUT_PIXELS` is what actually protects uploads, and it is
+        untouched. `inspect()` reads the dimensions from the header and calls
+        `_assert_dimensions` *before* any decode, so an oversized upload is
+        refused at 16 MP - twelve times stricter than Pillow's own limit, and
+        applied earlier. Upload safety has never depended on this setting.
+      * the previous value is restored in `finally`, so an exception inside the
+        block cannot leave the guard off;
+      * the lock keeps two concurrent trusted opens from interleaving their
+        save/restore.
+    """
+    with _TRUSTED_OPEN_LOCK:
+        previous = Image.MAX_IMAGE_PIXELS
+        Image.MAX_IMAGE_PIXELS = None
+        try:
+            with Image.open(path) as opened:
+                yield opened
+        finally:
+            Image.MAX_IMAGE_PIXELS = previous
+
 
 # The history grid's tile. WEBP because a grid loads many at once and the
 # format is a third of the bytes of JPEG at this size.
@@ -405,7 +450,10 @@ class ImageService:
         destination.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            with Image.open(source) as opened:
+            # Our own result, so the decompression-bomb guard does not apply -
+            # see `open_trusted`. Without this an 8x result (192 MP) cannot be
+            # opened at all, and the job has no preview despite completing.
+            with open_trusted(source) as opened:
                 # draft() lets the JPEG decoder skip straight to a reduced
                 # resolution, so a large JPEG result never fully decodes here.
                 # It is a no-op for other formats.
@@ -427,7 +475,17 @@ class ImageService:
                 except Exception:
                     temporary.unlink(missing_ok=True)
                     raise
-        except (UnidentifiedImageError, OSError, ValueError) as exc:
+        # DecompressionBombError inherits straight from Exception, so it is not
+        # covered by OSError/ValueError. Listed explicitly: with `open_trusted`
+        # it should no longer be reachable here, and if it ever is, it must
+        # surface as the application's corrupted-result error rather than
+        # escaping as an HTTP 500.
+        except (
+            UnidentifiedImageError,
+            Image.DecompressionBombError,
+            OSError,
+            ValueError,
+        ) as exc:
             raise CorruptedImageError(
                 "The result could not be prepared for viewing.",
                 technical=f"{type(exc).__name__}: {exc}",
@@ -460,10 +518,17 @@ class ImageService:
         buffer = io.BytesIO()
 
         try:
-            with Image.open(source) as opened:
+            # Same trusted result as the preview, and the same reason: a crop
+            # of a 192 MP 8x output must not be refused as a bomb.
+            with open_trusted(source) as opened:
                 cropped = opened.convert("RGB").crop(region.box)
                 cropped.save(buffer, format="JPEG", quality=PREVIEW_QUALITY)
-        except (UnidentifiedImageError, OSError, ValueError) as exc:
+        except (
+            UnidentifiedImageError,
+            Image.DecompressionBombError,
+            OSError,
+            ValueError,
+        ) as exc:
             raise CorruptedImageError(
                 "That region of the result could not be read.",
                 technical=f"{type(exc).__name__}: {exc}",
