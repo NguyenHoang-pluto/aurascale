@@ -5,7 +5,13 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+  // Both this directory and the repository root, because the documented
+  // configuration file is the root `.env` (it also carries the backend's own
+  // HOST/PORT) while Vite runs from `frontend/` and would otherwise never read
+  // it. A `frontend/.env` still wins, so a local override stays possible.
+  const rootDir = fileURLToPath(new URL('..', import.meta.url))
+  const env = { ...loadEnv(mode, rootDir, ''), ...loadEnv(mode, process.cwd(), '') }
+
   // Dev-only proxy target. In production the frontend is served by nginx,
   // which proxies /api itself (see docker/nginx.conf).
   const backendUrl = env['VITE_BACKEND_PROXY'] ?? 'http://127.0.0.1:8000'

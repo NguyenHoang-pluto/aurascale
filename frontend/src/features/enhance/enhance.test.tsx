@@ -8,7 +8,7 @@ import { mergeProgress } from './useJobProgress'
 import { changeLanguage, i18n } from '@/i18n'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { jsonResponse } from '@/test/renderWithProviders'
-import { GPU_SYSTEM, HEALTH } from '@/test/systemFixtures'
+import { GPU_SYSTEM, HEALTH, stubApi } from '@/test/systemFixtures'
 import {
   DEFAULT_DENOISE,
   DEFAULT_QUALITY,
@@ -175,6 +175,110 @@ afterEach(() => {
 })
 
 // ------------------------------------------------------------------ controls
+
+// ------------------------------------------------------------ initialisation
+
+/**
+ * One entry exactly as the running backend serialises it.
+ *
+ * Copied from a live `GET /api/models` rather than hand-written, so a field
+ * the server renames or drops fails here instead of at the user.
+ */
+const LIVE_MODEL_PAYLOAD = {
+  id: 'RealESRGAN_x4plus',
+  name: 'Real-ESRGAN x4 Plus',
+  description: 'General-purpose 4x upscaler. Best default for photographs.',
+  arch: 'RRDBNet',
+  scale: 4,
+  supportsDenoise: false,
+  supportedScales: [4, 8],
+  downloaded: true,
+  sizeMb: 63.9,
+}
+
+/** Answer only the model list; the rest of the shell is irrelevant here. */
+function stubModels(payload: unknown) {
+  return stubApi({ '/api/health': HEALTH, '/api/system': GPU_SYSTEM, '/api/models': payload })
+}
+
+describe('the root route initialising', () => {
+  it('adopts a default from a model list exactly as the backend sends it', async () => {
+    stubModels([LIVE_MODEL_PAYLOAD])
+    renderWithProviders(<EnhancePanels />)
+
+    await waitFor(() => {
+      expect(useEnhancementStore.getState().modelId).toBe('RealESRGAN_x4plus')
+    })
+    // 4x is on offer, so the default factor is kept rather than moved.
+    expect(useEnhancementStore.getState().scale).toBe(4)
+    expect(await screen.findByRole('combobox', { name: 'Model' })).toBeInTheDocument()
+  })
+
+  it('refuses a model list from an older backend instead of rendering nothing', async () => {
+    // A dev server left running from a release before `supportedScales`
+    // existed answers on the same port and returns exactly this.
+    const { supportedScales: _omitted, ...stale } = LIVE_MODEL_PAYLOAD
+    stubModels([stale])
+
+    renderWithProviders(<EnhancePanels />)
+
+    // The panel says so; it does not throw on the way to the store.
+    expect(await screen.findByText('Cannot load the model list')).toBeInTheDocument()
+    expect(useEnhancementStore.getState().modelId).toBeNull()
+  })
+
+  it('refuses a list whose scales are not numbers', async () => {
+    stubModels([{ ...LIVE_MODEL_PAYLOAD, supportedScales: ['4', '8'] }])
+    renderWithProviders(<EnhancePanels />)
+
+    expect(await screen.findByText('Cannot load the model list')).toBeInTheDocument()
+    expect(useEnhancementStore.getState().modelId).toBeNull()
+  })
+
+  it('refuses a body that is not a list at all', async () => {
+    stubModels({ models: [LIVE_MODEL_PAYLOAD] })
+    renderWithProviders(<EnhancePanels />)
+
+    expect(await screen.findByText('Cannot load the model list')).toBeInTheDocument()
+    expect(useEnhancementStore.getState().modelId).toBeNull()
+  })
+
+  it('accepts an empty registry, which is a real state and not an error', async () => {
+    // A backend with no weights installed reports no models. Nothing to adopt,
+    // and nothing to complain about.
+    stubModels([])
+    renderWithProviders(<EnhancePanels />)
+
+    await waitFor(() => {
+      expect(screen.queryByRole('combobox', { name: 'Model' })).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Cannot load the model list')).not.toBeInTheDocument()
+    expect(useEnhancementStore.getState().modelId).toBeNull()
+  })
+
+  it('accepts a model that can produce no factor, keeping the current one', async () => {
+    // An empty `supportedScales` is describable: the model is unusable, every
+    // factor renders disabled, and the stored scale is left alone.
+    stubModels([{ ...LIVE_MODEL_PAYLOAD, supportedScales: [] }])
+    renderWithProviders(<EnhancePanels />)
+
+    await waitFor(() => {
+      expect(useEnhancementStore.getState().modelId).toBe('RealESRGAN_x4plus')
+    })
+    expect(useEnhancementStore.getState().scale).toBe(DEFAULT_SCALE)
+    expect(screen.queryByText('Cannot load the model list')).not.toBeInTheDocument()
+  })
+
+  it('shows the loading state while the registry is still in flight', () => {
+    // Never resolves: the panel must render its skeleton, not crash on
+    // `undefined` data.
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => undefined)))
+    const { container } = renderWithProviders(<EnhancePanels />)
+
+    expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument()
+    expect(useEnhancementStore.getState().modelId).toBeNull()
+  })
+})
 
 describe('the enhancement controls', () => {
   it('offers the models the backend reports', async () => {

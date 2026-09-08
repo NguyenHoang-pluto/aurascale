@@ -29,7 +29,14 @@ export class ApiError extends Error {
   }
 }
 
-function clientProblem(
+/**
+ * A problem the client itself diagnosed, in the same shape the server sends.
+ *
+ * Exported so a caller that validates a response body can report a contract
+ * violation the same way every other failure is reported, rather than throwing
+ * a bare `Error` that no error panel knows how to render.
+ */
+export function clientProblem(
   code: ErrorCode,
   title: string,
   detail: string,
