@@ -5,6 +5,8 @@ import { HistoryPage } from '@/pages/HistoryPage'
 import {
   hasResult,
   isRunning,
+  modeKey,
+  outputRequest,
   pageCount,
   pageRange,
   sizeParts,
@@ -32,6 +34,9 @@ function job(index: number, overrides: Partial<JobRecord> = {}): JobRecord {
     progress: 100,
     model: 'realesr-general-x4v3',
     scale: 4,
+    mode: null,
+    outputType: 'scale',
+    target: null,
     device: 'cuda',
     input: { width: 320, height: 240, sizeBytes: 161_035, format: 'PNG' },
     output: { width: 1280, height: 960, sizeBytes: 1_018_871, format: 'PNG' },
@@ -582,5 +587,89 @@ describe('presentation helpers', () => {
 
   it('does not pretend to read a broken timestamp', () => {
     expect(timestampParts('not a date').key).toBe('unknown')
+  })
+})
+
+// --------------------------------------------- mode and target in history
+
+describe('what a history entry says about how it was asked for', () => {
+  it('names the mode for a Standard job, not the model behind it', async () => {
+    stubBackend({ items: [job(1, { mode: 'standard' })] })
+    renderWithProviders(<HistoryPage />)
+
+    const entry = within(await screen.findByRole('article'))
+    expect(entry.getByText('Standard')).toBeInTheDocument()
+    // A model id is an implementation detail the user did not choose.
+    expect(entry.queryByText('realesr-general-x4v3')).not.toBeInTheDocument()
+  })
+
+  it('names the mode for a Creative job', async () => {
+    stubBackend({ items: [job(1, { mode: 'creative' })] })
+    renderWithProviders(<HistoryPage />)
+
+    const entry = within(await screen.findByRole('article'))
+    expect(entry.getByText('Creative')).toBeInTheDocument()
+  })
+
+  it('shows the preset for a target-resolution job', async () => {
+    stubBackend({
+      items: [job(1, { mode: 'creative', outputType: 'target', target: '4k' })],
+    })
+    renderWithProviders(<HistoryPage />)
+
+    const entry = within(await screen.findByRole('article'))
+    expect(entry.getByText(/Target · 4K/)).toBeInTheDocument()
+    // The factor is not what was asked for, so it is not what is shown.
+    expect(entry.queryByText(/Scale · 4x/)).not.toBeInTheDocument()
+  })
+
+  it('shows the factor for a scale job', async () => {
+    stubBackend({ items: [job(1, { mode: 'standard' })] })
+    renderWithProviders(<HistoryPage />)
+
+    const entry = within(await screen.findByRole('article'))
+    expect(entry.getByText(/Scale · 4x/)).toBeInTheDocument()
+  })
+
+  it('still reads a job from before modes existed', async () => {
+    // No mode, no target - the shape every stored job currently has.
+    stubBackend({ items: [job(1)] })
+    renderWithProviders(<HistoryPage />)
+
+    const entry = within(await screen.findByRole('article'))
+    expect(entry.getByText(/Scale · 4x/)).toBeInTheDocument()
+    // With no mode recorded, the model is the only provenance it has.
+    expect(entry.getByText('realesr-general-x4v3')).toBeInTheDocument()
+  })
+})
+
+describe('outputRequest', () => {
+  it('reports a target job by its preset', () => {
+    expect(outputRequest(job(1, { outputType: 'target', target: '8k' }))).toEqual({
+      key: 'target',
+      value: '8K',
+    })
+  })
+
+  it('reports a scale job by its factor', () => {
+    expect(outputRequest(job(1, { scale: 2 }))).toEqual({ key: 'scale', value: '2x' })
+  })
+
+  it('falls back to the factor when a target job lost its preset', () => {
+    // The size it produced is real either way, so something true is shown.
+    expect(outputRequest(job(1, { outputType: 'target', target: null }))).toEqual({
+      key: 'scale',
+      value: '4x',
+    })
+  })
+})
+
+describe('modeKey', () => {
+  it('names a recorded mode', () => {
+    expect(modeKey(job(1, { mode: 'creative' }))).toBe('mode.creative')
+  })
+
+  it('has nothing to say about a job that recorded none', () => {
+    expect(modeKey(job(1))).toBeNull()
   })
 })

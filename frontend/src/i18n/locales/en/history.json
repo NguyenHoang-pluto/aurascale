@@ -37,7 +37,9 @@
     "took": "Took",
     "created": "Created",
     "deleteLabel": "Delete the job from {{timestamp}}",
-    "deleting": "Deleting…"
+    "deleting": "Deleting…",
+    "mode": "Mode",
+    "output": "Output"
   },
   "confirm": {
     "label": "Confirm deletion",
@@ -53,5 +55,13 @@
   "viewer": {
     "label": "Result viewer",
     "surfaceLabel": "Result viewer. Plus and minus zoom, 0 fits to screen, 1 shows actual size, arrow keys pan."
+  },
+  "mode": {
+    "standard": "Standard",
+    "creative": "Creative"
+  },
+  "output": {
+    "scale": "Scale",
+    "target": "Target"
   }
 }

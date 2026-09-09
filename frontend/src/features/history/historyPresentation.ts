@@ -111,3 +111,30 @@ export function pageRange(
   const first = page * pageSize + 1
   return { first, last: Math.min(total, first + pageSize - 1) }
 }
+
+/**
+ * How a job's output size was asked for, as parts for the caller to translate.
+ *
+ * A job from before target resolutions existed reports `scale`, which is what
+ * it was: that was the only way to ask. Nothing is inferred from the numbers.
+ */
+export interface OutputRequest {
+  /** `history:output.*` key. */
+  key: 'scale' | 'target'
+  /** "4x" or "4K". Neither is translated - one is a factor, one is a name. */
+  value: string
+}
+
+export function outputRequest(job: JobRecord): OutputRequest {
+  if (job.outputType === 'target' && job.target !== null) {
+    return { key: 'target', value: job.target.toUpperCase() }
+  }
+  // A target job whose preset was not recorded still shows its factor rather
+  // than an empty label - the size it produced is real either way.
+  return { key: 'scale', value: `${String(job.scale)}x` }
+}
+
+/** The `history:mode.*` key for a job's mode, or null when it had none. */
+export function modeKey(job: JobRecord): string | null {
+  return job.mode === null ? null : `mode.${job.mode}`
+}

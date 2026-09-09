@@ -3,6 +3,8 @@ import type { SegmentedOption } from '@/components/ui/segmented-control'
 import type { ImageMetadata } from '@/types/image'
 import type { JobStatus } from '@/types/job'
 import { stageKey } from '@/types/job'
+import { planScale } from './targetPlanning'
+import type { SourceSize } from './targetPlanning'
 import type { LiveProgress } from './useJobProgress'
 
 /**
@@ -18,25 +20,44 @@ import type { LiveProgress } from './useJobProgress'
  */
 
 /** Every factor the product offers, in order. Availability is per model. */
-export const ALL_SCALES = [2, 4, 8] as const
+export const ALL_SCALES = [2, 4, 8, 16] as const
 
 /**
- * The upscale choices, with anything this model cannot produce disabled.
+ * Factors composed from two neural passes rather than one native one.
  *
- * `supported` comes from the backend, which derives it from the same planner
- * that validates a job. Nothing here restates that rule.
+ * Worth saying out loud in the UI: they cost roughly twice the time, and the
+ * second pass is the expensive one because it works on an already-enlarged
+ * image.
+ */
+export const TWO_PASS_SCALES: readonly number[] = [8, 16]
+
+/**
+ * The upscale choices, with anything this image cannot be given disabled.
+ *
+ * Two reasons a factor can be unavailable, and they are different: the model
+ * may not produce it, or the result would be past the output limit. The first
+ * comes from the backend's own `supportedScales`; the second is judged here
+ * only when an image is loaded, and both are re-checked on the server.
  */
 export function scaleOptions(
   t: TFunction,
   supported: readonly number[],
+  source?: SourceSize,
 ): SegmentedOption<string>[] {
-  return ALL_SCALES.map((scale) => ({
-    value: String(scale),
-    // A factor is a number and an "x". The same in every language.
-    label: `${scale}x`,
-    disabled: !supported.includes(scale),
-    ...(scale === 8 ? { hint: t('enhance:scale.twoPassHint') } : {}),
-  }))
+  return ALL_SCALES.map((scale) => {
+    const plan = planScale(scale, supported, source)
+
+    return {
+      value: String(scale),
+      // A factor is a number and an "x". The same in every language.
+      label: `${scale}x`,
+      disabled: !plan.available,
+      ...(TWO_PASS_SCALES.includes(scale) ? { hint: t('enhance:scale.twoPassHint') } : {}),
+      ...(plan.reason !== undefined
+        ? { title: t(`enhance:scale.unavailable.${plan.reason}`) }
+        : {}),
+    }
+  })
 }
 
 /** The result's dimensions: exactly the input times the factor. */

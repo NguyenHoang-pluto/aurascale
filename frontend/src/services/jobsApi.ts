@@ -13,10 +13,16 @@ export function createJob(request: CreateJobRequest, signal?: AbortSignal): Prom
   const form = new FormData()
   form.append('image', request.file, request.file.name)
   form.append('model', request.model)
-  form.append('scale', String(request.scale))
   form.append('format', request.format)
   form.append('preserveMetadata', String(request.preserveMetadata))
 
+  // A target and a factor answer the same question, and the backend refuses
+  // both together. Sending only the one the user chose keeps that from
+  // becoming a validation error they never asked for.
+  if (request.target !== undefined) form.append('target', request.target)
+  else form.append('scale', String(request.scale))
+
+  if (request.mode !== undefined) form.append('mode', request.mode)
   if (request.quality !== undefined) form.append('quality', String(request.quality))
   form.append('settings', JSON.stringify(request.settings))
 

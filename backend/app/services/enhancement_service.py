@@ -19,10 +19,10 @@ from typing import Any
 import numpy as np
 
 from app.core.config import Settings
-from app.core.exceptions import ValidationError
+from app.core.exceptions import OutputTooLargeError, ValidationError
 from app.core.logging import get_logger
 from app.inference.model_manager import ModelManager
-from app.inference.upscaler import UpscaleReport
+from app.inference.upscaler import JobCancelledError, UpscaleReport
 from app.services.model_service import ModelService, ModelStatus
 
 logger = get_logger(__name__)
@@ -34,7 +34,9 @@ CancelCheck = Callable[[], bool]
 # so every pixel of the result is still model-generated (docs § 5).
 SECOND_PASS_MODEL = "RealESRGAN_x2plus"
 
-SUPPORTED_SCALES = (2, 4, 8)
+# Every factor the product offers. 2x and 4x are native weights; 8x and 16x
+# are compositions of two neural passes, planned in `plan` below.
+SUPPORTED_SCALES = (2, 4, 8, 16)
 
 # Unsharp masking parameters.
 #
@@ -98,6 +100,53 @@ class EnhancementRequest:
     # is then clamped to the free VRAM as usual.
     tile_size: int | None = None
     tile_pad: int | None = None
+    # Exact output size, when the job asked for a target resolution rather than
+    # a factor. Both None means the neural result is the result.
+    target_width: int | None = None
+    target_height: int | None = None
+
+    @property
+    def has_target(self) -> bool:
+        return self.target_width is not None and self.target_height is not None
+
+
+@dataclass(frozen=True, slots=True)
+class CascadeStage:
+    """One neural pass of a composed scale, with the size it operates on.
+
+    8x and 16x are two passes, and the second is by far the expensive one: it
+    sees an image the first pass already enlarged, sixteen times larger at 16x.
+    Naming the stages with their dimensions is what lets each be checked
+    against the output limit *before* it runs, rather than the problem arriving
+    as an allocation failure partway through - or, worse, as a half-finished
+    cascade returning a 4x image as though it were the answer.
+    """
+
+    #: 0-based position in the cascade.
+    index: int
+    #: How many passes there are in total.
+    total: int
+    model_id: str
+    #: The model's native factor, not the job's.
+    scale: int
+    input_width: int
+    input_height: int
+
+    @property
+    def output_width(self) -> int:
+        return self.input_width * self.scale
+
+    @property
+    def output_height(self) -> int:
+        return self.input_height * self.scale
+
+    @property
+    def output_pixels(self) -> int:
+        return self.output_width * self.output_height
+
+    @property
+    def is_final(self) -> bool:
+        return self.index == self.total - 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +158,8 @@ class EnhancementResult:
     passes: list[str]
     reports: list[UpscaleReport] = field(default_factory=list)
     sharpened: bool = False
+    #: Whether a final resample to an exact target size was applied.
+    resized: bool = False
 
     @property
     def device(self) -> str:
@@ -173,6 +224,19 @@ class EnhancementService:
             # step would make half the result non-neural (docs § 5).
             return [model_id, SECOND_PASS_MODEL]
 
+        if scale == 16 and native == 4:
+            # 4x then 4x - the same weights twice, so the second pass carries
+            # the character of the first rather than handing the image to a
+            # different network halfway through.
+            #
+            # Not 4x -> 2x -> 2x: that reaches the same size with a third
+            # forward pass over an image four times larger than this one's
+            # second pass sees, which is strictly more work and more memory
+            # for no gain. And not one 16x allocation either - each pass goes
+            # through the ordinary tiling loop, so the OOM ladder, the
+            # cancellation checks and the progress counting all still apply.
+            return [model_id, model_id]
+
         raise ValidationError(
             f"{status.entry.name} upscales by {native}x, so it cannot produce a {scale}x result.",
             technical=f"model={model_id} native_scale={native} requested={scale}",
@@ -202,6 +266,36 @@ class EnhancementService:
             available.append(scale)
 
         return available
+
+    def plan_cascade(
+        self, model_id: str, scale: int, width: int, height: int
+    ) -> list[CascadeStage]:
+        """The passes `plan` chose, each with the size it will work on.
+
+        Routing is not restated here - `plan` is called - so a cascade and the
+        list of models it runs can never describe different journeys. What this
+        adds is the arithmetic: every stage knows how large its own result will
+        be, which is what the memory guard below needs and what makes a
+        two-pass job inspectable without running it.
+        """
+        models = self.plan(model_id, scale)
+
+        stages: list[CascadeStage] = []
+        current_width, current_height = width, height
+
+        for index, identifier in enumerate(models):
+            stage = CascadeStage(
+                index=index,
+                total=len(models),
+                model_id=identifier,
+                scale=self._models.get(identifier).entry.scale,
+                input_width=current_width,
+                input_height=current_height,
+            )
+            stages.append(stage)
+            current_width, current_height = stage.output_width, stage.output_height
+
+        return stages
 
     def _suggest_model_for(self, scale: int) -> str | None:
         """A model whose native scale matches, so the error can name one."""
@@ -238,14 +332,26 @@ class EnhancementService:
         continuous measurement rather than restarting at the halfway point.
         """
         colour, alpha = split_alpha(image)
-        plan = self.plan(request.model_id, request.scale)
+        height, width = colour.shape[:2]
+        stages = self.plan_cascade(request.model_id, request.scale, width, height)
+        plan = [stage.model_id for stage in stages]
         reports: list[UpscaleReport] = []
 
         current = colour
-        for index, model_id in enumerate(plan):
+        for stage in stages:
+            # Checked before every pass, not only the first. The alternative is
+            # a cancelled 16x job loading weights and then running a whole
+            # second pass before anyone notices.
+            if should_cancel is not None and should_cancel():
+                raise JobCancelledError
+
+            # And refused before every pass, so a cascade that cannot finish
+            # safely says so instead of returning what it managed.
+            self._assert_stage_fits(stage)
+
             upscaler = self._manager.get(
-                model_id,
-                denoise_strength=self._denoise_for(model_id, request.denoise_strength),
+                stage.model_id,
+                denoise_strength=self._denoise_for(stage.model_id, request.denoise_strength),
             )
 
             current = upscaler.upscale(
@@ -256,7 +362,7 @@ class EnhancementService:
                 tile_pad=(
                     request.tile_pad if request.tile_pad is not None else self._settings.tile_pad
                 ),
-                on_progress=_scaled_progress(on_progress, index, len(plan)),
+                on_progress=_scaled_progress(on_progress, stage.index, stage.total),
                 should_cancel=should_cancel,
             )
 
@@ -267,12 +373,21 @@ class EnhancementService:
             logger.info(
                 "pass complete",
                 extra={
-                    "model": model_id,
-                    "pass": index + 1,
-                    "passes": len(plan),
+                    "model": stage.model_id,
+                    "pass": stage.index + 1,
+                    "passes": stage.total,
+                    "output": f"{stage.output_width}x{stage.output_height}",
                     "device": report.device if report else None,
                     "tile": report.tile_size if report else None,
                 },
+            )
+
+        # Resize before sharpening, so the post-process works at the size the
+        # user will actually look at.
+        resized = False
+        if request.has_target:
+            current, resized = resize_to_target(
+                current, request.target_width or 0, request.target_height or 0
             )
 
         sharpened = request.sharpen_strength > 0
@@ -288,6 +403,42 @@ class EnhancementService:
             passes=plan,
             reports=reports,
             sharpened=sharpened,
+            resized=resized,
+        )
+
+    def _assert_stage_fits(self, stage: CascadeStage) -> None:
+        """Refuse a pass whose result would be past the output limit.
+
+        The submission path already checks the final size, and a target
+        resolution has its neural intermediate checked by `plan_resolution`.
+        This is the same limit applied at the moment the memory is about to be
+        committed, and it is what makes a cascade safe to compose: if the
+        second pass of a 16x job cannot run, the job fails with a typed error
+        naming the stage rather than quietly handing back the 4x intermediate.
+
+        It never fires for a request that passed submission, because every
+        earlier stage is smaller than the last one, which is what was checked.
+        """
+        limit = self._settings.max_output_pixels
+        if stage.output_pixels <= limit:
+            return
+
+        raise OutputTooLargeError(
+            f"Pass {stage.index + 1} of {stage.total} of this enhancement would produce "
+            f"{stage.output_width}x{stage.output_height} "
+            f"({stage.output_pixels / 1_000_000:.0f} MP), which is beyond the "
+            f"{limit / 1_000_000:.0f} MP limit. Try a smaller upscale factor.",
+            technical=(
+                f"stage={stage.index + 1}/{stage.total} model={stage.model_id} "
+                f"input={stage.input_width}x{stage.input_height} "
+                f"output={stage.output_width}x{stage.output_height} limit={limit}"
+            ),
+            context={
+                "limitPixels": limit,
+                "projectedPixels": stage.output_pixels,
+                "stage": stage.index + 1,
+                "stages": stage.total,
+            },
         )
 
     def _denoise_for(self, model_id: str, strength: float | None) -> float | None:
@@ -295,6 +446,12 @@ class EnhancementService:
 
         The second pass of an 8x job is a different network with no denoise
         pair, so passing the strength on would fail the load.
+
+        A 16x cascade runs the same weights twice, so a model with a pair gets
+        the same blend on both passes. That is the existing rule applied
+        unchanged rather than a new one - whether a second pass should denoise
+        an already-denoised image is a quality question, and answering it here
+        without evidence would be a guess.
         """
         if strength is None:
             return None
@@ -393,6 +550,40 @@ def strip_rows(width: int) -> int:
     if width <= 0:
         return SHARPEN_MIN_STRIP_ROWS
     return max(SHARPEN_MIN_STRIP_ROWS, SHARPEN_STRIP_BYTES // (width * 12))
+
+
+def resize_to_target(
+    image: np.ndarray[Any, Any], width: int, height: int
+) -> tuple[np.ndarray[Any, Any], bool]:
+    """Resample a neural result down to an exact requested size.
+
+    Only ever downwards. The planner picks the smallest supported factor that
+    reaches the target, so the neural result is always at least as large - and
+    enlarging here would put interpolated pixels into a result that is supposed
+    to be model-generated, which is the one thing the neural-only rule forbids.
+    An upward request is a planning bug and is refused rather than performed.
+
+    `INTER_AREA`, not Lanczos: it averages the pixels being discarded, which is
+    what makes a downscale look clean rather than aliased. Lanczos is the right
+    choice for the opposite direction, which never happens here.
+    """
+    import cv2
+
+    current_height, current_width = image.shape[:2]
+    if (current_width, current_height) == (width, height):
+        return image, False
+
+    if width > current_width or height > current_height:
+        raise ValidationError(
+            "The result could not be resized to the requested size.",
+            technical=(
+                f"refusing to enlarge {current_width}x{current_height} "
+                f"to {width}x{height}; the planner should have chosen a larger factor"
+            ),
+        )
+
+    resized: np.ndarray[Any, Any] = cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
+    return resized, True
 
 
 def unsharp_mask(

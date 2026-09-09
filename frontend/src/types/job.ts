@@ -50,6 +50,12 @@ export interface JobRecord {
   progress: number
   model: string
   scale: number
+  /** Null for a job submitted before modes existed, or without one. */
+  mode: EnhancementMode | null
+  /** Whether the size was asked for as a factor or as a destination. */
+  outputType: OutputType
+  /** The preset, when `outputType` is `target`. */
+  target: TargetResolution | null
   /** Where it ran. Null until the job starts. */
   device: string | null
   input: ImageFacts
@@ -87,14 +93,54 @@ export interface EnhanceSettings {
   tilePad?: number | null
 }
 
+/**
+ * What the enhancement should prioritise.
+ *
+ * A named bundle of decisions the backend makes - which model, how much
+ * denoising - so the UI never has to name a model to express an intent.
+ */
+export type EnhancementMode = 'standard' | 'creative'
+
+/**
+ * A requested output size, named by its long edge.
+ *
+ * Deliberately not an upscale factor. "4K" is a destination the output lands
+ * on whatever the input was; "4x" is a multiplier. The two are different
+ * questions and the UI keeps them apart.
+ *
+ * 16K makes that impossible to miss: it is eight times the 1920 the family is
+ * built on, so a 1080p source reaches it with an 8x pass, not a 16x one.
+ */
+export type TargetResolution = '2k' | '4k' | '6k' | '8k' | '16k'
+
+/**
+ * How a job's output size was asked for.
+ *
+ * A job from before target resolutions existed carries no metadata and reads
+ * as `scale`, which is what it was - that was the only way to ask.
+ */
+export type OutputType = 'scale' | 'target'
+
+export const TARGET_LONG_EDGE: Record<TargetResolution, number> = {
+  '2k': 1920,
+  '4k': 3840,
+  '6k': 5760,
+  '8k': 7680,
+  '16k': 15360,
+}
+
 export interface CreateJobRequest {
   file: File
   model: string
+  /** Ignored when `target` is set - the two answer the same question. */
   scale: number
   format: OutputFormat
   quality?: number
   preserveMetadata: boolean
   settings: EnhanceSettings
+  mode?: EnhancementMode
+  /** When set, the backend plans the factor and resizes to this exactly. */
+  target?: TargetResolution
 }
 
 /**

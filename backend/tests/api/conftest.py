@@ -66,6 +66,13 @@ class StubEnhancement:
 
         return EnhancementService(self._settings, models=self._models).plan(model_id, scale)
 
+    def supported_scales(self, model_id: str) -> list[int]:
+        """Delegated to the real service, so a target is planned against the
+        factors the model genuinely offers rather than an invented list."""
+        from app.services.enhancement_service import EnhancementService
+
+        return EnhancementService(self._settings, models=self._models).supported_scales(model_id)
+
     def enhance(
         self,
         image: np.ndarray[Any, Any],
@@ -94,11 +101,23 @@ class StubEnhancement:
         scale = request.scale
         enlarged = np.repeat(np.repeat(image, scale, axis=0), scale, axis=1)
 
+        # A target resolution is resized through the real helper, not a stub
+        # of it: the sizing is exactly what this stub exists to let the API
+        # tests check, so faking it would test nothing.
+        resized = False
+        if request.has_target:
+            from app.services.enhancement_service import resize_to_target
+
+            enlarged, resized = resize_to_target(
+                enlarged, request.target_width or 0, request.target_height or 0
+            )
+
         return EnhancementResult(
             image=enlarged,
             scale=scale,
             passes=["stub"],
             reports=[UpscaleReport(device="cpu", tile_size=256, tiles=steps, fp16=False)],
+            resized=resized,
         )
 
     def release(self) -> int:

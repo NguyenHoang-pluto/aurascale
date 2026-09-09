@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, BinaryIO
 
@@ -30,11 +30,13 @@ from app.core.exceptions import (
 )
 from app.core.logging import get_logger
 from app.models.db import Job
-from app.models.enums import JobStatus, OutputFormat
+from app.models.enums import EnhancementMode, JobStatus, OutputFormat, TargetResolution
 from app.repositories.base import JobRepository, Page
 from app.services.enhancement_service import EnhancementService
 from app.services.image_service import ImageService
+from app.services.mode_planner import resolve_denoise, resolve_model
 from app.services.model_service import ModelService
+from app.services.resolution_planner import plan_resolution
 from app.services.storage_service import StorageService, new_job_id
 from app.workers.progress import ProgressBroker
 from app.workers.queue import JobQueue
@@ -65,6 +67,14 @@ class EnhanceOptions:
     denoise_strength: float | None = None
     tile_size: int | None = None
     tile_pad: int | None = None
+    # Recorded so a finished job can say which mode produced it, and so the
+    # exact target survives into the worker without a schema migration.
+    mode: str | None = None
+    #: The preset the user asked for, kept alongside the pixels it resolved to
+    #: so a finished job can say "4K" rather than only "3840x2560".
+    target: str | None = None
+    target_width: int | None = None
+    target_height: int | None = None
 
     def to_json(self) -> dict[str, Any]:
         payload: dict[str, Any] = {"sharpenStrength": self.sharpen_strength}
@@ -74,6 +84,13 @@ class EnhanceOptions:
             payload["tileSize"] = self.tile_size
         if self.tile_pad is not None:
             payload["tilePad"] = self.tile_pad
+        if self.mode is not None:
+            payload["mode"] = self.mode
+        if self.target is not None:
+            payload["target"] = self.target
+        if self.target_width is not None and self.target_height is not None:
+            payload["targetWidth"] = self.target_width
+            payload["targetHeight"] = self.target_height
         return payload
 
 
@@ -122,6 +139,8 @@ class JobService:
         quality: int | None = None,
         preserve_metadata: bool = True,
         settings_json: str | None = None,
+        mode: EnhancementMode | None = None,
+        target: TargetResolution | None = None,
     ) -> SubmittedJob:
         """Validate a submission, persist it, and queue it for the worker.
 
@@ -132,13 +151,37 @@ class JobService:
         job_id = new_job_id()
         options = parse_options(settings_json)
 
-        resolved_model = model or self._models.default_model_id()
-        resolved_scale = scale if scale is not None else self._settings.default_scale
+        if scale is not None and target is not None:
+            raise ValidationError(
+                "Choose either an upscale factor or a target resolution, not both.",
+                technical=f"scale={scale} target={target.value}",
+                context={"scale": scale, "target": target.value},
+            )
 
-        # Model and scale are checked before a byte is written: rejecting a
-        # 30 MB upload after storing it would be rude and pointless.
-        self._models.get(resolved_model)
-        self._enhancement.plan(resolved_model, resolved_scale)
+        # A mode supplies defaults; anything the client named explicitly wins,
+        # which is what keeps clients written before modes existed working.
+        resolved_model = resolve_model(mode, model) or self._models.default_model_id()
+        status = self._models.get(resolved_model)
+
+        if options.denoise_strength is None:
+            options = replace(
+                options,
+                denoise_strength=resolve_denoise(
+                    mode,
+                    None,
+                    model_supports_denoise=status.entry.supports_denoise
+                    and status.entry.denoise_pair is not None,
+                ),
+            )
+        if mode is not None:
+            options = replace(options, mode=mode.value)
+
+        # A factor can be checked before a byte is written. A target cannot -
+        # it depends on the source dimensions - so it is planned after the
+        # upload is inspected, below.
+        resolved_scale = scale if scale is not None else self._settings.default_scale
+        if target is None:
+            self._enhancement.plan(resolved_model, resolved_scale)
         self._validate_denoise(resolved_model, options)
 
         self._storage.ensure_ready()
@@ -149,6 +192,23 @@ class JobService:
 
         try:
             source_format, width, height = self._images.inspect(staged)
+
+            if target is not None:
+                plan = plan_resolution(
+                    width,
+                    height,
+                    target,
+                    supported_scales=self._enhancement.supported_scales(resolved_model),
+                    max_output_pixels=self._settings.max_output_pixels,
+                )
+                resolved_scale = plan.neural_scale
+                options = replace(
+                    options,
+                    target=target.value,
+                    target_width=plan.target_width,
+                    target_height=plan.target_height,
+                )
+
             self._images.assert_output_fits(width, height, resolved_scale)
 
             resolved_format = self._resolve_output_format(output_format, source_format)
@@ -445,6 +505,8 @@ def parse_options(settings_json: str | None) -> EnhanceOptions:
         denoise_strength=_strength(parsed.get("denoiseStrength"), "denoiseStrength"),
         tile_size=_bounded_int(parsed.get("tileSize"), "tileSize", TILE_SIZE_RANGE),
         tile_pad=_bounded_int(parsed.get("tilePad"), "tilePad", TILE_PAD_RANGE),
+        mode=str(parsed["mode"]) if parsed.get("mode") is not None else None,
+        target=str(parsed["target"]) if parsed.get("target") is not None else None,
     )
 
 

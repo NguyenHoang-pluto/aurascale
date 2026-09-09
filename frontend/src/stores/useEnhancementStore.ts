@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { ModelInfo } from '@/types/system'
-import type { OutputFormat } from '@/types/job'
+import type { EnhancementMode, OutputFormat, TargetResolution } from '@/types/job'
 
 /**
  * The enhancement and output settings, plus the job they were submitted as.
@@ -16,6 +16,18 @@ import type { OutputFormat } from '@/types/job'
  */
 
 export const DEFAULT_SCALE = 4
+/** Fidelity first, and what every existing job already did. */
+export const DEFAULT_MODE: EnhancementMode = 'standard'
+
+/**
+ * How the output size is expressed: as a factor, or as a destination.
+ *
+ * Kept as an explicit union rather than "target is null means scale", so the
+ * two are visibly different choices in the code as well as in the UI.
+ */
+export type OutputSizing = { kind: 'scale' } | { kind: 'target'; target: TargetResolution }
+
+export const DEFAULT_SIZING: OutputSizing = { kind: 'scale' }
 export const DEFAULT_QUALITY = 92
 /** 1.0 is the model's own weights, which denoise the most (see the panel copy). */
 export const DEFAULT_DENOISE = 1
@@ -30,6 +42,8 @@ export function isLossy(format: OutputFormat): boolean {
 
 interface EnhancementState {
   modelId: string | null
+  mode: EnhancementMode
+  sizing: OutputSizing
   scale: number
   /** 0-1. Only meaningful for models with `supportsDenoise`. */
   denoiseStrength: number
@@ -42,6 +56,8 @@ interface EnhancementState {
   /** The job currently being watched, if any. */
   activeJobId: string | null
 
+  setMode: (mode: EnhancementMode) => void
+  setSizing: (sizing: OutputSizing) => void
   setModel: (modelId: string, supportedScales: readonly number[]) => void
   setScale: (scale: number) => void
   setDenoiseStrength: (value: number) => void
@@ -80,6 +96,8 @@ export function preferredModel(models: readonly ModelInfo[]): ModelInfo | undefi
 
 export const useEnhancementStore = create<EnhancementState>()((set, get) => ({
   modelId: null,
+  mode: DEFAULT_MODE,
+  sizing: DEFAULT_SIZING,
   scale: DEFAULT_SCALE,
   denoiseStrength: DEFAULT_DENOISE,
   sharpenStrength: 0,
@@ -92,6 +110,8 @@ export const useEnhancementStore = create<EnhancementState>()((set, get) => ({
     set({ modelId, scale: nearestSupportedScale(get().scale, supportedScales) })
   },
 
+  setMode: (mode) => { set({ mode }) },
+  setSizing: (sizing) => { set({ sizing }) },
   setScale: (scale) => { set({ scale }) },
   setDenoiseStrength: (denoiseStrength) => { set({ denoiseStrength }) },
   setSharpenStrength: (sharpenStrength) => { set({ sharpenStrength }) },

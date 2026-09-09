@@ -37,7 +37,9 @@
     "took": "Thời gian",
     "created": "Tạo lúc",
     "deleteLabel": "Xoá tác vụ lúc {{timestamp}}",
-    "deleting": "Đang xoá…"
+    "deleting": "Đang xoá…",
+    "mode": "Chế độ",
+    "output": "Đầu ra"
   },
   "confirm": {
     "label": "Xác nhận xoá",
@@ -53,5 +55,13 @@
   "viewer": {
     "label": "Trình xem kết quả",
     "surfaceLabel": "Trình xem kết quả. Phím cộng và trừ để phóng, 0 vừa màn hình, 1 xem kích thước thật, phím mũi tên để di chuyển."
+  },
+  "mode": {
+    "standard": "Tiêu chuẩn",
+    "creative": "Sáng tạo"
+  },
+  "output": {
+    "scale": "Hệ số",
+    "target": "Kích thước"
   }
 }

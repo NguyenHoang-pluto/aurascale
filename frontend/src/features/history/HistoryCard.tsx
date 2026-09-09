@@ -13,6 +13,8 @@ import type { JobRecord } from '@/types/job'
 import {
   hasResult,
   isRunning,
+  modeKey,
+  outputRequest,
   sizeParts,
   statusKey,
   statusTone,
@@ -49,6 +51,8 @@ export function HistoryCard({
   const showThumbnail = hasResult(job) && !thumbnailFailed
   const timestamp = formatCreated(t, job.createdAt, locale)
   const sizes = sizeParts(job, locale)
+  const output = outputRequest(job)
+  const mode = modeKey(job)
   const errorText = job.error === null ? null : translateError(job.error).detail
 
   return (
@@ -89,15 +93,29 @@ export function HistoryCard({
             tone={statusTone(job.status)}
             label={t(`job:${statusKey(job.status)}`)}
           />
-          {/* The factor is a number and an "x", the same in every language. */}
-          <Badge tone="neutral">{job.scale}x</Badge>
+          {/* "4x" or "4K" - a factor or a preset name. Neither is translated. */}
+          <Badge tone="neutral">{output.value}</Badge>
         </div>
 
         <dl className="flex flex-col gap-1 text-xs">
-          <Row label={t('history:card.model')}>
-            {/* A model id is an identifier, never translated. */}
-            <span className="truncate" title={job.model}>
-              {job.model}
+          {mode !== null ? (
+            // A mode is what the user chose; the model id is an implementation
+            // detail they did not, so it is not shown when a mode exists.
+            <Row label={t('history:card.mode')}>
+              <span>{t(`history:${mode}`)}</span>
+            </Row>
+          ) : (
+            // A job from before modes existed has no other provenance, so its
+            // model is still the most useful thing to name.
+            <Row label={t('history:card.model')}>
+              <span className="truncate" title={job.model}>
+                {job.model}
+              </span>
+            </Row>
+          )}
+          <Row label={t('history:card.output')}>
+            <span>
+              {t(`history:output.${output.key}`)} · {output.value}
             </span>
           </Row>
           <Row label={t('history:card.size')}>

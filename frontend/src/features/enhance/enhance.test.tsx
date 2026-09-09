@@ -85,6 +85,9 @@ function job(overrides: Partial<JobRecord> = {}): JobRecord {
     progress: 52,
     model: 'RealESRGAN_x4plus',
     scale: 4,
+    mode: null,
+    outputType: 'scale',
+    target: null,
     device: 'cuda',
     input: { width: 1280, height: 720, sizeBytes: 1_887_437, format: 'PNG' },
     output: null,
@@ -793,6 +796,7 @@ describe('scaleOptions', () => {
       ['2', false],
       ['4', true],
       ['8', true],
+      ['16', true],
     ])
   })
 

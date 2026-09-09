@@ -16,9 +16,13 @@
   },
   "scale": {
     "label": "Hệ số phóng",
-    "descriptionTwoPass": "Mọi hệ số đều do mô hình tạo ra. 8x chạy hai lượt: 4x rồi 2x.",
+    "descriptionTwoPass": "Mọi hệ số đều do mô hình tạo ra. 8x chạy hai lượt, 4x rồi 2x; 16x chạy 4x hai lần.",
     "descriptionLimited": "Các hệ số mô hình này không tạo được sẽ bị vô hiệu hoá.",
-    "twoPassHint": "hai lượt"
+    "twoPassHint": "hai lượt",
+    "unavailable": {
+      "unsupportedByModel": "Mô hình này không tạo được hệ số đó.",
+      "exceedsPixelLimit": "Kết quả sẽ vượt quá giới hạn kích thước đầu ra cho ảnh này."
+    }
   },
   "denoise": {
     "label": "Giảm nhiễu",
@@ -53,5 +57,26 @@
   },
   "projected": {
     "label": "Kích thước kết quả"
+  },
+  "mode": {
+    "label": "Chế độ",
+    "description": "Điều mà quá trình nâng cấp nên ưu tiên.",
+    "standard": "Tiêu chuẩn",
+    "standardHint": "Nâng cấp tự nhiên, trung thực với ảnh gốc",
+    "creative": "Sáng tạo",
+    "creativeHint": "Chi tiết và hiệu ứng thị giác mạnh hơn"
+  },
+  "sizing": {
+    "label": "Kích thước đầu ra",
+    "descriptionScale": "Nhân ảnh gốc lên theo hệ số.",
+    "descriptionTarget": "Đạt tới một kích thước định sẵn. Cạnh dài khớp chính xác mục tiêu và tỉ lệ khung hình được giữ nguyên.",
+    "byScale": "Hệ số",
+    "targetEdge": "{{label}} · cạnh dài {{pixels}} px",
+    "unavailable": {
+      "alreadyLarger": "Ảnh này đã lớn bằng hoặc hơn kích thước đó.",
+      "beyondMaxScale": "Ảnh quá nhỏ để đạt kích thước này với các hệ số phóng hiện có.",
+      "exceedsPixelLimit": "Đạt kích thước này sẽ vượt quá giới hạn kích thước đầu ra."
+    },
+    "unavailableSuffix": "không khả dụng"
   }
 }

@@ -15,7 +15,9 @@ import { Switch } from '@/components/ui/switch'
 import { ErrorPanel } from '@/components/feedback/ErrorPanel'
 import { useModelDescription } from '@/i18n/modelMessages'
 import { useEnhancementStore } from '@/stores/useEnhancementStore'
+import { useWorkspaceStore } from '@/stores/useWorkspaceStore'
 import type { ModelInfo } from '@/types/system'
+import { ModeControls } from './ModeControls'
 import { scaleOptions } from './jobPresentation'
 
 /**
@@ -26,6 +28,10 @@ import { scaleOptions } from './jobPresentation'
  * that validates a job. Anything absent from that list is rendered disabled,
  * so an impossible combination is visible but unselectable rather than
  * submitted and rejected.
+ *
+ * A factor the loaded image is simply too large for - 16x of a 12 MP photo is
+ * 3 gigapixels - is disabled the same way, judged against the same output
+ * limit the backend enforces. Both remain re-checked on the server.
  *
  * The labelling follows docs/image-processing.md § 7: model and scale are AI,
  * noise reduction is AI (weight interpolation), sharpening is a post-process
@@ -46,6 +52,8 @@ export function EnhancementControls({
 }) {
   const { t } = useTranslation(['enhance', 'common'])
   const describeModel = useModelDescription()
+  const source = useWorkspaceStore((s) => s.source)
+  const sizing = useEnhancementStore((s) => s.sizing)
   const scale = useEnhancementStore((s) => s.scale)
   const setScale = useEnhancementStore((s) => s.setScale)
   const setModel = useEnhancementStore((s) => s.setModel)
@@ -80,6 +88,8 @@ export function EnhancementControls({
 
   return (
     <div className="flex flex-col gap-5">
+      <ModeControls supportedScales={supported} />
+
       <Field label={t('enhance:model.label')} description={t('enhance:model.description')}>
         {({ id, describedBy }) => (
           <SelectRoot
@@ -131,7 +141,14 @@ export function EnhancementControls({
               label={t('enhance:scale.label')}
               value={String(scale)}
               onChange={(value) => { setScale(Number(value)) }}
-              options={scaleOptions(t, supported)}
+              // A target already decides the size, so every factor is
+              // disabled while one is chosen. The control stays visible rather
+              // than vanishing, so the two read as alternatives rather than
+              // one silently replacing the other.
+              options={scaleOptions(t, supported, source?.metadata).map((option) => ({
+                ...option,
+                disabled: option.disabled === true || sizing.kind === 'target',
+              }))}
             />
           </div>
         )}

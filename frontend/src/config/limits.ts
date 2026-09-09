@@ -23,6 +23,15 @@ export const DEFAULT_UPLOAD_LIMITS: UploadLimits = {
   formats: ['JPEG', 'PNG', 'WEBP'],
 }
 
+/**
+ * The largest result the backend will produce, mirroring MAX_OUTPUT_PIXELS.
+ *
+ * Used to grey out a target preset the pixel limit would refuse. Like the
+ * upload limits above, it is a convenience: the backend re-checks it and its
+ * answer is the one that counts.
+ */
+export const MAX_OUTPUT_PIXELS = 200_000_000
+
 /** `accept` attribute for the file input. Advisory only — content is sniffed. */
 export const ACCEPTED_MIME_TYPES = 'image/jpeg,image/png,image/webp'
 

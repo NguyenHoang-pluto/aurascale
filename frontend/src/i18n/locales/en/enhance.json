@@ -16,9 +16,13 @@
   },
   "scale": {
     "label": "Upscale factor",
-    "descriptionTwoPass": "Every factor is produced by neural passes. 8x runs two: 4x then 2x.",
+    "descriptionTwoPass": "Every factor is produced by neural passes. 8x runs two, 4x then 2x; 16x runs 4x twice.",
     "descriptionLimited": "Factors this model cannot produce are unavailable.",
-    "twoPassHint": "two-pass"
+    "twoPassHint": "two-pass",
+    "unavailable": {
+      "unsupportedByModel": "This model cannot produce that factor.",
+      "exceedsPixelLimit": "The result would be past the output size limit for this image."
+    }
   },
   "denoise": {
     "label": "Noise reduction",
@@ -53,5 +57,26 @@
   },
   "projected": {
     "label": "Result size"
+  },
+  "mode": {
+    "label": "Mode",
+    "description": "What the enhancement should prioritise.",
+    "standard": "Standard",
+    "standardHint": "Natural enhancement with high fidelity",
+    "creative": "Creative",
+    "creativeHint": "Stronger detail and visual enhancement"
+  },
+  "sizing": {
+    "label": "Output size",
+    "descriptionScale": "Multiply the original by a factor.",
+    "descriptionTarget": "Reach a set size. The long edge lands exactly on the target and the aspect ratio is kept.",
+    "byScale": "Scale",
+    "targetEdge": "{{label}} · {{pixels}} px long edge",
+    "unavailable": {
+      "alreadyLarger": "This image is already that large or larger.",
+      "beyondMaxScale": "Too small to reach this size with the available upscale factors.",
+      "exceedsPixelLimit": "Reaching this size would exceed the output size limit."
+    },
+    "unavailableSuffix": "unavailable"
   }
 }

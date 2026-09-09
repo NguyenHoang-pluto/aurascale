@@ -15,7 +15,7 @@ from app.api.deps import JobServiceDep, ProgressBrokerDep
 from app.core.exceptions import ValidationError
 from app.core.logging import get_logger
 from app.models.db import Job
-from app.models.enums import JobStatus, OutputFormat
+from app.models.enums import EnhancementMode, JobStatus, OutputFormat, TargetResolution
 from app.schemas.job import JobCreatedResponse, JobPage, JobResponse
 from app.services.job_service import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
@@ -56,6 +56,14 @@ async def create_job(
     image: Annotated[UploadFile, File(description="JPEG, PNG or WEBP")],
     model: Annotated[str | None, Form()] = None,
     scale: Annotated[int | None, Form()] = None,
+    mode: Annotated[
+        EnhancementMode | None,
+        Form(description="standard or creative. Supplies defaults; explicit fields still win."),
+    ] = None,
+    target: Annotated[
+        TargetResolution | None,
+        Form(description="2k, 4k, 6k, 8k or 16k. A destination size, not an upscale factor."),
+    ] = None,
     output_format: Annotated[str | None, Form(alias="format")] = None,
     quality: Annotated[int | None, Form()] = None,
     preserve_metadata: Annotated[bool, Form(alias="preserveMetadata")] = True,
@@ -66,6 +74,8 @@ async def create_job(
         original_filename=image.filename,
         model=model,
         scale=scale,
+        mode=mode,
+        target=target,
         output_format=output_format,
         quality=quality,
         preserve_metadata=preserve_metadata,

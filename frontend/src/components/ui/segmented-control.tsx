@@ -5,6 +5,14 @@ export interface SegmentedOption<T extends string> {
   label: string
   /** Shown in a tooltip-free inline hint; keep it to a few words. */
   hint?: string
+  /**
+   * Native tooltip, for saying why an option is disabled.
+   *
+   * A control that is greyed out with no explanation reads as a bug rather
+   * than a limit, and this is the same affordance the target-size selector
+   * already uses for the same purpose.
+   */
+  title?: string
   disabled?: boolean
 }
 
@@ -50,6 +58,7 @@ export function SegmentedControl<T extends string>({
           <label
             key={option.value}
             htmlFor={id}
+            {...(option.title !== undefined ? { title: option.title } : {})}
             className={cn(
               'relative flex flex-1 cursor-pointer items-center justify-center rounded',
               'font-medium transition-colors select-none',

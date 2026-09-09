@@ -47,6 +47,8 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
   const source = useWorkspaceStore((s) => s.source)
 
   const modelId = useEnhancementStore((s) => s.modelId)
+  const mode = useEnhancementStore((s) => s.mode)
+  const sizing = useEnhancementStore((s) => s.sizing)
   const scale = useEnhancementStore((s) => s.scale)
   const format = useEnhancementStore((s) => s.format)
   const quality = useEnhancementStore((s) => s.quality)
@@ -77,6 +79,10 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
         }),
         // Quality is meaningless for a lossless format, so it is not sent.
         ...(isLossy(format) ? { quality } : {}),
+        mode,
+        // A target replaces the factor rather than accompanying it; the
+        // serializer sends whichever one is set.
+        ...(sizing.kind === 'target' ? { target: sizing.target } : {}),
       }
 
       return createJob(request)

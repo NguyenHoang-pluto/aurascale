@@ -473,6 +473,11 @@ def _request_for(job: Job) -> EnhancementRequest:
         sharpen_strength=float(options.get("sharpenStrength") or 0.0),
         tile_size=_optional_int(options.get("tileSize")),
         tile_pad=_optional_int(options.get("tilePad")),
+        # Present only when the job asked for a target resolution. The planner
+        # already checked the neural pass reaches it, so this is the exact
+        # size the result is resampled down to.
+        target_width=_optional_int(options.get("targetWidth")),
+        target_height=_optional_int(options.get("targetHeight")),
     )
 
 

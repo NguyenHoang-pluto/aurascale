@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 
 from app.core.config import Settings, get_settings
-from app.core.exceptions import ValidationError
-from app.inference.upscaler import UpscaleReport
+from app.core.exceptions import InsufficientMemoryError, OutputTooLargeError, ValidationError
+from app.inference.upscaler import JobCancelledError, UpscaleReport
 from app.services import enhancement_service
 from app.services.enhancement_service import (
     LUMA_WEIGHTS,
@@ -129,7 +129,7 @@ def test_asking_a_four_times_model_for_two_times_is_refused_with_a_suggestion(
     assert caught.value.context["suggestion"] == "RealESRGAN_x2plus"
 
 
-@pytest.mark.parametrize("scale", [1, 3, 6, 16])
+@pytest.mark.parametrize("scale", [1, 3, 6, 12, 32])
 def test_an_unavailable_scale_is_refused(service: EnhancementService, scale: int) -> None:
     with pytest.raises(ValidationError, match="not one of the available"):
         service.plan("RealESRGAN_x4plus", scale)
@@ -353,7 +353,7 @@ def mean_change(before: np.ndarray[Any, Any], after: np.ndarray[Any, Any]) -> fl
     return float(np.abs(after.astype(int) - before.astype(int)).mean())
 
 
-@pytest.mark.parametrize("scale", [2, 4, 8])
+@pytest.mark.parametrize("scale", [2, 4, 8, 16])
 def test_zero_strength_is_a_true_no_op_at_every_scale(scale: int) -> None:
     """The most important property: off means untouched, not "almost"."""
     source = textured(12.0)
@@ -371,6 +371,9 @@ def test_the_radius_follows_the_upscale_factor() -> None:
     # 4x is the anchor: exactly the sigma that shipped before.
     assert sharpen_sigma(4) == 3.0
     assert sharpen_sigma(8) == 6.0
+    # 16x wants 12.0 and is held at the ceiling: past this radius the filter
+    # works on nothing the source resolved, and the halo is all that grows.
+    assert sharpen_sigma(16) == 6.0
 
 
 def test_the_radius_is_clamped_at_both_ends() -> None:
@@ -380,7 +383,7 @@ def test_the_radius_is_clamped_at_both_ends() -> None:
     assert sharpen_sigma(64) == high
 
 
-@pytest.mark.parametrize("scale", [2, 4, 8])
+@pytest.mark.parametrize("scale", [2, 4, 8, 16])
 def test_a_flat_region_is_left_alone_at_every_scale(scale: int) -> None:
     """Nothing to sharpen means nothing done - no drift, no grain."""
     source = grey(128)
@@ -388,7 +391,7 @@ def test_a_flat_region_is_left_alone_at_every_scale(scale: int) -> None:
     assert np.array_equal(unsharp_mask(source, 1.0, scale=scale), source)
 
 
-@pytest.mark.parametrize("scale", [2, 4, 8])
+@pytest.mark.parametrize("scale", [2, 4, 8, 16])
 def test_noise_in_a_flat_region_is_not_amplified_like_texture(scale: int) -> None:
     """The dead zone is what separates sensor noise from real detail.
 
@@ -547,7 +550,7 @@ def tiny_strips(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(enhancement_service, "SHARPEN_MIN_STRIP_ROWS", 8)
 
 
-@pytest.mark.parametrize("scale", [2, 4, 8])
+@pytest.mark.parametrize("scale", [2, 4, 8, 16])
 @pytest.mark.parametrize("channels", [3, 4])
 def test_strips_are_bit_identical_to_whole_frame(
     tiny_strips: None, scale: int, channels: int
@@ -588,7 +591,7 @@ def test_strips_are_identical_even_one_row_at_a_time(monkeypatch: pytest.MonkeyP
 
 def test_the_blur_margin_covers_the_kernel_support() -> None:
     """Measured, not assumed: a float Gaussian reaches exactly 4 sigma."""
-    for scale in (2, 4, 8):
+    for scale in (2, 4, 8, 16):
         sigma = sharpen_sigma(scale)
         assert blur_margin(sigma) >= 4 * sigma
 
@@ -670,7 +673,7 @@ def test_supported_scales_are_derived_from_the_pass_planner(
 ) -> None:
     """Published capability and job validation must agree, so both come from
     `plan` rather than from two copies of the same rule."""
-    assert service.supported_scales("RealESRGAN_x4plus") == [4, 8]
+    assert service.supported_scales("RealESRGAN_x4plus") == [4, 8, 16]
     assert service.supported_scales("RealESRGAN_x2plus") == [2]
 
 
@@ -690,3 +693,339 @@ def test_a_scale_that_is_not_published_is_refused(service: EnhancementService) -
             continue
         with pytest.raises(ValidationError):
             service.plan("RealESRGAN_x4plus", scale)
+
+
+# --------------------------------------------------------- the 16x cascade
+
+
+def cascading_service(**overrides: Any) -> EnhancementService:
+    """A service on the real manifest with stub weights and tuned settings."""
+    settings = Settings(environment="test", **overrides)
+    models = ModelService(settings)
+    return EnhancementService(settings, StubManager(models), models)  # type: ignore[arg-type]
+
+
+def test_sixteen_times_is_two_four_times_passes(service: EnhancementService) -> None:
+    """There is no 16x weight, so it is composed - and composed of the largest
+    passes available, rather than of three smaller ones."""
+    assert service.plan("RealESRGAN_x4plus", 16) == ["RealESRGAN_x4plus", "RealESRGAN_x4plus"]
+
+
+def test_the_sixteen_times_cascade_is_the_same_model_twice(
+    service: EnhancementService,
+) -> None:
+    """Handing the second pass to a different network would change the look of
+    the result halfway through it."""
+    stages = service.plan_cascade("realesr-general-x4v3", 16, 100, 80)
+
+    assert [stage.model_id for stage in stages] == ["realesr-general-x4v3"] * 2
+    assert [stage.scale for stage in stages] == [4, 4]
+
+
+def test_every_four_times_model_can_reach_sixteen(service: EnhancementService) -> None:
+    for model_id in ("RealESRGAN_x4plus", "RealESRGAN_x4plus_anime_6B", "realesr-general-x4v3"):
+        assert service.plan(model_id, 16) == [model_id, model_id]
+
+
+def test_a_two_times_model_cannot_reach_sixteen(service: EnhancementService) -> None:
+    """Eight 2x passes is not a cascade, it is a different product."""
+    with pytest.raises(ValidationError, match="cannot produce a 16x result"):
+        service.plan("RealESRGAN_x2plus", 16)
+
+    assert 16 not in service.supported_scales("RealESRGAN_x2plus")
+
+
+def test_required_models_for_sixteen_are_the_one_model(service: EnhancementService) -> None:
+    """Both passes share weights, so only one file has to be on disk."""
+    required = [status.entry.id for status in service.required_models("RealESRGAN_x4plus", 16)]
+
+    assert required == ["RealESRGAN_x4plus", "RealESRGAN_x4plus"]
+
+
+# ------------------------------------------------------- cascade arithmetic
+
+
+def test_a_cascade_carries_the_size_each_pass_will_see(
+    service: EnhancementService,
+) -> None:
+    stages = service.plan_cascade("RealESRGAN_x4plus", 16, 1080, 720)
+
+    assert [(s.input_width, s.input_height) for s in stages] == [(1080, 720), (4320, 2880)]
+    assert [(s.output_width, s.output_height) for s in stages] == [(4320, 2880), (17280, 11520)]
+
+
+def test_a_cascade_numbers_its_stages(service: EnhancementService) -> None:
+    stages = service.plan_cascade("RealESRGAN_x4plus", 16, 100, 100)
+
+    assert [(s.index, s.total) for s in stages] == [(0, 2), (1, 2)]
+    assert [s.is_final for s in stages] == [False, True]
+
+
+def test_a_single_pass_cascade_is_one_final_stage(service: EnhancementService) -> None:
+    stages = service.plan_cascade("RealESRGAN_x4plus", 4, 100, 50)
+
+    assert len(stages) == 1
+    assert stages[0].is_final
+    assert (stages[0].output_width, stages[0].output_height) == (400, 200)
+
+
+def test_the_eight_times_cascade_is_unchanged(service: EnhancementService) -> None:
+    """Backward compatibility: 8x is still 4x then 2x, on the same sizes."""
+    stages = service.plan_cascade("RealESRGAN_x4plus", 8, 500, 400)
+
+    assert [s.model_id for s in stages] == ["RealESRGAN_x4plus", "RealESRGAN_x2plus"]
+    assert [s.scale for s in stages] == [4, 2]
+    assert (stages[-1].output_width, stages[-1].output_height) == (4000, 3200)
+
+
+def test_a_cascade_never_disagrees_with_the_pass_plan(service: EnhancementService) -> None:
+    """The two describe the same journey because one calls the other."""
+    for model_id in ("RealESRGAN_x4plus", "RealESRGAN_x2plus", "realesr-general-x4v3"):
+        for scale in service.supported_scales(model_id):
+            stages = service.plan_cascade(model_id, scale, 64, 64)
+            assert [s.model_id for s in stages] == service.plan(model_id, scale)
+            # And the composition really does multiply out to the request.
+            assert stages[-1].output_width == 64 * scale
+
+
+def test_an_unreachable_scale_is_refused_before_any_arithmetic(
+    service: EnhancementService,
+) -> None:
+    with pytest.raises(ValidationError):
+        service.plan_cascade("RealESRGAN_x2plus", 16, 100, 100)
+
+
+# -------------------------------------------------------------- running 16x
+
+
+def test_sixteen_times_chains_the_first_pass_into_the_second(
+    service: EnhancementService,
+) -> None:
+    manager: StubManager = service._manager  # type: ignore[assignment]
+
+    result = service.enhance(image(16, 12), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert result.image.shape == (192, 256, 3)
+    calls = manager.issued["RealESRGAN_x4plus"].calls
+    assert [call["shape"] for call in calls] == [(12, 16, 3), (48, 64, 3)]
+
+
+def test_sixteen_times_is_two_recorded_passes(service: EnhancementService) -> None:
+    result = service.enhance(image(), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert len(result.passes) == 2
+    assert len(result.reports) == 2
+
+
+def test_nothing_is_interpolated_to_reach_sixteen(service: EnhancementService) -> None:
+    """The whole size comes from the two passes; no resample stands in for one."""
+    result = service.enhance(image(16, 12), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert result.resized is False
+    assert result.scale == 16
+    assert result.image.shape[:2] == (12 * 16, 16 * 16)
+
+
+def test_sixteen_times_keeps_alpha_out_of_the_network(
+    service: EnhancementService,
+) -> None:
+    manager: StubManager = service._manager  # type: ignore[assignment]
+
+    result = service.enhance(image(8, 6, channels=4), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert result.image.shape == (96, 128, 4)
+    # Three channels at every pass, never four.
+    assert all(call["shape"][2] == 3 for call in manager.issued["RealESRGAN_x4plus"].calls)
+
+
+def test_sixteen_times_sharpens_at_the_clamped_radius(
+    service: EnhancementService,
+) -> None:
+    result = service.enhance(
+        image(), EnhancementRequest("RealESRGAN_x4plus", 16, sharpen_strength=0.5)
+    )
+
+    assert result.sharpened
+
+
+def test_progress_is_monotonic_and_complete_across_a_sixteen_times_cascade(
+    service: EnhancementService,
+) -> None:
+    """A bar that restarts at the halfway point misreports the work left."""
+    seen: list[float] = []
+
+    service.enhance(image(), EnhancementRequest("RealESRGAN_x4plus", 16), on_progress=seen.append)
+
+    assert seen == sorted(seen)
+    assert all(0.0 <= value <= 1.0 for value in seen)
+    # Both passes are represented: one below the midpoint and one above it.
+    assert any(value < 0.5 for value in seen)
+    assert any(value > 0.5 for value in seen)
+    assert seen[-1] == pytest.approx(1.0)
+
+
+def test_the_second_pass_never_reports_less_than_the_first(
+    service: EnhancementService,
+) -> None:
+    """Monotonic across the boundary, not merely within each pass."""
+    seen: list[float] = []
+
+    service.enhance(image(), EnhancementRequest("RealESRGAN_x4plus", 16), on_progress=seen.append)
+
+    first_pass = [value for value in seen if value <= 0.5]
+    second_pass = [value for value in seen if value > 0.5]
+
+    assert first_pass and second_pass
+    assert max(first_pass) <= min(second_pass)
+
+
+# ------------------------------------------- stopping between cascade passes
+
+
+def test_a_cascade_stops_between_passes_when_cancelled(
+    service: EnhancementService,
+) -> None:
+    """Cancellation lands at the pass boundary, before the second pass loads
+    weights or allocates anything for a result nobody is waiting for."""
+    manager: StubManager = service._manager  # type: ignore[assignment]
+    checks = 0
+
+    def should_cancel() -> bool:
+        nonlocal checks
+        checks += 1
+        # False before the first pass, True before the second.
+        return checks > 1
+
+    with pytest.raises(JobCancelledError):
+        service.enhance(
+            image(),
+            EnhancementRequest("RealESRGAN_x4plus", 16),
+            should_cancel=should_cancel,
+        )
+
+    assert len(manager.issued["RealESRGAN_x4plus"].calls) == 1
+
+
+def test_a_cascade_cancelled_before_it_starts_runs_nothing(
+    service: EnhancementService,
+) -> None:
+    manager: StubManager = service._manager  # type: ignore[assignment]
+
+    with pytest.raises(JobCancelledError):
+        service.enhance(
+            image(),
+            EnhancementRequest("RealESRGAN_x4plus", 16),
+            should_cancel=lambda: True,
+        )
+
+    assert manager.issued == {}
+
+
+def test_a_failing_second_pass_fails_the_job_rather_than_returning_the_first(
+    service: EnhancementService,
+) -> None:
+    """The worst possible outcome would be a 4x image presented as a 16x one."""
+    manager: StubManager = service._manager  # type: ignore[assignment]
+    upscaler = manager.get("RealESRGAN_x4plus")
+    original = upscaler.upscale
+    calls = 0
+
+    def failing(*args: Any, **kwargs: Any) -> Any:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise InsufficientMemoryError("there is not enough memory for the second pass")
+        return original(*args, **kwargs)
+
+    upscaler.upscale = failing  # type: ignore[method-assign]
+
+    with pytest.raises(InsufficientMemoryError):
+        service.enhance(image(), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert calls == 2
+
+
+# ------------------------------------------------- the per-stage size limit
+
+
+def test_a_stage_beyond_the_output_limit_is_refused() -> None:
+    """A cascade that cannot finish safely says so instead of finishing badly."""
+    service = cascading_service(max_output_pixels=10_000)
+
+    with pytest.raises(OutputTooLargeError) as caught:
+        service.enhance(image(16, 12), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert caught.value.context["stage"] == 2
+    assert caught.value.context["stages"] == 2
+    assert caught.value.context["projectedPixels"] == 256 * 192
+
+
+def test_the_refusal_arrives_before_the_oversized_pass_runs() -> None:
+    """16x12 -> 64x48 fits inside 10 000 px; 64x48 -> 256x192 does not."""
+    service = cascading_service(max_output_pixels=10_000)
+    manager: StubManager = service._manager  # type: ignore[assignment]
+
+    with pytest.raises(OutputTooLargeError):
+        service.enhance(image(16, 12), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert len(manager.issued["RealESRGAN_x4plus"].calls) == 1
+
+
+def test_the_limit_refuses_the_very_first_pass_when_that_is_the_problem() -> None:
+    service = cascading_service(max_output_pixels=1_000)
+    manager: StubManager = service._manager  # type: ignore[assignment]
+
+    with pytest.raises(OutputTooLargeError) as caught:
+        service.enhance(image(16, 12), EnhancementRequest("RealESRGAN_x4plus", 16))
+
+    assert caught.value.context["stage"] == 1
+    assert manager.issued == {}
+
+
+def test_the_stage_limit_never_fires_for_a_job_that_passed_submission(
+    service: EnhancementService,
+) -> None:
+    """Every earlier stage is smaller than the last, and the last is what
+    `assert_output_fits` already checked - so this guard is defence in depth
+    and must never reject something the API accepted."""
+    settings = get_settings()
+
+    for scale in SUPPORTED_SCALES:
+        for model_id in ("RealESRGAN_x4plus", "RealESRGAN_x2plus"):
+            if scale not in service.supported_scales(model_id):
+                continue
+            # A source the submission check would accept at this factor.
+            assert 1080 * 720 * scale * scale <= settings.max_output_pixels
+            stages = service.plan_cascade(model_id, scale, 1080, 720)
+            assert all(stage.output_pixels <= settings.max_output_pixels for stage in stages), scale
+
+
+def test_an_intermediate_is_always_smaller_than_the_result(
+    service: EnhancementService,
+) -> None:
+    """Which is why checking the final size at submission is sufficient."""
+    for scale in (8, 16):
+        stages = service.plan_cascade("RealESRGAN_x4plus", scale, 640, 480)
+        pixels = [stage.output_pixels for stage in stages]
+
+        assert pixels == sorted(pixels)
+        assert pixels[-1] == 640 * 480 * scale * scale
+
+
+def test_the_sixteen_times_intermediate_is_cheaper_than_the_eight_times_one(
+    service: EnhancementService,
+) -> None:
+    """At the same output size a 16x cascade holds *less*, not more: its
+    intermediate is a sixteenth of the result where 8x's is a quarter.
+
+    This is the memory argument for composing 16x as 4x -> 4x, and it is why
+    the existing limit needs no loosening to accommodate it.
+    """
+    # Two jobs that land on exactly the same 17280x11520 result, just under
+    # the 200 MP ceiling, reached by different routes.
+    eight = service.plan_cascade("RealESRGAN_x4plus", 8, 2160, 1440)
+    sixteen = service.plan_cascade("RealESRGAN_x4plus", 16, 1080, 720)
+
+    assert eight[-1].output_pixels == sixteen[-1].output_pixels == 17280 * 11520
+    # 49.8 MP against 12.4 MP: a quarter of the intermediate, for the same result.
+    assert sixteen[0].output_pixels * 4 == eight[0].output_pixels
