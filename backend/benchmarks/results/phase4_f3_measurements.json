@@ -1,0 +1,1608 @@
+{
+  "provenance": {
+    "generated_at": "2026-09-09T09:10:30+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.22631-SP0",
+    "numpy": "2.4.6",
+    "opencv": "5.0.0",
+    "torch": "2.7.1+cu118",
+    "cuda_device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "corpus_root": "E:\\Tool\\aurascale\\backend\\benchmarks\\corpus",
+    "corpus_images": [
+      "landscape-detail/landscape-detail.jpg",
+      "portrait-skin/portrait-skin.jpg",
+      "text-signage/text-signage.jpg",
+      "foliage-texture/foliage-texture.jpg",
+      "low-light-noise/low-light-noise.jpg"
+    ],
+    "model": "RealESRGAN_x4plus",
+    "scale": 4,
+    "strengths": [
+      0.0,
+      0.15,
+      0.25,
+      0.35,
+      0.5,
+      0.75
+    ],
+    "baseline_arm": "sh0.00",
+    "tile_size": 256,
+    "tile_pad": 16,
+    "denoise": null,
+    "denoise_note": "RealESRGAN_x4plus declares no denoise_pair, so _denoise_for drops any value and no denoising stage runs. Denoise is structurally absent rather than held constant.",
+    "output_format": "png (lossless); metrics from the array, size and hash from the encode",
+    "neural_pass": "run once per photograph and cached; every arm sharpens that same array",
+    "sharpening_semantics": {
+      "range": "[0, 1], validated by unsharp_mask",
+      "amount": "strength x SHARPEN_MAX_AMOUNT (1.5)",
+      "sigma": "clamp(SHARPEN_SIGMA_PER_SCALE x scale, (1.0, 6.0)) = 3.0 at 4x",
+      "sigma_per_scale": 0.75,
+      "dead_zone": 2.0,
+      "ceiling": 10.0,
+      "channel": "correction computed on Rec.709 luma and added equally to R, G and B",
+      "zero": "strength 0 returns the caller's array unchanged - a true no-op"
+    },
+    "regions": {
+      "foliage-texture": {
+        "saturated-foliage": [
+          500,
+          760,
+          180
+        ]
+      },
+      "landscape-detail": {
+        "fine-texture": [
+          760,
+          420,
+          180
+        ],
+        "snow-rock-edge": [
+          1365,
+          855,
+          180
+        ]
+      },
+      "low-light-noise": {
+        "dark-noisy": [
+          900,
+          450,
+          180
+        ],
+        "lamp-edge": [
+          1200,
+          645,
+          180
+        ]
+      },
+      "portrait-skin": {
+        "eye-left": [
+          315,
+          510,
+          140
+        ],
+        "eye-right": [
+          929,
+          510,
+          140
+        ],
+        "hair": [
+          180,
+          120,
+          160
+        ],
+        "lips": [
+          645,
+          1185,
+          160
+        ],
+        "skin-cheek": [
+          1019,
+          900,
+          160
+        ],
+        "identity-face": [
+          620,
+          760,
+          640
+        ]
+      },
+      "text-signage": {
+        "text": [
+          600,
+          300,
+          180
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.00",
+      "sharpen_strength": 0.0,
+      "sharpen_amount": 0.0,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.09567516730946113,
+        "sobel_p95": 0.37928984977465546,
+        "local_contrast": 0.03458898760970867,
+        "high_frequency_ratio": 0.0020580901738662307,
+        "flat_noise": 0.001879877450980381,
+        "edge_overshoot": 0.02119768392582374,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.23406801990420034,
+        "chroma_gradient": 2.346820330761416,
+        "chroma_gradient_p95": 7.211102550927978,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "sr_ms": 30079.173199999786
+      },
+      "sharpen_ms": 362.8404999981285,
+      "rss_delta_mb": 14.80859375,
+      "png_bytes": 40705075,
+      "output_sha256": "1a926752b5e1eefdca31660952b7543474ec61366d05cd0cb012a2168f81336c"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.15",
+      "sharpen_strength": 0.15,
+      "sharpen_amount": 0.22499999999999998,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.10334957338241373,
+        "sobel_p95": 0.41067662718959547,
+        "local_contrast": 0.03620486286038259,
+        "high_frequency_ratio": 0.002406222740613963,
+        "flat_noise": 0.0018887254901960612,
+        "edge_overshoot": 0.023135205376221147,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.23406801990420034,
+        "chroma_gradient": 2.363545179177432,
+        "chroma_gradient_p95": 7.211102550927978,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "sr_ms": 30079.173199999786
+      },
+      "sharpen_ms": 1062.0875000022352,
+      "rss_delta_mb": 93.87890625,
+      "png_bytes": 41926535,
+      "output_sha256": "96003fa92d340ae6a237ffd6f7456f0e375cb82e5636cdfd7a7fcf79a5e6ec2f"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.25",
+      "sharpen_strength": 0.25,
+      "sharpen_amount": 0.375,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.10700898935855646,
+        "sobel_p95": 0.4253082387381285,
+        "local_contrast": 0.036966387334144916,
+        "high_frequency_ratio": 0.0025723774196961973,
+        "flat_noise": 0.0018887254901960564,
+        "edge_overshoot": 0.024039721451402554,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.23435813891746782,
+        "chroma_gradient": 2.3753813428218944,
+        "chroma_gradient_p95": 7.211102550927978,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "sr_ms": 30079.173199999786
+      },
+      "sharpen_ms": 1011.9976000059978,
+      "rss_delta_mb": 91.6015625,
+      "png_bytes": 42409318,
+      "output_sha256": "37568abd89376825a6b7c6fde913b762b9a3b8fd8d8c37e4b3d4138ad8373ef0"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.35",
+      "sharpen_strength": 0.35,
+      "sharpen_amount": 0.5249999999999999,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.11245284156717869,
+        "sobel_p95": 0.4492851822155085,
+        "local_contrast": 0.0381418674155462,
+        "high_frequency_ratio": 0.002844970918263649,
+        "flat_noise": 0.0018887254901960556,
+        "edge_overshoot": 0.025570164250552203,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.23406801990420034,
+        "chroma_gradient": 2.397245970778343,
+        "chroma_gradient_p95": 7.211102550927978,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "sr_ms": 30079.173199999786
+      },
+      "sharpen_ms": 2953.9933999985806,
+      "rss_delta_mb": 91.5390625,
+      "png_bytes": 43039708,
+      "output_sha256": "af0e31d4e6f1bbe933ed8a77ff7a287bde76df11e26b581a13bfe2a1ba43a838"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.50",
+      "sharpen_strength": 0.5,
+      "sharpen_amount": 0.75,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.11898874600637803,
+        "sobel_p95": 0.47680802931717087,
+        "local_contrast": 0.039535147896289015,
+        "high_frequency_ratio": 0.0031904052457010727,
+        "flat_noise": 0.0018887254901960695,
+        "edge_overshoot": 0.027334980909805934,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.2345902341280818,
+        "chroma_gradient": 2.423935303401142,
+        "chroma_gradient_p95": 7.615773105863909,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "sr_ms": 30079.173199999786
+      },
+      "sharpen_ms": 893.6574000035762,
+      "rss_delta_mb": 91.5234375,
+      "png_bytes": 43772245,
+      "output_sha256": "79c5e168de51a4ea29f36969b9bf25d430b8cde1598339a318a85cdf8fed68ba"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.75",
+      "sharpen_strength": 0.75,
+      "sharpen_amount": 1.125,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.13099778297117706,
+        "sobel_p95": 0.5296413970538657,
+        "local_contrast": 0.04214181207859617,
+        "high_frequency_ratio": 0.003902888922692276,
+        "flat_noise": 0.0018887254901960773,
+        "edge_overshoot": 0.030782118203447815,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.23470628173338878,
+        "chroma_gradient": 2.47597228827261,
+        "chroma_gradient_p95": 7.615773105863909,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "sr_ms": 30079.173199999786
+      },
+      "sharpen_ms": 892.9529999950319,
+      "rss_delta_mb": 91.5078125,
+      "png_bytes": 44933286,
+      "output_sha256": "023323485525724058e7bc5192929c2f47c5efc7d11be13242b209c48ad3eefb"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.00",
+      "sharpen_strength": 0.0,
+      "sharpen_amount": 0.0,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.07515816157418945,
+        "sobel_p95": 0.22958315552411357,
+        "local_contrast": 0.02287700028176255,
+        "high_frequency_ratio": 0.0007180017154046856,
+        "flat_noise": 0.005019338235294117,
+        "edge_overshoot": 0.010894261605009956,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.41231714165573813,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.904130522283482,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 29710.394100002304
+      },
+      "sharpen_ms": 0.0040000013541430235,
+      "rss_delta_mb": 0.0,
+      "png_bytes": 36413877,
+      "output_sha256": "8e41c39b03ba68caa06b08dbfb45435f7190009a40017ac47cbc1873aa883c35"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.15",
+      "sharpen_strength": 0.15,
+      "sharpen_amount": 0.22499999999999998,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.08207477578199422,
+        "sobel_p95": 0.251932428679621,
+        "local_contrast": 0.024330914447127434,
+        "high_frequency_ratio": 0.0008766721300956784,
+        "flat_noise": 0.005102500000000034,
+        "edge_overshoot": 0.012074578389282154,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4197441883953855,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.9062761112803033,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 29710.394100002304
+      },
+      "sharpen_ms": 949.0585000021383,
+      "rss_delta_mb": 91.5703125,
+      "png_bytes": 37901671,
+      "output_sha256": "bf8ccb3daa75194747c8e19f9684d00eea78ffa22954a5ebef2ded800839e15b"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.25",
+      "sharpen_strength": 0.25,
+      "sharpen_amount": 0.375,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.08506504917682053,
+        "sobel_p95": 0.2623904095028711,
+        "local_contrast": 0.024957039355120246,
+        "high_frequency_ratio": 0.0009573007224831641,
+        "flat_noise": 0.005116642156862767,
+        "edge_overshoot": 0.012561084989832556,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4200923312113065,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.9095457223537498,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 29710.394100002304
+      },
+      "sharpen_ms": 4082.483999998658,
+      "rss_delta_mb": 91.546875,
+      "png_bytes": 38375702,
+      "output_sha256": "39215409e9ccdf708cc098a216eb367c2c191d5f46aea1abe94b733bf46592eb"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.35",
+      "sharpen_strength": 0.35,
+      "sharpen_amount": 0.5249999999999999,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.08907765107322707,
+        "sobel_p95": 0.2775360415852036,
+        "local_contrast": 0.025813752985909478,
+        "high_frequency_ratio": 0.0010847636678293262,
+        "flat_noise": 0.005126446078431393,
+        "edge_overshoot": 0.013342228291825084,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4211367596590695,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.9155215563253276,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 29710.394100002304
+      },
+      "sharpen_ms": 893.7950000035926,
+      "rss_delta_mb": 91.54296875,
+      "png_bytes": 38955664,
+      "output_sha256": "0d6a36136ef3aec695fad8f3f60d4b5691ba516b589f506e9f48c544fde12105"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.50",
+      "sharpen_strength": 0.5,
+      "sharpen_amount": 0.75,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.09446643939197347,
+        "sobel_p95": 0.29649579765587647,
+        "local_contrast": 0.02696071393530581,
+        "high_frequency_ratio": 0.001249989728553146,
+        "flat_noise": 0.005170833333333345,
+        "edge_overshoot": 0.014325233080078973,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.42218118810683236,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.92596362933778,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 29710.394100002304
+      },
+      "sharpen_ms": 4289.754599994922,
+      "rss_delta_mb": 91.55859375,
+      "png_bytes": 39754542,
+      "output_sha256": "3e7db8c2e34600a1a87562dcd4e48a1da43511399337ed90fd86686a70068b36"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.75",
+      "sharpen_strength": 0.75,
+      "sharpen_amount": 1.125,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.1041269115448554,
+        "sobel_p95": 0.3314897221756085,
+        "local_contrast": 0.029048570144275802,
+        "high_frequency_ratio": 0.0015887837277408184,
+        "flat_noise": 0.005245759803921567,
+        "edge_overshoot": 0.016217788469366987,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.42485028302889316,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.953040279025065,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 29710.394100002304
+      },
+      "sharpen_ms": 889.7309999956633,
+      "rss_delta_mb": 91.546875,
+      "png_bytes": 41038097,
+      "output_sha256": "f4ae1eb03bd4cb29633e74be02b0def89508300ae114628e07dbe4c5aeab86b8"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.00",
+      "sharpen_strength": 0.0,
+      "sharpen_amount": 0.0,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.04369815944175639,
+        "sobel_p95": 0.1279282133309833,
+        "local_contrast": 0.016787121442216363,
+        "high_frequency_ratio": 0.0015293491159555058,
+        "flat_noise": 0.002127181372549033,
+        "edge_overshoot": 0.00920833285250232,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4197441883953855,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.2808962386478955,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 31790.23070000403
+      },
+      "sharpen_ms": 0.0037999998312443495,
+      "rss_delta_mb": 0.0,
+      "png_bytes": 32832705,
+      "output_sha256": "12bba8235a8ea6b774caf88428404d5a64c448b6e67f62c7e2956ffbf4369601"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.15",
+      "sharpen_strength": 0.15,
+      "sharpen_amount": 0.22499999999999998,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.04633665770802711,
+        "sobel_p95": 0.13750913684505894,
+        "local_contrast": 0.017350624314112516,
+        "high_frequency_ratio": 0.001819221239763694,
+        "flat_noise": 0.00216926470588235,
+        "edge_overshoot": 0.01005665722773795,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4204404740272275,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.2866889908339636,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 31790.23070000403
+      },
+      "sharpen_ms": 3814.4237999949837,
+      "rss_delta_mb": 91.62109375,
+      "png_bytes": 33581741,
+      "output_sha256": "cb68573ff821c5f9e4c6bbb484b2ab3b1f9bf533f3478a2006397d1c69420b34"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.25",
+      "sharpen_strength": 0.25,
+      "sharpen_amount": 0.375,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.04728016506316589,
+        "sobel_p95": 0.14188156146935174,
+        "local_contrast": 0.017559598304843854,
+        "high_frequency_ratio": 0.0019365400240583719,
+        "flat_noise": 0.0021694117647058715,
+        "edge_overshoot": 0.010436442168675253,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4204404740272275,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.290911033251117,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 31790.23070000403
+      },
+      "sharpen_ms": 1125.838100000692,
+      "rss_delta_mb": 91.453125,
+      "png_bytes": 33760560,
+      "output_sha256": "eaf43abc4726b52139c96395f2ac550ebb61fe6cad5daf41b814fabbc204606a"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.35",
+      "sharpen_strength": 0.35,
+      "sharpen_amount": 0.5249999999999999,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.04852686870480277,
+        "sobel_p95": 0.14763258353893383,
+        "local_contrast": 0.017844001075937525,
+        "high_frequency_ratio": 0.002126497960945624,
+        "flat_noise": 0.0021694117647058715,
+        "edge_overshoot": 0.011041828673987678,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4204404740272275,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.299508976940384,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 31790.23070000403
+      },
+      "sharpen_ms": 2434.617300001264,
+      "rss_delta_mb": 91.453125,
+      "png_bytes": 33976443,
+      "output_sha256": "24d93755a13ebcc291b6a22925bfb33917c655c6ac801e63bbe64a967c7ec3cf"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.50",
+      "sharpen_strength": 0.5,
+      "sharpen_amount": 0.75,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.05020527413742471,
+        "sobel_p95": 0.15541135095692238,
+        "local_contrast": 0.01821587908086948,
+        "high_frequency_ratio": 0.002379933189262946,
+        "flat_noise": 0.0021694117647058785,
+        "edge_overshoot": 0.011778988447708446,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4204404740272275,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.3132372551593896,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 31790.23070000403
+      },
+      "sharpen_ms": 894.5993000015733,
+      "rss_delta_mb": 91.46875,
+      "png_bytes": 34263924,
+      "output_sha256": "1b0f02756176a068fde0fef5553e1588b17904f1672bf2b9998d1ed1d8168c77"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.75",
+      "sharpen_strength": 0.75,
+      "sharpen_amount": 1.125,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.05318170355467444,
+        "sobel_p95": 0.16906975525037624,
+        "local_contrast": 0.018882419041000388,
+        "high_frequency_ratio": 0.0028878722296279587,
+        "flat_noise": 0.0021694117647058924,
+        "edge_overshoot": 0.013171300460265415,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4204404740272275,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.342149470880728,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 31790.23070000403
+      },
+      "sharpen_ms": 929.2648999980884,
+      "rss_delta_mb": 91.4453125,
+      "png_bytes": 34718898,
+      "output_sha256": "a85239d574d17258d1f2d0b2fb1d8a33ba869206623d819138404b9224a8fa04"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.00",
+      "sharpen_strength": 0.0,
+      "sharpen_amount": 0.0,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.09564134228454044,
+        "sobel_p95": 0.38936678274512815,
+        "local_contrast": 0.04842759965267332,
+        "high_frequency_ratio": 0.0041317530388793825,
+        "flat_noise": 0.0028479901960784273,
+        "edge_overshoot": 0.012748254141192558,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2855931566605042,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.722070316543243,
+        "chroma_gradient_p95": 11.313708498984761,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 32532.976000002236
+      },
+      "sharpen_ms": 0.005100002454128116,
+      "rss_delta_mb": 0.0,
+      "png_bytes": 39071956,
+      "output_sha256": "3502c349c935c454b97461c2571789e5d12f194bd3a34e3bfaecc5c572de6d2a"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.15",
+      "sharpen_strength": 0.15,
+      "sharpen_amount": 0.22499999999999998,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.09995076031541689,
+        "sobel_p95": 0.4087748048270132,
+        "local_contrast": 0.04968500949706197,
+        "high_frequency_ratio": 0.004663744713864259,
+        "flat_noise": 0.002889607843137255,
+        "edge_overshoot": 0.01400426960951838,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2859412994764252,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.760260323071776,
+        "chroma_gradient_p95": 11.40175425099138,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 32532.976000002236
+      },
+      "sharpen_ms": 4421.998199999507,
+      "rss_delta_mb": 91.5,
+      "png_bytes": 39826226,
+      "output_sha256": "867b3a03de245d02bbf1682fe2ae1e63c82c0a5497daf2950ffe6693e0ea82af"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.25",
+      "sharpen_strength": 0.25,
+      "sharpen_amount": 0.375,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.10184585200099738,
+        "sobel_p95": 0.4179163128769088,
+        "local_contrast": 0.0502619010472055,
+        "high_frequency_ratio": 0.004909015931338485,
+        "flat_noise": 0.0028900490196078275,
+        "edge_overshoot": 0.01460808570589157,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2866375851082672,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.7829481517069614,
+        "chroma_gradient_p95": 11.40175425099138,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 32532.976000002236
+      },
+      "sharpen_ms": 1103.576299996348,
+      "rss_delta_mb": 91.45703125,
+      "png_bytes": 40064796,
+      "output_sha256": "3e185f3ddd5d727d7b1462c1f236904fdb36b6966fb75642ad80b5678e86570a"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.35",
+      "sharpen_strength": 0.35,
+      "sharpen_amount": 0.5249999999999999,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.10476127751562946,
+        "sobel_p95": 0.432234710306581,
+        "local_contrast": 0.05114996417186091,
+        "high_frequency_ratio": 0.00534389369656225,
+        "flat_noise": 0.0028955882352941107,
+        "edge_overshoot": 0.015586263752042749,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2866375851082672,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.824078829825634,
+        "chroma_gradient_p95": 11.661903789690601,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 32532.976000002236
+      },
+      "sharpen_ms": 1078.3213999966392,
+      "rss_delta_mb": 91.7265625,
+      "png_bytes": 40372784,
+      "output_sha256": "4e396593c22cf9b434294af9b31d5083582a2a6295e9be24aeb0edc31575dffd"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.50",
+      "sharpen_strength": 0.5,
+      "sharpen_amount": 0.75,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.10831621988014171,
+        "sobel_p95": 0.44858648680978364,
+        "local_contrast": 0.052209636284996155,
+        "high_frequency_ratio": 0.005854912206823255,
+        "flat_noise": 0.0028994852941176437,
+        "edge_overshoot": 0.016745651264732743,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2866375851082672,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.8776195442171115,
+        "chroma_gradient_p95": 12.0,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 32532.976000002236
+      },
+      "sharpen_ms": 3949.2467000018223,
+      "rss_delta_mb": 91.5,
+      "png_bytes": 40776652,
+      "output_sha256": "1878aff6b779b068d025dbc92957d42bb20ab862eadafe3417dad57e60d164c6"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.75",
+      "sharpen_strength": 0.75,
+      "sharpen_amount": 1.125,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.11497566475191866,
+        "sobel_p95": 0.47917352821334624,
+        "local_contrast": 0.05419644698863868,
+        "high_frequency_ratio": 0.006914546562852042,
+        "flat_noise": 0.002908333333333323,
+        "edge_overshoot": 0.018984228113202654,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.28733387074010913,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.988642160282111,
+        "chroma_gradient_p95": 12.649110640673518,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 32532.976000002236
+      },
+      "sharpen_ms": 1496.133299995563,
+      "rss_delta_mb": 91.54296875,
+      "png_bytes": 41445006,
+      "output_sha256": "b35c4dcc5ba60b6321b24846e373767a025c8d9d2144ac06c4573b898bb5da99"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.00",
+      "sharpen_strength": 0.0,
+      "sharpen_amount": 0.0,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.14551489321221636,
+        "sobel_p95": 0.6090829502342698,
+        "local_contrast": 0.05799911791876733,
+        "high_frequency_ratio": 0.005082194254375278,
+        "flat_noise": 0.003754142156862739,
+        "edge_overshoot": 0.023978918343162806,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.44689932803722143,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 9.82700075463575,
+        "chroma_gradient_p95": 41.617304093369626,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 30510.997100005625
+      },
+      "sharpen_ms": 0.006199996278155595,
+      "rss_delta_mb": 0.0,
+      "png_bytes": 37995772,
+      "output_sha256": "076f3821cf1902cedba8a7f41b45d97c6fa317432b80b0eab0071f9c0eb87c46"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.15",
+      "sharpen_strength": 0.15,
+      "sharpen_amount": 0.22499999999999998,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.1555836861540686,
+        "sobel_p95": 0.6514513875442783,
+        "local_contrast": 0.06053479549108343,
+        "high_frequency_ratio": 0.005960440260216811,
+        "flat_noise": 0.003781568627450998,
+        "edge_overshoot": 0.026187768084212627,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.45270170830257095,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 9.938774043114536,
+        "chroma_gradient_p95": 42.37924020083418,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 30510.997100005625
+      },
+      "sharpen_ms": 1541.9468000036431,
+      "rss_delta_mb": 93.05078125,
+      "png_bytes": 38998928,
+      "output_sha256": "9b19a0a31c135f772a55c206aa70e3ddaaf46df198d765908704fdb552c6d7d3"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.25",
+      "sharpen_strength": 0.25,
+      "sharpen_amount": 0.375,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.1602723093465811,
+        "sobel_p95": 0.6708347308359319,
+        "local_contrast": 0.061723829736949246,
+        "high_frequency_ratio": 0.006353905958240072,
+        "flat_noise": 0.003785220588235302,
+        "edge_overshoot": 0.027242081662072322,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.45351404153971986,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 9.998505578870187,
+        "chroma_gradient_p95": 42.7551166528639,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 30510.997100005625
+      },
+      "sharpen_ms": 4368.16920000274,
+      "rss_delta_mb": 184.19140625,
+      "png_bytes": 39400189,
+      "output_sha256": "b272cf1166b09229a0a27f90b99f1f7c87b9ae8e779f9676e006ef0ab428395d"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.35",
+      "sharpen_strength": 0.35,
+      "sharpen_amount": 0.5249999999999999,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.1677336204487527,
+        "sobel_p95": 0.704437797588435,
+        "local_contrast": 0.06363210828369054,
+        "high_frequency_ratio": 0.007087120991665361,
+        "flat_noise": 0.0038263480392156848,
+        "edge_overshoot": 0.029028729920492942,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4529338035131849,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 10.112664748634316,
+        "chroma_gradient_p95": 43.289721643826724,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 30510.997100005625
+      },
+      "sharpen_ms": 2191.1238999964553,
+      "rss_delta_mb": 95.7734375,
+      "png_bytes": 39926149,
+      "output_sha256": "df4e73008dab91520670bc596f7d9b94fba68e94b7d28ab7aac8507732d5eddb"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.50",
+      "sharpen_strength": 0.5,
+      "sharpen_amount": 0.75,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.1765251880411724,
+        "sobel_p95": 0.7414650646827459,
+        "local_contrast": 0.06585575921439016,
+        "high_frequency_ratio": 0.007929425386375966,
+        "flat_noise": 0.003835147058823536,
+        "edge_overshoot": 0.031084046685580125,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.45537080322463175,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 10.267967828875946,
+        "chroma_gradient_p95": 44.181444068749045,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 30510.997100005625
+      },
+      "sharpen_ms": 4353.821600001538,
+      "rss_delta_mb": 183.2890625,
+      "png_bytes": 40559640,
+      "output_sha256": "dc7b5db153885f3df197a9e5d5c0fa99ca116eec30abe2df72caf36bd26d3a1c"
+    },
+    {
+      "experiment": "sweep",
+      "model": "RealESRGAN_x4plus",
+      "arm": "sh0.75",
+      "sharpen_strength": 0.75,
+      "sharpen_amount": 1.125,
+      "sharpen_sigma": 3.0,
+      "denoise": null,
+      "denoise_note": "RealESRGAN_x4plus has no denoise_pair; the stage does not exist",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.19324922615394757,
+        "sobel_p95": 0.8133572010867415,
+        "local_contrast": 0.0701079534873108,
+        "high_frequency_ratio": 0.0097009176621013,
+        "flat_noise": 0.0038692156862745134,
+        "edge_overshoot": 0.03508799393688869,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.45537080322463175,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 10.613687177637756,
+        "chroma_gradient_p95": 46.17358552246078,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "sr_ms": 30510.997100005625
+      },
+      "sharpen_ms": 1116.464899998391,
+      "rss_delta_mb": 91.58984375,
+      "png_bytes": 41592735,
+      "output_sha256": "4e5ca22d02ba163af97facf1fc31b44e9f892cbea6a2c1f392105ec948002db1"
+    },
+    {
+      "experiment": "strips",
+      "category": "foliage-texture",
+      "region": "saturated-foliage",
+      "file": "blind__foliage-texture__saturated-foliage.png",
+      "panel_order": [
+        "sh0.75",
+        "sh0.00",
+        "sh0.15",
+        "sh0.35",
+        "sh0.25",
+        "sh0.50"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "landscape-detail",
+      "region": "fine-texture",
+      "file": "blind__landscape-detail__fine-texture.png",
+      "panel_order": [
+        "sh0.15",
+        "sh0.25",
+        "sh0.35",
+        "sh0.75",
+        "sh0.50",
+        "sh0.00"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "landscape-detail",
+      "region": "snow-rock-edge",
+      "file": "blind__landscape-detail__snow-rock-edge.png",
+      "panel_order": [
+        "sh0.50",
+        "sh0.00",
+        "sh0.35",
+        "sh0.15",
+        "sh0.25",
+        "sh0.75"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "low-light-noise",
+      "region": "dark-noisy",
+      "file": "blind__low-light-noise__dark-noisy.png",
+      "panel_order": [
+        "sh0.50",
+        "sh0.15",
+        "sh0.35",
+        "sh0.00",
+        "sh0.25",
+        "sh0.75"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "low-light-noise",
+      "region": "lamp-edge",
+      "file": "blind__low-light-noise__lamp-edge.png",
+      "panel_order": [
+        "sh0.00",
+        "sh0.50",
+        "sh0.15",
+        "sh0.25",
+        "sh0.35",
+        "sh0.75"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "eye-left",
+      "file": "blind__portrait-skin__eye-left.png",
+      "panel_order": [
+        "sh0.00",
+        "sh0.35",
+        "sh0.75",
+        "sh0.15",
+        "sh0.50",
+        "sh0.25"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "eye-right",
+      "file": "blind__portrait-skin__eye-right.png",
+      "panel_order": [
+        "sh0.35",
+        "sh0.25",
+        "sh0.50",
+        "sh0.00",
+        "sh0.75",
+        "sh0.15"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "hair",
+      "file": "blind__portrait-skin__hair.png",
+      "panel_order": [
+        "sh0.00",
+        "sh0.25",
+        "sh0.35",
+        "sh0.50",
+        "sh0.75",
+        "sh0.15"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "lips",
+      "file": "blind__portrait-skin__lips.png",
+      "panel_order": [
+        "sh0.35",
+        "sh0.50",
+        "sh0.25",
+        "sh0.75",
+        "sh0.00",
+        "sh0.15"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "skin-cheek",
+      "file": "blind__portrait-skin__skin-cheek.png",
+      "panel_order": [
+        "sh0.15",
+        "sh0.25",
+        "sh0.75",
+        "sh0.00",
+        "sh0.50",
+        "sh0.35"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "identity-face",
+      "file": "blind__portrait-skin__identity-face.png",
+      "panel_order": [
+        "sh0.25",
+        "sh0.00",
+        "sh0.35",
+        "sh0.75",
+        "sh0.15",
+        "sh0.50"
+      ]
+    },
+    {
+      "experiment": "strips",
+      "category": "text-signage",
+      "region": "text",
+      "file": "blind__text-signage__text.png",
+      "panel_order": [
+        "sh0.25",
+        "sh0.50",
+        "sh0.00",
+        "sh0.35",
+        "sh0.15",
+        "sh0.75"
+      ]
+    }
+  ]
+}
