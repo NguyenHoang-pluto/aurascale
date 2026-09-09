@@ -42,11 +42,25 @@ export function isLossy(format: OutputFormat): boolean {
 
 interface EnhancementState {
   modelId: string | null
+  /**
+   * Whether `modelId` is a choice the user made, or just what was adopted when
+   * the registry loaded.
+   *
+   * The distinction is the whole of the Phase 4 F1 fix. `mode_planner` lets an
+   * explicit model win over the mode's own - deliberately, so clients written
+   * before modes keep working - but the client used to send one on every
+   * request, so the mode's model could never apply and Creative produced
+   * byte-identical output to Standard. A value equal to the default is not the
+   * same as a value nobody set, and the request now says which it is.
+   */
+  modelChosen: boolean
   mode: EnhancementMode
   sizing: OutputSizing
   scale: number
   /** 0-1. Only meaningful for models with `supportsDenoise`. */
   denoiseStrength: number
+  /** The same distinction for denoise. See `modelChosen`. */
+  denoiseChosen: boolean
   /** 0-1. A post-process, never presented as an AI feature. */
   sharpenStrength: number
   format: OutputFormat
@@ -96,6 +110,8 @@ export function preferredModel(models: readonly ModelInfo[]): ModelInfo | undefi
 
 export const useEnhancementStore = create<EnhancementState>()((set, get) => ({
   modelId: null,
+  modelChosen: false,
+  denoiseChosen: false,
   mode: DEFAULT_MODE,
   sizing: DEFAULT_SIZING,
   scale: DEFAULT_SCALE,
@@ -107,13 +123,15 @@ export const useEnhancementStore = create<EnhancementState>()((set, get) => ({
   activeJobId: null,
 
   setModel: (modelId, supportedScales) => {
-    set({ modelId, scale: nearestSupportedScale(get().scale, supportedScales) })
+    // Only reached from the model dropdown, which is a user action.
+    // `adoptDefaults` writes `modelId` directly and leaves `modelChosen` alone.
+    set({ modelId, modelChosen: true, scale: nearestSupportedScale(get().scale, supportedScales) })
   },
 
   setMode: (mode) => { set({ mode }) },
   setSizing: (sizing) => { set({ sizing }) },
   setScale: (scale) => { set({ scale }) },
-  setDenoiseStrength: (denoiseStrength) => { set({ denoiseStrength }) },
+  setDenoiseStrength: (denoiseStrength) => { set({ denoiseStrength, denoiseChosen: true }) },
   setSharpenStrength: (sharpenStrength) => { set({ sharpenStrength }) },
   setFormat: (format) => { set({ format }) },
   setQuality: (quality) => { set({ quality }) },

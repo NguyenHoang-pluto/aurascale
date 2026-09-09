@@ -12,7 +12,10 @@ import type { CreateJobRequest, JobCreated, JobPage, JobRecord, JobStatus } from
 export function createJob(request: CreateJobRequest, signal?: AbortSignal): Promise<JobCreated> {
   const form = new FormData()
   form.append('image', request.file, request.file.name)
-  form.append('model', request.model)
+  // Sent only when the user actually picked a model. Sending one unconditionally
+  // is what made Enhancement Mode inert: an explicit model always wins over the
+  // mode's own, so the mode could never choose.
+  if (request.model !== undefined) form.append('model', request.model)
   form.append('format', request.format)
   form.append('preserveMetadata', String(request.preserveMetadata))
 

@@ -31,13 +31,25 @@ export function buildSettings(options: {
   sharpenStrength: number
   denoiseStrength: number
   supportsDenoise: boolean
+  /** Whether the user moved the slider, as opposed to it holding its default. */
+  denoiseChosen: boolean
 }): EnhanceSettings {
   const settings: EnhanceSettings = {}
 
   if (options.sharpenStrength > 0) settings.sharpenStrength = options.sharpenStrength
-  // Omitted entirely for a model without the paired weights: the backend
-  // refuses the field rather than ignoring it, and rightly so.
-  if (options.supportsDenoise) settings.denoiseStrength = options.denoiseStrength
+  // Two separate reasons to omit it, and they are not the same reason.
+  //
+  //   * the model has no paired weights, so the backend refuses the field
+  //     rather than ignoring it, and rightly so;
+  //   * the user has not touched the slider, so there is nothing to say. Sending
+  //     the default anyway is what made Enhancement Mode inert - `resolve_denoise`
+  //     lets an explicit value win, and an untouched slider was still explicit.
+  //
+  // Note this is `denoiseChosen`, not `denoiseStrength > 0`: zero is a real
+  // setting (fully the wdn weights), not an absence.
+  if (options.supportsDenoise && options.denoiseChosen) {
+    settings.denoiseStrength = options.denoiseStrength
+  }
 
   return settings
 }
@@ -47,6 +59,8 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
   const source = useWorkspaceStore((s) => s.source)
 
   const modelId = useEnhancementStore((s) => s.modelId)
+  const modelChosen = useEnhancementStore((s) => s.modelChosen)
+  const denoiseChosen = useEnhancementStore((s) => s.denoiseChosen)
   const mode = useEnhancementStore((s) => s.mode)
   const sizing = useEnhancementStore((s) => s.sizing)
   const scale = useEnhancementStore((s) => s.scale)
@@ -68,7 +82,11 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
 
       const request: CreateJobRequest = {
         file: source.file,
-        model: modelId,
+        // Sent only when the user chose it. Left out otherwise so `mode` can
+        // supply the model, which is what `mode_planner` is for - the planner
+        // stays the single source of truth and the client never learns which
+        // model a mode implies.
+        ...(modelChosen ? { model: modelId } : {}),
         scale,
         format,
         preserveMetadata,
@@ -76,6 +94,7 @@ export function useEnhanceJob(options: { supportsDenoise: boolean }): EnhanceJob
           sharpenStrength,
           denoiseStrength,
           supportsDenoise: options.supportsDenoise,
+          denoiseChosen,
         }),
         // Quality is meaningless for a lossless format, so it is not sent.
         ...(isLossy(format) ? { quality } : {}),

@@ -14,6 +14,7 @@ Marked `slow`, and skipped when the weights are not downloaded.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import io
 import json
 import shutil
@@ -34,6 +35,7 @@ from app.core.runtime import Runtime, repository_scope
 from app.models.enums import JobStatus
 from app.services.enhancement_service import EnhancementService
 from app.services.image_service import ImageService
+from app.services.mode_planner import CREATIVE_MODEL, STANDARD_MODEL
 from app.services.model_service import ModelService
 from app.services.storage_service import StorageService
 from app.workers.progress import ProgressBroker
@@ -252,6 +254,88 @@ async def test_a_job_cancelled_during_inference_keeps_no_result(
 
     assert (await client.get(f"/api/jobs/{job_id}/result")).status_code == 409
     assert list(settings.outputs_dir.iterdir()) == [], "a partial result was kept"
+
+
+async def test_a_mode_alone_changes_what_the_real_pipeline_produces(
+    live_app: dict[str, Any],
+) -> None:
+    """The Phase 4 F1 regression, end to end on real weights.
+
+    F1 found Standard and Creative producing byte-identical output because the
+    client always sent an explicit model and denoise, so `mode_planner`'s
+    defaults could never apply. This submits the payload the corrected client
+    emits - **no model, no denoise** - and asserts the mode alone decides.
+
+    If this fails byte-identical again, the wiring bug is back.
+    """
+    client = live_app["client"]
+    settings = live_app["settings"]
+
+    # The fixture copies only MODEL. Standard needs x4plus, and Creative's 0.25
+    # is a DNI blend, so it also needs the wdn pair.
+    for name in (f"{STANDARD_MODEL}.pth", "realesr-general-wdn-x4v3.pth"):
+        source = REPO_ROOT / "models" / name
+        if not source.is_file():
+            pytest.skip(f"{name} is not downloaded; run scripts/download_models.py")
+        target = settings.models_dir / name
+        if not target.is_file():
+            shutil.copy(source, target)
+
+    content, _ = photo_bytes()
+    results: dict[str, dict[str, Any]] = {}
+
+    for mode in ("standard", "creative"):
+        created = await client.post(
+            "/api/jobs",
+            files={"image": ("photo.png", content, "image/png")},
+            # Exactly what the fixed client sends: mode only.
+            data={"scale": "4", "format": "png", "mode": mode, "settings": "{}"},
+        )
+        assert created.status_code == 202, created.text
+        body = await wait_for_terminal(client, created.json()["jobId"])
+        assert body["status"] == "completed", body
+
+        result = await client.get(f"/api/jobs/{created.json()['jobId']}/result")
+        assert result.status_code == 200
+        results[mode] = {
+            "model": body["model"],
+            "sha256": hashlib.sha256(result.content).hexdigest(),
+            "bytes": len(result.content),
+        }
+
+    # The mode chose the model, which is what the explicit field used to prevent.
+    assert results["standard"]["model"] == STANDARD_MODEL
+    assert results["creative"]["model"] == CREATIVE_MODEL
+
+    # And the pixels actually differ. Byte equality here is the bug returning.
+    assert results["standard"]["sha256"] != results["creative"]["sha256"], (
+        "Standard and Creative produced identical output - Enhancement Mode is inert again"
+    )
+
+
+async def test_an_explicit_model_still_beats_the_mode_in_the_real_pipeline(
+    live_app: dict[str, Any],
+) -> None:
+    """The other half of the F1 fix: the precedence rule must not have flipped.
+
+    A client that names a model keeps getting it, whatever the mode says. That
+    is what keeps every client written before modes existed working, and the fix
+    must not have bought mode support by breaking it.
+    """
+    client = live_app["client"]
+
+    content, _ = photo_bytes()
+    created = await client.post(
+        "/api/jobs",
+        files={"image": ("photo.png", content, "image/png")},
+        data={"model": MODEL, "scale": "4", "mode": "standard", "settings": "{}"},
+    )
+    assert created.status_code == 202, created.text
+    body = await wait_for_terminal(client, created.json()["jobId"])
+
+    assert body["status"] == "completed"
+    # MODEL is the Creative model; Standard's default would be x4plus.
+    assert body["model"] == MODEL != STANDARD_MODEL
 
 
 async def test_denoise_settings_reach_the_real_model(live_app: dict[str, Any]) -> None:

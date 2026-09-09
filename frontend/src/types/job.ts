@@ -131,7 +131,12 @@ export const TARGET_LONG_EDGE: Record<TargetResolution, number> = {
 
 export interface CreateJobRequest {
   file: File
-  model: string
+  /**
+   * Omitted when the user has not chosen a model, which lets `mode` supply one.
+   * The backend already accepts an absent model and falls back to the mode's
+   * default and then to `default_model`.
+   */
+  model?: string
   /** Ignored when `target` is set - the two answer the same question. */
   scale: number
   format: OutputFormat

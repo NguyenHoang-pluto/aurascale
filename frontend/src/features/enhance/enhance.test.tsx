@@ -822,6 +822,7 @@ describe('buildSettings', () => {
       sharpenStrength: 0.5,
       denoiseStrength: 0.5,
       supportsDenoise: false,
+      denoiseChosen: true,
     })
 
     expect(settings).toEqual({ sharpenStrength: 0.5 })
@@ -832,6 +833,7 @@ describe('buildSettings', () => {
       sharpenStrength: 0,
       denoiseStrength: 0.25,
       supportsDenoise: true,
+      denoiseChosen: true,
     })
 
     expect(settings).toEqual({ denoiseStrength: 0.25 })
@@ -839,8 +841,62 @@ describe('buildSettings', () => {
 
   it('omits sharpening when it is off, rather than sending zero', () => {
     expect(
-      buildSettings({ sharpenStrength: 0, denoiseStrength: 1, supportsDenoise: false }),
+      buildSettings({
+        sharpenStrength: 0,
+        denoiseStrength: 1,
+        supportsDenoise: false,
+        denoiseChosen: false,
+      }),
     ).toEqual({})
+  })
+
+  // Phase 4 F1: the client used to send denoiseStrength on every request, so
+  // the mode's own value could never apply - resolve_denoise lets an explicit
+  // value win, and there was always one. Omitting it when untouched is what
+  // lets the backend decide.
+
+  it('omits denoise the user never touched, so the mode can supply its own', () => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: 1,
+      supportsDenoise: true,
+      denoiseChosen: false,
+    })
+
+    expect(settings).toEqual({})
+  })
+
+  it('sends denoise once the user has touched it', () => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: 1,
+      supportsDenoise: true,
+      denoiseChosen: true,
+    })
+
+    expect(settings).toEqual({ denoiseStrength: 1 })
+  })
+
+  it('sends an explicit zero rather than reading it as absence', () => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: 0,
+      supportsDenoise: true,
+      denoiseChosen: true,
+    })
+
+    expect(settings).toEqual({ denoiseStrength: 0 })
+  })
+
+  it('still omits denoise for a model that cannot use it, even once touched', () => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: 0.5,
+      supportsDenoise: false,
+      denoiseChosen: true,
+    })
+
+    expect(settings).toEqual({})
   })
 })
 
