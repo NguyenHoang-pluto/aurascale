@@ -21,10 +21,14 @@ What is reused rather than rebuilt
 ----------------------------------
 
 `corpus` for the manifest-validated five photographs, `metrics` for the luma
-statistics, `phase3b` for the chroma statistics and the shared-flat-mask
-correction, `phase3a._load` for reading a source. Arms run through the
-production `RealEsrganUpscaler.upscale`, so tiling, the OOM ladder and the
+statistics, and `research_utils` for reading a source, the chroma statistics,
+the shared-flat-mask correction and the inspection-crop table. Arms run through
+the production `RealEsrganUpscaler.upscale`, so tiling, the OOM ladder and the
 precision policy are the product's and not this file's.
+
+Those helpers first lived in the Phase 3 scripts and were moved to
+`research_utils` so this file depends only on tracked modules - see that
+module's docstring.
 
 The x4plus reference is **not** re-run. Phase 3C already measured it on the same
 five photographs at 4x, PNG, sharpening 0, and re-running it would spend four
@@ -66,9 +70,13 @@ import numpy as np
 
 from benchmarks.corpus import DEFAULT_CORPUS_DIR, CorpusImage, load_corpus, load_manifest
 from benchmarks.metrics import ImageMetrics, measure
-from benchmarks.phase3a import _load
-from benchmarks.phase3b import chroma_metrics, flat_mask, ycrcb_tiles
-from benchmarks.phase3c import REGIONS
+from benchmarks.research_utils import (
+    CROP_REGIONS,
+    chroma_metrics,
+    flat_mask,
+    load_rgb,
+    ycrcb_tiles,
+)
 
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 MEASUREMENTS = RESULTS_DIR / "phase4_f2_measurements.json"
@@ -170,7 +178,7 @@ def run_sweep(images: list[CorpusImage]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
 
     for image in images:
-        source = _load(image)
+        source = load_rgb(image)
         shared_mask: Any = None
         print(f"\n  --- {image.category}  {source.shape[1]}x{source.shape[0]} ---", flush=True)
 
@@ -253,7 +261,7 @@ def _write_crops(category: str, name: str, out: np.ndarray[Any, Any]) -> None:
     """Save each inspection region of one arm, at 1:1 on the 4x result."""
     from PIL import Image as PILImage
 
-    for region, (cx, cy, size) in REGIONS.get(category, {}).items():
+    for region, (cx, cy, size) in CROP_REGIONS.get(category, {}).items():
         span = size * SCALE
         left = min(max(0, cx * SCALE - span // 2), max(0, out.shape[1] - span))
         top = min(max(0, cy * SCALE - span // 2), max(0, out.shape[0] - span))
@@ -276,7 +284,7 @@ def build_strips(seed: int = 20260909) -> list[dict[str, Any]]:
     generator = np.random.default_rng(seed)
     rows: list[dict[str, Any]] = []
 
-    for category, regions in REGIONS.items():
+    for category, regions in CROP_REGIONS.items():
         for region in regions:
             available = [
                 arm(s)

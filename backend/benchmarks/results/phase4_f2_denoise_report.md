@@ -73,8 +73,8 @@ Licences in `corpus/manifest.json`; images not committed.
 Every arm runs through the production `RealEsrganUpscaler.upscale`, so tiling,
 the OOM ladder and the precision policy are the product's. Metrics reuse
 `benchmarks/metrics.py` unchanged; chroma statistics and the shared-flat-mask
-correction come from `benchmarks/phase3b.py`. No second benchmark framework was
-built.
+correction come from `benchmarks/research_utils.py`. No second benchmark
+framework was built.
 
 Image-major, so the flat-block mask is taken once from each image's `dn0.00`
 output and reused across its other four arms — the Phase 3B correction, since
@@ -112,12 +112,21 @@ Both `denoise_passed` and `dni_blend_resolved` are recorded per run.
 | Date | 2026-09-09 |
 | HEAD | `bd77494` |
 | Runner | `benchmarks/phase4_f2.py` |
+| Shared helpers | `benchmarks/research_utils.py` — corpus reading, block statistics, chroma metrics and the crop table |
 | Measurements | `phase4_f2_measurements.json` (35 rows: 25 sweep + 10 strips) |
 | Crops | `phase4-f2-crops/` — 50 per-arm crops + 10 blind strips |
 | Model checkpoint | `realesr-general-x4v3.pth` sha256 `8dc7edb9ac80ccdc30c3a5dca6616509…`, 4 885 111 B |
 | Denoise pair | `realesr-general-wdn-x4v3.pth` sha256 `1641f8c4464b9f097c9fdda558927371…`, 4 885 111 B |
 | Hardware | NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB |
 | Python / NumPy / OpenCV / PyTorch | 3.11.9 / 2.4.6 / 5.0.0 / 2.7.1+cu118 |
+
+**Dependency note.** The helpers this runner uses for reading a source, the
+chroma statistics and the inspection-crop table were first written inside the
+Phase 3 scripts, which are not tracked. They now live in the tracked
+`benchmarks/research_utils.py`, so a clean checkout can run F2 without them.
+The move was verified numerically first: `research_utils` reproduces the Phase 3
+helpers byte-for-byte on all five photographs, so every number in this report is
+unchanged by it.
 
 Every run records input and output dimensions, tile size, reduction flag, fp16
 state, runtime, peak VRAM and output SHA-256. Rerun with
