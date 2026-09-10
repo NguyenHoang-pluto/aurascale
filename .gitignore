@@ -44,3 +44,4 @@ storage/*
 .DS_Store
 Thumbs.db
 *.log
+backend/benchmarks/checkpoints/
