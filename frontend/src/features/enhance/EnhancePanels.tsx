@@ -4,6 +4,7 @@ import { Panel, PanelContent, PanelHeader, PanelTitle } from '@/components/ui/pa
 import { useModels } from '@/features/system/useSystemInfo'
 import { useEnhancementStore } from '@/stores/useEnhancementStore'
 import { useWorkspaceStore } from '@/stores/useWorkspaceStore'
+import { MODE_DEFAULT_MODEL } from '@/types/job'
 import { EnhancementControls } from './EnhancementControls'
 import { describeBlocker } from './jobPresentation'
 import { JobPanel } from './JobPanel'
@@ -24,6 +25,8 @@ export function EnhancePanels() {
   const models = useModels()
 
   const modelId = useEnhancementStore((s) => s.modelId)
+  const modelChosen = useEnhancementStore((s) => s.modelChosen)
+  const mode = useEnhancementStore((s) => s.mode)
   const adoptDefaults = useEnhancementStore((s) => s.adoptDefaults)
   const activeJobId = useEnhancementStore((s) => s.activeJobId)
 
@@ -34,7 +37,23 @@ export function EnhancePanels() {
     if (models.data !== undefined) adoptDefaults(models.data)
   }, [models.data, adoptDefaults])
 
-  const selected = models.data?.find((model) => model.id === modelId)
+  // What the panel should describe, which is not always what the store holds.
+  //
+  // `adoptDefaults` writes a `modelId` so the dropdown has something selected,
+  // and leaves `modelChosen` false so `buildSettings` omits the field and the
+  // backend's planner decides - that is the F1 behaviour and it stays. But the
+  // adopted model is the first downloaded one, not the mode's, so reading
+  // capabilities off it made Creative show `RealESRGAN_x4plus` and disable a
+  // denoise control that the model actually running supports.
+  //
+  // Until the user chooses, the mode owns the answer. After that the choice
+  // does, in every mode - which is the same precedence the backend applies.
+  const effectiveModelId = modelChosen ? modelId : MODE_DEFAULT_MODEL[mode]
+  const selected =
+    models.data?.find((model) => model.id === effectiveModelId) ??
+    // A build whose registry has no entry for the mode's model falls back to
+    // the adopted one rather than rendering an empty panel.
+    models.data?.find((model) => model.id === modelId)
   const supportsDenoise = selected?.supportsDenoise ?? false
 
   const { job, live } = useJobProgress(activeJobId)

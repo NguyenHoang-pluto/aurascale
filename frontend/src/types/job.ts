@@ -129,6 +129,32 @@ export const TARGET_LONG_EDGE: Record<TargetResolution, number> = {
   '16k': 15360,
 }
 
+/**
+ * The model each mode runs when the user has not named one.
+ *
+ * A mirror of `STANDARD_MODEL` and `CREATIVE_MODEL` in
+ * `backend/app/services/mode_planner.py`, and only a mirror: **the backend
+ * remains authoritative**. It resolves the model itself and ignores anything
+ * the client believes, so nothing here can change which weights run.
+ *
+ * What it is for is the opposite problem. The panel has to show a model before
+ * the user picks one, and it used to show whichever model happened to be
+ * adopted first - so Creative displayed `RealESRGAN_x4plus`, read
+ * `supportsDenoise` off it, and disabled the noise-reduction slider, while the
+ * job ran `realesr-general-x4v3` at denoise 0.25. Three statements on screen,
+ * all wrong for the job that ran, and the one control Creative exists to expose
+ * greyed out.
+ *
+ * A contract test on the backend reads this table out of the TypeScript source
+ * and asserts the two agree, the same way it already does for
+ * `TARGET_LONG_EDGE`, so a mode whose model changes on the server cannot drift
+ * from what the browser shows.
+ */
+export const MODE_DEFAULT_MODEL: Record<EnhancementMode, string> = {
+  standard: 'RealESRGAN_x4plus',
+  creative: 'realesr-general-x4v3',
+}
+
 export interface CreateJobRequest {
   file: File
   /**

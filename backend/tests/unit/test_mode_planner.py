@@ -155,3 +155,33 @@ def test_every_mode_plans(mode: EnhancementMode) -> None:
     assert plan.model_id
     assert plan.summary
     assert plan.mode is mode
+
+
+def test_the_frontend_mode_default_table_matches_this_one() -> None:
+    """The panel shows a mode's model before the user picks one, using its own
+    copy of these ids. A copy that drifted would name one model on screen while
+    the planner ran another - which is exactly the bug this table was added to
+    fix, reappearing from the other side.
+
+    Read out of the TypeScript source deliberately, the same way the resolution
+    planner checks `TARGET_LONG_EDGE`: the alternative is a third place where
+    the ids are written down.
+    """
+    import re
+    from pathlib import Path
+
+    source = Path(__file__).resolve().parents[3] / "frontend" / "src" / "types" / "job.ts"
+    if not source.is_file():  # pragma: no cover - backend checked out alone
+        pytest.skip("frontend sources are not present")
+
+    text = source.read_text(encoding="utf-8")
+    block = re.search(
+        r"MODE_DEFAULT_MODEL:\s*Record<EnhancementMode,\s*string>\s*=\s*\{(.*?)\}",
+        text,
+        re.DOTALL,
+    )
+    assert block is not None, "MODE_DEFAULT_MODEL is not where this test expects it"
+
+    frontend = dict(re.findall(r"(\w+):\s*'([^']+)'", block.group(1)))
+
+    assert frontend == {mode.value: plan_mode(mode).model_id for mode in EnhancementMode}
