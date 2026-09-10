@@ -1,0 +1,99 @@
+# CPU backend image, for the portfolio demo on Render.
+#
+# Built to `docs/deployment.md` § 2, with the one difference deployment forced:
+# the frontend already lives on Vercel, so this image serves the API alone and
+# CORS carries what nginx would otherwise have made same-origin.
+#
+# Build from the repository root, not from `docker/` - the weights step needs
+# `models/manifest.json` and `scripts/`, which live above `backend/`:
+#
+#   docker build -f docker/Dockerfile.backend -t aurascale-backend .
+
+FROM python:3.11-slim AS runtime
+
+# opencv-python-headless still links libGL and libglib at import time. The
+# headless build drops the GUI stack, not the last two shared objects.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# ---------------------------------------------------------------- torch first
+#
+# Its own layer, before anything that changes often. `requirements-cpu.txt`
+# pins the CPU wheel and its index; this is the ~200 MB download and the only
+# layer worth protecting from a code edit.
+COPY backend/requirements-cpu.txt ./backend/requirements-cpu.txt
+RUN pip install --no-cache-dir -r backend/requirements-cpu.txt
+
+# ------------------------------------------------------------------ the app
+#
+# Installed from `pyproject.toml`, which is the dependency source this project
+# already has. The whole backend is copied first because setuptools needs the
+# package present to build it - installing against a stub directory would
+# produce an `app` package containing nothing but `__init__.py`, and every
+# import after it would resolve to that empty shell.
+#
+# **Editable, and that is not a convenience.** `app/core/config.py` derives
+# `BACKEND_ROOT` from its own location, and `app/core/migrations.py` builds
+# `alembic.ini` and `alembic/` from it. A normal install puts the package in
+# site-packages, which makes `BACKEND_ROOT` resolve there, so alembic finds no
+# migration scripts and start-up fails on `no such table: jobs`. That failure
+# was reproduced in a container before this line was written. An editable
+# install leaves the code at `/app/backend`, where those paths are correct.
+COPY backend ./backend
+RUN pip install --no-cache-dir -e ./backend
+
+# ------------------------------------------------------------------- weights
+#
+# Baked in rather than downloaded at start-up.
+#
+# Render's free tier has no persistent disk, so a container that downloads on
+# demand downloads again after every restart and deploy, and the first user of
+# a cold instance waits for it. Baking makes cold start predictable.
+#
+# Done through the project's own downloader, which reads the URLs from
+# `models/manifest.json` and verifies each file against the SHA-256 recorded
+# there. Nothing here weakens that path. Naming one model pulls its denoise
+# pair too, which the script already does on the grounds that a denoise-capable
+# model is useless without it.
+#
+# Only `realesr-general-x4v3` and its `wdn` counterpart, about 10 MB together.
+# `x4plus` is deliberately absent: measured on CPU it takes 77 s for a 512x512
+# image against this model's 4.5 s, which is not a demo anyone waits for. The
+# benchmark-only HAT weights are not in the manifest at all.
+COPY models/manifest.json ./models/manifest.json
+COPY scripts/download_models.py ./scripts/download_models.py
+RUN MODELS_DIR=/app/models STORAGE_DIR=/app/storage \
+    python scripts/download_models.py realesr-general-x4v3
+
+# --------------------------------------------------------------------- user
+#
+# Non-root, owning the two directories the application writes to. `storage` is
+# created here so the container runs with no volume attached; mounting one over
+# it is what makes results survive a restart.
+RUN useradd --create-home --uid 10001 aurascale \
+ && mkdir -p /app/storage \
+ && chown -R aurascale:aurascale /app/storage /app/models
+USER aurascale
+
+ENV STORAGE_DIR=/app/storage \
+    MODELS_DIR=/app/models \
+    HOST=0.0.0.0 \
+    PORT=8000
+
+EXPOSE 8000
+
+# `PORT` is read at start rather than baked, because Render assigns it. Shell
+# form deliberately: exec form would pass the literal string `${PORT}`.
+#
+# No `--reload`, and no `--workers`: the job queue and the progress broker live
+# in the process, so a second worker would have its own queue and its own view
+# of every running job.
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}

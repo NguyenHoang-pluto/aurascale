@@ -1,0 +1,53 @@
+# What the build context does not need.
+#
+# Without this the context is roughly 800 MB before a single layer is built:
+# `frontend/node_modules` (210 MB), the downloaded weights under `models`
+# (155 MB) and the local `storage` tree (434 MB, including the developer's own
+# SQLite database and every result they have produced). None of it belongs in
+# an image, and the storage tree in particular should never leave the machine.
+#
+# `docker/Dockerfile.backend` needs three things from above `backend/`:
+# `models/manifest.json`, `scripts/download_models.py` and `backend/` itself.
+# The rules below keep those and exclude their neighbours.
+
+# ------------------------------------------------------------------ heavy
+node_modules/
+**/node_modules/
+frontend/dist/
+storage/
+
+# The weights are fetched during the build, verified against the manifest.
+# Copying a developer's local checkpoints in would skip that check and add
+# 155 MB, including models this image deliberately does not carry.
+models/*
+!models/manifest.json
+
+# --------------------------------------------------------------- research
+# Benchmarks, their measurements and their crops are not part of the service.
+backend/benchmarks/
+
+# ------------------------------------------------------------------ python
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/*.egg-info/
+
+# ------------------------------------------------------------------- local
+.git/
+.github/
+.env
+.env.*
+!.env.example
+**/.DS_Store
+*.log
+
+# ------------------------------------------------------- not built here
+# The frontend is deployed separately on Vercel.
+frontend/
+docs/
+docker/
+scripts/*
+!scripts/download_models.py
