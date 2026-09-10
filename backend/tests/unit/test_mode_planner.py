@@ -14,6 +14,7 @@ from app.models.enums import EnhancementMode
 from app.services.mode_planner import (
     CREATIVE_DENOISE,
     CREATIVE_MODEL,
+    DEFAULT_DENOISE,
     PIPELINE_STAGES,
     STANDARD_MODEL,
     built_stages,
@@ -53,9 +54,16 @@ def test_creative_denoises_conservatively_rather_than_not_at_all() -> None:
 
 
 def test_creatives_denoise_is_its_own_constant_not_the_global_default() -> None:
-    """DEFAULT_DENOISE stays at 1.0 until there is evidence to move it; this
-    phase must not move it by the back door."""
+    """The two are separate decisions and must stay separately expressible.
+
+    They currently agree at 0.25 because the same F2 evidence settled both, so
+    equality alone cannot show they are distinct. What this asserts instead is
+    that Creative reads its value from `CREATIVE_DENOISE` rather than from
+    `DEFAULT_DENOISE`, which is what would break first if the two were ever
+    collapsed into one.
+    """
     assert CREATIVE_DENOISE == 0.25
+    assert plan_mode(EnhancementMode.CREATIVE).denoise_strength == CREATIVE_DENOISE
 
 
 def test_each_mode_carries_the_wording_the_ui_shows() -> None:
@@ -113,13 +121,74 @@ def test_a_mode_supplies_denoise_only_to_a_model_that_can_use_it() -> None:
     )
 
 
-def test_no_mode_supplies_no_denoise() -> None:
-    assert resolve_denoise(None, None, model_supports_denoise=True) is None
+def test_no_mode_on_a_capable_model_falls_back_to_the_default() -> None:
+    """The case this behaviour was changed for.
+
+    It used to return `None`, and `None` downstream loads the standard weights
+    unblended - DNI 1.00 for the only model with a pair. So a request naming
+    `realesr-general-x4v3` with no mode and no slider movement ran the one
+    setting F2 and Phase 2.5 both ruled out, purely by omission.
+    """
+    assert resolve_denoise(None, None, model_supports_denoise=True) == DEFAULT_DENOISE
 
 
-def test_standard_supplies_no_denoise_even_on_a_capable_model() -> None:
-    """Standard means "as it shipped", and it shipped without one."""
-    assert resolve_denoise(EnhancementMode.STANDARD, None, model_supports_denoise=True) is None
+def test_standard_on_a_capable_model_falls_back_to_the_default() -> None:
+    """Standard names no denoise, which is not the same as choosing none.
+
+    `plan_mode(STANDARD).denoise_strength` is `None` because Standard's own
+    model has no denoise pair. When the model is overridden to one that does,
+    that `None` used to fall through as "unset" and land on DNI 1.00. Standard
+    has no opinion here, so the default supplies one.
+    """
+    assert (
+        resolve_denoise(EnhancementMode.STANDARD, None, model_supports_denoise=True)
+        == DEFAULT_DENOISE
+    )
+
+
+def test_standard_on_its_own_model_is_unchanged() -> None:
+    """The guard that keeps this fix from touching Standard at all.
+
+    `RealESRGAN_x4plus` declares no denoise pair, so the capability tier
+    returns `None` before any default is considered.
+    """
+    assert resolve_denoise(EnhancementMode.STANDARD, None, model_supports_denoise=False) is None
+    assert resolve_denoise(None, None, model_supports_denoise=False) is None
+
+
+@pytest.mark.parametrize("strength", [0.0, 0.25, 0.5, 0.75, 1.0])
+@pytest.mark.parametrize("mode", [None, EnhancementMode.STANDARD, EnhancementMode.CREATIVE])
+def test_an_explicit_value_survives_every_mode(
+    strength: float, mode: EnhancementMode | None
+) -> None:
+    """Explicit beats every tier below it, at every value including both ends.
+
+    0.0 and 1.0 are the ones worth naming: 0.0 because a truth test would read
+    it as absent, and 1.0 because it is the value the old default produced by
+    accident and must still be reachable on purpose.
+    """
+    assert resolve_denoise(mode, strength, model_supports_denoise=True) == strength
+
+
+def test_an_explicit_value_is_still_dropped_for_a_model_that_cannot_use_it() -> None:
+    """Capability is checked after the explicit tier, not before it.
+
+    An explicit value on a model with no pair is refused by `_validate_denoise`
+    with a message naming the model, which is a better answer than silently
+    dropping it here.
+    """
+    assert resolve_denoise(None, 0.5, model_supports_denoise=False) == 0.5
+
+
+def test_the_default_is_the_value_the_research_settled_on() -> None:
+    """0.25, and inside the range where it means something.
+
+    F2: DNI 1.00 costs a median -49.9% of high-frequency energy with visibly
+    plastic skin; 0.25 costs -14.1% for -12.9% noise. Phase 2.5 reached 0.25
+    independently on a separate corpus.
+    """
+    assert DEFAULT_DENOISE == 0.25
+    assert 0.0 < DEFAULT_DENOISE < 1.0
 
 
 # ------------------------------------------------------------ the pipeline

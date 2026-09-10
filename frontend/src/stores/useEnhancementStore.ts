@@ -29,8 +29,21 @@ export type OutputSizing = { kind: 'scale' } | { kind: 'target'; target: TargetR
 
 export const DEFAULT_SIZING: OutputSizing = { kind: 'scale' }
 export const DEFAULT_QUALITY = 92
-/** 1.0 is the model's own weights, which denoise the most (see the panel copy). */
-export const DEFAULT_DENOISE = 1
+/**
+ * Where the denoise slider rests before anyone moves it.
+ *
+ * Mirrors `DEFAULT_DENOISE` in `backend/app/services/mode_planner.py`, and only
+ * mirrors it: the server owns this decision and re-resolves an omitted value
+ * itself, so nothing here is load-bearing. What it must not do is *disagree* -
+ * a slider resting at 100% while the server would run 0.25 shows the user a
+ * number the job will not use.
+ *
+ * It used to rest at 1.0, which is the model's own weights and the strongest
+ * denoising it can do. F2 measured that at a median -49.9% of high-frequency
+ * energy with visibly plastic skin, so the resting position was advertising the
+ * one setting the research had ruled out.
+ */
+export const DEFAULT_DENOISE = 0.25
 export const QUALITY_RANGE = { min: 50, max: 100 } as const
 
 /** Formats where `quality` means something. PNG is lossless. */

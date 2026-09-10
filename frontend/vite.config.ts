@@ -16,6 +16,24 @@ export default defineConfig(({ mode }) => {
   // which proxies /api itself (see docker/nginx.conf).
   const backendUrl = env['VITE_BACKEND_PROXY'] ?? 'http://127.0.0.1:8000'
 
+  // Dev-only. Extra Host headers this dev server will answer for.
+  //
+  // Vite rejects requests whose Host it does not recognise, which is DNS
+  // rebinding protection and worth keeping. A tunnel breaks that assumption
+  // honestly: the browser asks for a random `*.trycloudflare.com` name, the
+  // tunnel forwards it to 127.0.0.1:5173 with that Host intact, and Vite
+  // refuses it. Naming the suffix here is what lets a temporary public test
+  // work without weakening the rule for anyone who does not opt in.
+  //
+  // Comma-separated, and **empty by default**: a clean checkout keeps Vite's
+  // stock localhost-only behaviour, and only a local `.env` turns this on. A
+  // leading dot matches subdomains, so `.trycloudflare.com` is the whole
+  // quick-tunnel family and nothing else.
+  const allowedHosts = (env['VITE_ALLOWED_HOSTS'] ?? '')
+    .split(',')
+    .map((host) => host.trim())
+    .filter((host) => host.length > 0)
+
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
@@ -26,6 +44,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: true,
+      // Spread rather than set: an empty list must leave Vite's own default in
+      // place, not replace it with a list that allows nothing.
+      ...(allowedHosts.length > 0 ? { allowedHosts } : {}),
       proxy: {
         '/api': {
           target: backendUrl,

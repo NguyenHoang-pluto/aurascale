@@ -18,6 +18,7 @@ import hashlib
 import io
 import json
 import shutil
+import time
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -61,12 +62,32 @@ async def live_app(settings: Settings) -> AsyncIterator[dict[str, Any]]:
     shutil.copy(real_models / "manifest.json", settings.models_dir / "manifest.json")
 
     models = ModelService(settings)
-    if not models.get(MODEL).downloaded:
+
+    # Both halves of the pair, because `MODEL` now runs a DNI blend by default.
+    #
+    # This fixture used to copy the primary checkpoint alone, and that was
+    # enough while an unspecified denoise resolved to `None` - no blend, so the
+    # `wdn` counterpart was never read. `DEFAULT_DENOISE` is 0.25 now, which is
+    # a blend, and a blend needs both files.
+    #
+    # Copying both is not a workaround. It is what production already
+    # guarantees: `ModelDownloadService` treats the pair as one unit, on the
+    # grounds that "the denoise-capable model is useless on its own", so anyone
+    # who has `MODEL` has its counterpart too. The fixture was the only place
+    # where half a pair could exist.
+    required = [f"{MODEL}.pth"]
+    pair = models.get(MODEL).entry.denoise_pair
+    if pair is not None:
+        required.append(f"{pair}.pth")
+
+    for name in required:
+        if (settings.models_dir / name).is_file():
+            continue
         # Symlinking would be neater, but a copy works without privileges.
-        source = real_models / f"{MODEL}.pth"
+        source = real_models / name
         if not source.is_file():
-            pytest.skip(f"{MODEL} is not downloaded; run scripts/download_models.py")
-        shutil.copy(source, settings.models_dir / f"{MODEL}.pth")
+            pytest.skip(f"{name} is not downloaded; run scripts/download_models.py")
+        shutil.copy(source, settings.models_dir / name)
 
     from app.main import create_app
 
@@ -378,3 +399,65 @@ async def test_an_upload_that_is_not_an_image_never_reaches_the_gpu(
 
     assert response.status_code == 415
     assert list(live_app["settings"].inputs_dir.iterdir()) == []
+
+
+async def test_a_job_cancelled_while_encoding_does_not_finish_as_completed(
+    live_app: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Cancellation must be honoured after inference, not only during it.
+
+    The runner checks for cancellation between tiles and once more before
+    post-processing, and then encodes. Encoding a 4x result is not instant -
+    a 16x PNG is hundreds of megapixels - so there is a real window between the
+    last checkpoint and the write of a terminal status. A `DELETE` landing in
+    that window used to be answered "cancelled" while the job went on to record
+    `completed`, leaving the output file on disk and the row carrying both
+    `status=completed` and `cancel_requested=True`.
+
+    The window is opened deliberately here rather than raced for: `encode` is
+    wrapped to sleep before doing its real work, which makes the ordering
+    deterministic instead of timing-dependent.
+    """
+    client = live_app["client"]
+    settings = live_app["settings"]
+    content, _ = photo_bytes(160, 120)
+
+    real_encode = ImageService.encode
+
+    def slow_encode(self: ImageService, *args: Any, **kwargs: Any) -> Any:
+        # Long enough for the DELETE below to be handled while this thread
+        # sits here. The loop keeps running because encode is off-thread.
+        time.sleep(2.0)
+        return real_encode(self, *args, **kwargs)
+
+    monkeypatch.setattr(ImageService, "encode", slow_encode)
+
+    created = await client.post(
+        "/api/jobs",
+        files={"image": ("photo.png", content, "image/png")},
+        data={"model": MODEL, "scale": "4"},
+    )
+    job_id = created.json()["jobId"]
+
+    for _ in range(900):
+        body = (await client.get(f"/api/jobs/{job_id}")).json()
+        if body["stage"] == "encoding":
+            break
+        if JobStatus(body["status"]).is_terminal:
+            pytest.fail(f"job reached {body['status']} before encoding could be observed")
+        await asyncio.sleep(0.05)
+    else:  # pragma: no cover - the slow encode makes this unreachable
+        pytest.fail("job never reached the encoding stage")
+
+    assert (await client.delete(f"/api/jobs/{job_id}")).status_code == 204
+
+    final = await wait_for_terminal(client, job_id)
+
+    assert final["status"] == "cancelled", (
+        "a job cancelled during encoding recorded itself as completed; "
+        "the DELETE was answered 'cancelled' and the user was told so"
+    )
+    assert final["output"] is None
+    assert (await client.get(f"/api/jobs/{job_id}/result")).status_code == 409
+    assert list(settings.outputs_dir.iterdir()) == [], "a cancelled job kept its output"

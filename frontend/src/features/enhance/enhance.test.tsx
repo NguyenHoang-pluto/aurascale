@@ -898,6 +898,86 @@ describe('buildSettings', () => {
 
     expect(settings).toEqual({})
   })
+
+  // ------------------------------------------------- the default the server uses
+  //
+  // Omitting an untouched value is correct and stays correct: the server owns
+  // the decision. What changed is what the server does with the omission. It
+  // used to resolve to `None`, which loads the standard weights unblended -
+  // DNI 1.00 for the only model with a pair, and the one setting F2 and Phase
+  // 2.5 both ruled out. It now resolves to 0.25.
+  //
+  // Nothing in `buildSettings` needed to change for that. What did need to
+  // change is the slider's resting position, which was advertising 1.0.
+
+  it('rests on the value the server resolves an omission to', () => {
+    expect(DEFAULT_DENOISE).toBe(0.25)
+    expect(useEnhancementStore.getState().denoiseStrength).toBe(DEFAULT_DENOISE)
+  })
+
+  it('omits the resting value, so the server resolves it rather than the client', () => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: DEFAULT_DENOISE,
+      supportsDenoise: true,
+      denoiseChosen: false,
+    })
+
+    expect(settings).toEqual({})
+  })
+
+  it('sends the resting value once the user has touched it, which means the same thing', () => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: DEFAULT_DENOISE,
+      supportsDenoise: true,
+      denoiseChosen: true,
+    })
+
+    expect(settings).toEqual({ denoiseStrength: 0.25 })
+  })
+
+  it.each([0, 0.25, 0.5, 0.75, 1])('sends %s exactly once chosen', (strength) => {
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: strength,
+      supportsDenoise: true,
+      denoiseChosen: true,
+    })
+
+    expect(settings).toEqual({ denoiseStrength: strength })
+  })
+
+  it('keeps a chosen value across a model change to another capable model', () => {
+    useEnhancementStore.getState().setDenoiseStrength(0)
+    expect(useEnhancementStore.getState().denoiseChosen).toBe(true)
+
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: useEnhancementStore.getState().denoiseStrength,
+      supportsDenoise: true,
+      denoiseChosen: useEnhancementStore.getState().denoiseChosen,
+    })
+
+    // Zero survives. A client that dropped it here would hand the server an
+    // omission, and the server would resolve that to 0.25 - silently turning
+    // "no denoising at all" into some.
+    expect(settings).toEqual({ denoiseStrength: 0 })
+  })
+
+  it('sends nothing to a model with no pair, whatever the slider says', () => {
+    useEnhancementStore.getState().setDenoiseStrength(0.75)
+
+    const settings = buildSettings({
+      sharpenStrength: 0,
+      denoiseStrength: useEnhancementStore.getState().denoiseStrength,
+      supportsDenoise: false,
+      denoiseChosen: true,
+    })
+
+    // Standard's model has no denoise pair, so the field would be a 422.
+    expect(settings).toEqual({})
+  })
 })
 
 describe('describeProgress', () => {

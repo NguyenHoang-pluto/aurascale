@@ -256,6 +256,22 @@ class JobRunner:
                 preserve_metadata=job.preserve_metadata,
             )
 
+            # The last checkpoint, and the one the others do not cover.
+            #
+            # Every earlier check happens before or during inference. Encoding
+            # comes after all of them and is not instant - a 16x result is
+            # hundreds of megapixels - so a `DELETE` arriving while this thread
+            # was in `encode` used to be answered "cancelled" and then
+            # contradicted: the job recorded `completed`, kept its output file,
+            # and left the row carrying both `status=completed` and
+            # `cancel_requested=True`.
+            #
+            # Raising here routes into `_finish_cancelled` below, which is what
+            # removes the file that was just written. Encoding is not
+            # interrupted - stopping mid-write would leave exactly the partial
+            # file that path exists to avoid - so the work is finished and then
+            # discarded, which costs one encode and keeps the outcome honest.
+            await self._raise_if_cancelled(job_id)
             await self._finish_completed(job, result, size_bytes, started)
 
         except JobCancelledError:

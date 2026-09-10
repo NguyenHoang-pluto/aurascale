@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
@@ -343,6 +345,45 @@ describe('model descriptions', () => {
 
     // Not machine-translated, not blank, and not a raw key.
     expect(modelDescription(i18n.t, unknown)).toBe('A model added after this build shipped.')
+  })
+
+  it('has wording for every model the real manifest declares', () => {
+    // Read from `models/manifest.json` rather than a list typed out here.
+    //
+    // The list above asserts that five known ids are present, which is a
+    // different and weaker claim: it keeps passing when a sixth model is added
+    // to the registry. `modelMessages` chose the backend id as the key
+    // precisely so there is one list of models rather than two, and this is
+    // what makes that hold - a model added to the manifest without wording
+    // fails here instead of quietly showing English to a Vietnamese reader.
+    const manifestPath = resolve(process.cwd(), '..', 'models', 'manifest.json')
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+      models: { id: string }[]
+    }
+
+    expect(manifest.models.length).toBeGreaterThan(0)
+
+    for (const { id } of manifest.models) {
+      for (const language of LANGUAGES) {
+        const value = i18n.getResource(language, 'models', `${id}.description`) as unknown
+        expect(typeof value, `${language} has no wording for ${id}`).toBe('string')
+        expect(String(value).trim(), `${language} ${id} is blank`).not.toBe('')
+      }
+    }
+  })
+
+  it('defines wording only for models the manifest still declares', () => {
+    // The other direction: wording left behind for a model that was removed is
+    // dead weight that reads as coverage.
+    const manifestPath = resolve(process.cwd(), '..', 'models', 'manifest.json')
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+      models: { id: string }[]
+    }
+    const declared = new Set(manifest.models.map((model) => model.id))
+
+    for (const id of Object.keys(resources.en.models)) {
+      expect(declared.has(id), `${id} has wording but is not in the manifest`).toBe(true)
+    }
   })
 })
 

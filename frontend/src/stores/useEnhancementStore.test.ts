@@ -211,9 +211,16 @@ describe('defaults', () => {
     expect(useEnhancementStore.getState().sharpenStrength).toBe(0)
   })
 
-  it('starts with the model as shipped rather than a blend', () => {
-    // 1.0 is the standard checkpoint untouched, which is what omitting the
-    // setting would give.
-    expect(useEnhancementStore.getState().denoiseStrength).toBe(1)
+  it('starts where the server would resolve an omitted value, not at full denoise', () => {
+    // The comment this replaces was accurate and that was the problem: 1.0 is
+    // the standard checkpoint untouched, and omitting the setting did give
+    // exactly that. It is the one setting the research ruled out - F2 measured
+    // DNI 1.0 at a median -49.9% of high-frequency energy with visibly plastic
+    // skin - so the slider was resting on it and the server was running it.
+    //
+    // The server owns this decision and re-resolves an omitted value itself.
+    // What the slider must not do is show a number the job will not use.
+    expect(useEnhancementStore.getState().denoiseStrength).toBe(DEFAULT_DENOISE)
+    expect(DEFAULT_DENOISE).toBe(0.25)
   })
 })

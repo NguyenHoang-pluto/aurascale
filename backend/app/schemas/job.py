@@ -39,7 +39,11 @@ class EnhanceSettings(CamelModel):
         le=1.0,
         description=(
             "DNI interpolation coefficient, for models with supportsDenoise. "
-            "1.0 denoises most; 0.0 preserves noise."
+            "1.0 denoises most; 0.0 preserves noise. "
+            "Omitting the field is not the same as sending 0: the server "
+            "resolves an omitted value to the mode's setting, or to 0.25 when "
+            "no mode names one, and only ever to null for a model with no "
+            "denoise pair. Send an explicit value to override that."
         ),
     )
     tile_size: int | None = Field(

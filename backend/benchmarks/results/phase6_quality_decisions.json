@@ -1,0 +1,436 @@
+{
+  "phase": "6",
+  "kind": "audit-only",
+  "audited_at_commit": "acf97b38131b23a14e03466443fae5c280be9fee",
+  "production_files_modified": false,
+  "committed": false,
+  "pushed": false,
+  "status_vocabulary": {
+    "production_ready": "shipped or safe to ship; evidence supports current behaviour",
+    "research_only": "keep available, do not make a default",
+    "rejected": "measured and refused; do not integrate",
+    "inconclusive": "measured, but the evidence does not settle the decision"
+  },
+  "confidence_vocabulary": {
+    "proven": "measured with a blind or reference-based test on the real corpus",
+    "promising": "measured, with a known gap",
+    "inconclusive": "evidence does not separate the options",
+    "proven_negative": "measured and shown not to work"
+  },
+  "decisions": [
+    {
+      "id": "A",
+      "feature": "RealESRGAN_x4plus",
+      "evidence": ["phase3", "phase4_f4"],
+      "quality_benefit": "best skin, no restyling, never fails badly",
+      "artifact_risk": "lowest of any arm measured",
+      "performance": "21-31 s per 32 MP at 4x",
+      "memory": "767 MB peak at tile 256",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep as Standard default",
+      "changes_production": false
+    },
+    {
+      "id": "B",
+      "feature": "realesr-general-x4v3",
+      "evidence": ["phase3", "phase4_f2"],
+      "quality_benefit": "only arm to beat the reference on detail anywhere",
+      "artifact_risk": "+182% flat-region noise at denoise 0; requires 0.25",
+      "performance": "4.1x faster than x4plus",
+      "memory": "about 1/17 the VRAM",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep as Creative model at denoise 0.25",
+      "changes_production": false
+    },
+    {
+      "id": "C",
+      "feature": "RealESRGAN_x4plus_anime_6B",
+      "evidence": ["phase3"],
+      "quality_benefit": "correct for illustration, its training domain",
+      "artifact_risk": "restyles photographs; +28.7% median edge overshoot, highest of any arm",
+      "performance": null,
+      "memory": null,
+      "confidence": "proven",
+      "status": "research_only",
+      "decision": "keep selectable; never a photographic default",
+      "changes_production": false
+    },
+    {
+      "id": "D",
+      "feature": "DNI weight interpolation",
+      "evidence": ["phase2_5", "phase3a", "phase3b", "phase4_f2"],
+      "quality_benefit": "the effective luma denoiser; no fixed prefilter beat it",
+      "artifact_risk": "none",
+      "performance": "free at inference; interpolates weights, not pixels",
+      "memory": "none",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep, already shipped",
+      "known_gaps": [
+        "reaches only realesr-general-x4v3, so Standard has no denoising at all",
+        "luma-dominant; leaves chroma mottle largely intact"
+      ],
+      "changes_production": false
+    },
+    {
+      "id": "E",
+      "feature": "unsharp-mask sharpening",
+      "evidence": ["phase4_f3", "phase5"],
+      "quality_benefit": "F3 found a blind-validated visible benefit at 1:1; F5 did not reproduce it",
+      "artifact_risk": "ringing and halo at 0.5 and above; dark-region grain measurable from 0.15",
+      "performance": "about 1.1 s per 32 MP, roughly 3% of the neural pass",
+      "memory": "+96 MB",
+      "confidence": "inconclusive",
+      "status": "production_ready_implementation_default_unchanged",
+      "decision": "keep default at 0.0; 0.25 remains a candidate value, not an approved default",
+      "blocking_disagreement": "F3 and F5 disagree on whether the benefit is visible",
+      "changes_production": false
+    },
+    {
+      "id": "F",
+      "feature": "adaptive luma denoise preprocessing",
+      "evidence": ["phase3a"],
+      "quality_benefit": "none delivered; estimator works but the mapping does not",
+      "artifact_risk": "destroys skin texture on noisy portraits",
+      "performance": "11.7 s at 16 MP",
+      "memory": null,
+      "confidence": "proven_negative",
+      "status": "rejected",
+      "decision": "do not build",
+      "changes_production": false
+    },
+    {
+      "id": "G",
+      "feature": "chroma prefilter",
+      "evidence": ["phase3a", "phase3b"],
+      "quality_benefit": "none after super-resolution",
+      "artifact_risk": "+0.4% chroma noise, the wrong direction; visible degradation on one photograph",
+      "performance": "25 ms",
+      "memory": "46 MB",
+      "confidence": "proven_negative",
+      "status": "rejected",
+      "decision": "do not integrate; not parked as research because no question remains open",
+      "changes_production": false
+    },
+    {
+      "id": "H",
+      "feature": "HAT",
+      "evidence": ["phase3", "phase3c"],
+      "quality_benefit": "slightly better skin; worse hair and landscape",
+      "artifact_risk": "visible tile seam at the forced tile size",
+      "performance": "5.35x runtime",
+      "memory": "2907 MiB peak, fp32 only, fp16 produces NaN, tile forced to 128",
+      "confidence": "proven_negative",
+      "status": "rejected",
+      "decision": "do not integrate on this hardware",
+      "would_change_the_answer": "a GPU with at least 8 GB, or an fp16-stable variant",
+      "changes_production": false
+    },
+    {
+      "id": "I",
+      "feature": "detail recovery: guided, structure-gated, DoG band",
+      "evidence": ["phase5"],
+      "quality_benefit": "none visible in any inspected region",
+      "artifact_risk": "about +40% flat-region noise; visible shadow grain in two arms",
+      "performance": "1.5 to 3.7 s per 32 MP",
+      "memory": "small",
+      "confidence": "proven_negative",
+      "status": "rejected",
+      "decision": "do not integrate; do not reopen without a candidate that passes the reference track",
+      "scope_of_rejection": "three operators, one calibration, one corpus, one degradation pipeline",
+      "not_claimed": [
+        "that detail recovery is impossible",
+        "that all post-processing is harmful"
+      ],
+      "untested_hypothesis": "a dead-zone variant may cut the noise cost; it says nothing about whether added detail lands correctly",
+      "changes_production": false
+    },
+    {
+      "id": "J",
+      "feature": "tile size 256",
+      "evidence": ["phase4_f4"],
+      "quality_benefit": "reference arm; fastest on four of five photographs",
+      "artifact_risk": "no visible seam at the worst measured joint",
+      "performance": "27.4 s median",
+      "memory": "767 MB peak",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep as default",
+      "caveat": "narrowest observed free-VRAM margin was 143 MB above the 2048 MB clamp threshold",
+      "changes_production": false
+    },
+    {
+      "id": "J2",
+      "feature": "tile size 128",
+      "evidence": ["phase4_f4"],
+      "quality_benefit": "visually equivalent to 256 in ordinary content",
+      "artifact_risk": "faint seam, not visible in use; 40% high-frequency loss on one low-contrast dark field",
+      "performance": "+75% runtime versus 256",
+      "memory": "260 MB peak",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "acceptable OOM fallback; do not promote to default for VRAM savings",
+      "changes_production": false
+    },
+    {
+      "id": "J3",
+      "feature": "tile size 64",
+      "evidence": ["phase4_f4"],
+      "quality_benefit": "none",
+      "artifact_risk": "visible rectangular block artifact, geometry verified at the tile grid",
+      "performance": "about 3x the runtime of 256",
+      "memory": "115 MB peak",
+      "confidence": "proven_negative",
+      "status": "production_ready_as_last_resort",
+      "decision": "keep in the OOM ladder; a finished job with an artifact beats a failed job",
+      "changes_production": false
+    },
+    {
+      "id": "K",
+      "feature": "8x cascade, 4x then 2x",
+      "evidence": ["phase6_code_audit"],
+      "quality_benefit": "fully neural composition, no interpolated enlargement",
+      "artifact_risk": "none found",
+      "performance": "two passes",
+      "memory": "per-stage limit enforced by _assert_stage_fits",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "no change",
+      "changes_production": false
+    },
+    {
+      "id": "L",
+      "feature": "16x cascade, 4x then 4x",
+      "evidence": ["phase6_code_audit"],
+      "quality_benefit": "same weights twice, so character is consistent across passes",
+      "artifact_risk": "none found",
+      "performance": "two passes; cheaper than 4x-2x-2x",
+      "memory": "per-stage limit enforced",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "no change",
+      "open_question": "whether a second pass should denoise an already-denoised image is unmeasured",
+      "changes_production": false
+    },
+    {
+      "id": "M",
+      "feature": "target resolution 2K to 16K",
+      "evidence": ["phase6_code_audit"],
+      "quality_benefit": "exact output sizes, aspect ratio preserved, supersampling not enlargement",
+      "artifact_risk": "none found",
+      "performance": null,
+      "memory": "pixel limit checked against the neural intermediate, the largest thing held",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "no change",
+      "gap": "MAX_OUTPUT_PIXELS is duplicated in backend config and frontend limits with no contract test binding them; the preset table is protected, this constant is not",
+      "changes_production": false
+    },
+    {
+      "id": "N",
+      "feature": "JPEG 4:4:4 output",
+      "evidence": ["phase6_code_audit"],
+      "quality_benefit": "full-resolution chroma; subsampling never touched luma",
+      "artifact_risk": "none",
+      "performance": null,
+      "memory": null,
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep",
+      "changes_production": false
+    },
+    {
+      "id": "O",
+      "feature": "PNG output",
+      "evidence": ["phase6_code_audit"],
+      "quality_benefit": "lossless path",
+      "artifact_risk": "none",
+      "performance": null,
+      "memory": null,
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep",
+      "changes_production": false
+    },
+    {
+      "id": "P",
+      "feature": "preview pipeline",
+      "evidence": ["phase6_code_audit"],
+      "quality_benefit": "never enlarges; atomic write prevents half-written previews under races",
+      "artifact_risk": "none found",
+      "performance": null,
+      "memory": "bounded at 4096 px long edge, quality 92",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "no change",
+      "changes_production": false
+    },
+    {
+      "id": "Q",
+      "feature": "memory and OOM protections",
+      "evidence": ["phase4_f4", "phase6_code_audit"],
+      "quality_benefit": "a job finishes instead of failing",
+      "artifact_risk": "the tile 64 rung is a visible defect, see J3",
+      "performance": null,
+      "memory": "VRAM clamp plus halving ladder plus CPU fallback; per-stage output limit",
+      "confidence": "proven",
+      "status": "production_ready",
+      "decision": "keep the ladder intact; do not disable, do not force a tile",
+      "changes_production": false
+    }
+  ],
+  "production_defaults_observed": {
+    "standard_model": "RealESRGAN_x4plus",
+    "standard_denoise": "not applicable, model declares no denoise pair",
+    "creative_model": "realesr-general-x4v3",
+    "creative_denoise": 0.25,
+    "schema_denoise_default": null,
+    "schema_sharpen_default": 0.0,
+    "tile_size": 256,
+    "tile_pad": 16,
+    "default_scale": 4,
+    "supported_scales": [2, 4, 8, 16],
+    "max_output_pixels": 200000000,
+    "jpeg_subsampling": "4:4:4",
+    "preview_max_edge": 4096,
+    "preview_quality": 92
+  },
+  "proposals_not_applied": [
+    {
+      "id": "P1",
+      "title": "resolve the no-mode denoise default to 0.25 for denoise-capable models",
+      "problem": "the schema default None is byte-identical to DNI 1.00, which phase 2.5 and F2 both found not defensible: a median -49.9% high-frequency energy and visibly plastic skin",
+      "reachable_when": "a client names realesr-general-x4v3 with no mode, or leaves the denoise slider untouched, so buildSettings omits the field",
+      "compounded_by": "the frontend slider rests at DEFAULT_DENOISE = 1, displaying 100% in the advanced controls",
+      "evidence": ["phase2_5", "phase4_f2", "phase3b byte-identity"],
+      "changes_produced_image": true,
+      "applied": false,
+      "belongs_in": "its own task with regression tests"
+    },
+    {
+      "id": "P2",
+      "title": "extend the frontend/backend contract test to cover MAX_OUTPUT_PIXELS",
+      "problem": "the constant is duplicated with no test binding it; the preset table already has one",
+      "changes_produced_image": false,
+      "applied": false,
+      "belongs_in": "a test-only change"
+    },
+    {
+      "id": "P3",
+      "title": "fix lint on the F4 research test file",
+      "problem": "backend/tests/unit/test_benchmark_tile_quality.py fails ruff check I001 and ruff format --check; committed in 74f3fdb because neither tool was run during F4",
+      "impact": "research file only; production unaffected; its 52 tests pass",
+      "changes_produced_image": false,
+      "applied": false,
+      "belongs_in": "its own change"
+    }
+  ],
+  "next_experiments": [
+    {
+      "id": "N1",
+      "title": "sharpening tie-break",
+      "hypothesis": "sharpening at 0.15 to 0.25 produces a visible benefit at 1:1 that survives an inspection designed not to favour it",
+      "why": "closes the F3 versus F5 disagreement, which currently blocks the one enhancement the codebase already owns",
+      "upside": "a defensible on-by-default setting at about 3% of the neural pass",
+      "downside": "confirms the benefit is unreliable; sharpening stays off, which is the status quo",
+      "corpus": "existing five, unchanged",
+      "metrics": ["F3 metric set, reported but not decisive"],
+      "blind_visual_test": true,
+      "success": "visible benefit on a majority of textured regions with no region worse",
+      "failure": "equivalent on a majority, or any region worse",
+      "estimated_runtime_minutes": 15,
+      "touches_production": false,
+      "new_dependency": false
+    },
+    {
+      "id": "N2",
+      "title": "denoise for Standard mode",
+      "hypothesis": "a noisy photograph in Standard can be improved without a denoise pair, by routing to Creative at 0.25 rather than by filtering",
+      "why": "Standard is the default mode and has no noise handling at all; the largest structural gap in the pipeline",
+      "upside": "closes that gap",
+      "downside": "phase 3A already refuted fixed luma preprocessing; the arm must be routing, not filtering",
+      "corpus": "existing five; only one noisy photograph, which is the limiting factor",
+      "metrics": ["flat-region noise", "high-frequency ratio", "skin texture", "reference-based scoring on the F5 degradation harness"],
+      "blind_visual_test": true,
+      "success": "visibly cleaner low-light with no skin or texture loss against Standard baseline",
+      "failure": "any skin degradation, or no visible low-light gain",
+      "estimated_runtime_minutes": 25,
+      "touches_production": false,
+      "new_dependency": false,
+      "caveat": "one noisy photograph is thin evidence for a default; reporting 'needs a broader corpus' is a legitimate outcome"
+    },
+    {
+      "id": "N3",
+      "title": "tile 256 headroom on a loaded GPU",
+      "hypothesis": "under realistic desktop GPU load, free VRAM falls below 2048 MB often enough that tile 128 is the common path",
+      "why": "every F4 quality result assumes tile 256 was granted; if it usually is not, shipped quality is tile 128's",
+      "upside": "either confirms the default is what users get, or shows the clamp threshold needs revisiting",
+      "downside": "cheap either way",
+      "corpus": "existing five",
+      "metrics": ["free_vram_before_mb", "effective_tile", "honoured rate"],
+      "blind_visual_test": false,
+      "success": "a measured honoured-rate under load, or a documented reason to move the threshold",
+      "failure": "cannot construct a realistic load; report the limitation",
+      "estimated_runtime_minutes": 20,
+      "touches_production": false,
+      "new_dependency": false
+    }
+  ],
+  "rejected_experiment_ideas": [
+    {
+      "idea": "community RRDBNet fine-tunes",
+      "why_not": "licence and provenance cannot be evaluated inside a research phase, and phase 3 already showed model swaps trade one failure mode for another"
+    },
+    {
+      "idea": "adaptive DNI",
+      "why_not": "phase 3A refuted the mapping at r = +0.077 and nothing has changed since"
+    },
+    {
+      "idea": "quality-aware postprocessing",
+      "why_not": "F5 has just rejected the closest thing to it; reopening without a reference-track pass would repeat the mistake F5 was built to catch"
+    }
+  ],
+  "validation": {
+    "backend_pytest": "805 passed, 2 skipped",
+    "backend_ruff_check": "1 error, pre-existing, research file only",
+    "backend_ruff_format": "1 file would be reformatted, same file",
+    "backend_mypy_app": "clean, 53 source files",
+    "backend_mypy_benchmarks": "clean, 20 source files",
+    "backend_mypy_tests": "29 errors in 10 files, all pre-existing, none in F4 or F5 test files",
+    "frontend_vitest": "442 passed, 25 files",
+    "frontend_typecheck": "clean",
+    "frontend_lint": "clean",
+    "frontend_build": "succeeds, chunk-size advisory only"
+  },
+  "known_failures": [
+    {
+      "kind": "research_lint",
+      "path": "backend/tests/unit/test_benchmark_tile_quality.py",
+      "line": 13,
+      "rules": ["I001", "ruff-format"],
+      "introduced_by": "74f3fdb",
+      "cause": "neither ruff check nor ruff format was run during F4",
+      "production_impact": "none; the file's 52 tests pass",
+      "fixed_here": false
+    },
+    {
+      "kind": "pre_existing_test_typing",
+      "count": 29,
+      "files": 10,
+      "largest": "tests/unit/test_cleanup_service.py with 10",
+      "production_impact": "none; app/ is mypy-clean",
+      "fixed_here": false
+    }
+  ],
+  "top_quality_risks": [
+    "the no-mode denoise default resolves to DNI 1.00, contradicting phase 2.5 and F2",
+    "Standard mode has no denoising available at all, since x4plus declares no denoise pair",
+    "sharpening is unresolved: F3 and F5 disagree and the default is off",
+    "the tile 256 VRAM margin is 143 MB, so another GPU consumer silently moves users to tile 128",
+    "MAX_OUTPUT_PIXELS is duplicated between frontend and backend without a contract test",
+    "the Creative model dropdown displays x4plus while the job correctly runs x4v3, documented in F1",
+    "second-pass denoise in a 16x cascade is unmeasured"
+  ]
+}

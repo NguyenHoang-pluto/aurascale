@@ -41,9 +41,33 @@ CREATIVE_MODEL = "realesr-general-x4v3"
 #: Phase 2.5 measured the sweep on real photographs and recommended 0.25 as
 #: the least destructive setting that still denoises. That is what this is.
 #:
-#: It is emphatically *not* `DEFAULT_DENOISE`, which stays at 1.0 for every
-#: other path until there is evidence to move it.
 CREATIVE_DENOISE = 0.25
+
+#: What a denoise-capable model runs at when nobody said otherwise.
+#:
+#: This exists because "nobody said otherwise" used to mean something nobody
+#: chose. A request that named `realesr-general-x4v3` without a denoise value
+#: resolved to `None`, `None` reached `_resolve_blend`, and `None` there means
+#: "load the standard weights unblended" - which for this model is DNI 1.00,
+#: the strongest denoising it can do. Phase 3B confirmed the two are
+#: byte-identical, so the shipped default was 1.00 by omission rather than by
+#: decision.
+#:
+#: 1.00 is not defensible as a default and two phases said so independently.
+#: F2 measured it at a median **-49.9 % of high-frequency energy** with skin
+#: visibly plastic in a blind pass; Phase 2.5 reached the same conclusion on a
+#: separate corpus. 0.25 is the least destructive setting that still denoises:
+#: F2 puts it at -14.1 % hf for -12.9 % noise, equivalent to the baseline on
+#: skin and foliage, and better on low light.
+#:
+#: 0.25 over 0.50 on the asymmetry Phase 2.5 argued and F2 did not overturn:
+#: under-denoising is recoverable by the user, erased texture is not.
+#:
+#: Deliberately a separate constant from `CREATIVE_DENOISE` even though the two
+#: currently agree. They answer different questions - "what does Creative mean"
+#: and "what happens when nobody chose" - and collapsing them would make a
+#: future change to one silently change the other.
+DEFAULT_DENOISE = 0.25
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,13 +150,43 @@ def resolve_denoise(
 ) -> float | None:
     """The denoise a request should run at.
 
-    An explicit value wins, as with the model. A mode's value is applied only
-    when the chosen model can actually use it - offering Creative's 0.25 to a
-    network with no denoise pair would be refused downstream, and the mode
-    should not manufacture a request that cannot succeed.
+    Four tiers, in order, and each one exists for a different reason:
+
+      1. **An explicit value wins**, as with the model. That includes `0.0`,
+         which is a real setting - fully the `wdn` weights - and not an absence.
+         The check is `is not None` rather than a truth test precisely so zero
+         survives it.
+      2. **A model with no denoise pair gets `None`.** Offering Creative's 0.25
+         to a network that cannot use it would be refused downstream, and this
+         function should not manufacture a request that cannot succeed.
+      3. **A mode's value**, when the mode names one.
+      4. **`DEFAULT_DENOISE`** otherwise.
+
+    Tier 4 is the one this function was missing, and its absence is the whole
+    reason for it. Two paths fell through to `None`, and `None` downstream means
+    the standard weights unblended - DNI 1.00 for the only model that has a
+    pair:
+
+      * a request with **no mode at all** that names `realesr-general-x4v3`
+        directly, which is what the client sends when the denoise slider has
+        not been touched;
+      * a request in **Standard mode** that overrides the model to a
+        denoise-capable one, because `plan_mode(STANDARD).denoise_strength` is
+        `None` and that `None` was indistinguishable from "unset".
+
+    Standard's own model has no denoise pair, so tier 2 still returns `None` for
+    it and Standard is unchanged. What tier 4 fixes is the case where the user
+    reached a denoise-capable network without ever choosing a strength.
     """
     if requested_denoise is not None:
         return requested_denoise
-    if mode is None or not model_supports_denoise:
+
+    if not model_supports_denoise:
         return None
-    return plan_mode(mode).denoise_strength
+
+    if mode is not None:
+        planned = plan_mode(mode).denoise_strength
+        if planned is not None:
+            return planned
+
+    return DEFAULT_DENOISE

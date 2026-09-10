@@ -1,0 +1,4990 @@
+{
+  "provenance": {
+    "generated_at": "2026-09-09T03:33:58+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.22631-SP0",
+    "numpy": "2.4.6",
+    "opencv": "5.0.0",
+    "torch": "2.7.1+cu118",
+    "cuda_device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "corpus_root": "E:\\Tool\\aurascale\\backend\\benchmarks\\corpus",
+    "corpus_images": [
+      "landscape-detail/landscape-detail.jpg",
+      "portrait-skin/portrait-skin.jpg",
+      "text-signage/text-signage.jpg",
+      "foliage-texture/foliage-texture.jpg",
+      "low-light-noise/low-light-noise.jpg"
+    ],
+    "sigma_clean": 0.45,
+    "sigma_noisy": 3.0
+  },
+  "anchors": {
+    "corpus_combined_sigmas": [
+      0.4513,
+      0.3975,
+      0.3017,
+      0.4257,
+      0.7336
+    ],
+    "percentile_20": 0.3784,
+    "percentile_80": 0.5078,
+    "in_use_clean": 0.45,
+    "in_use_noisy": 3.0
+  },
+  "rows": [
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "none",
+      "family": "none",
+      "strength": "none",
+      "params": {},
+      "metrics": {
+        "sobel_mean": 0.2165149592090485,
+        "sobel_p95": 0.9076898790774245,
+        "local_contrast": 0.0717389107990969,
+        "high_frequency_ratio": 0.006572003115289047,
+        "flat_noise": 0.005025294117647052,
+        "edge_overshoot": 0.053182891721509834,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 0.0005999972927384079,
+        "rss_delta_mb": 0.0,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 0.0003001895669337738
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "strength": "weak",
+      "params": {
+        "sigma": 0.5
+      },
+      "metrics": {
+        "sobel_mean": 0.19169213764090667,
+        "sobel_p95": 0.8184432255581825,
+        "local_contrast": 0.06728025669162571,
+        "high_frequency_ratio": 0.004350066788557023,
+        "flat_noise": 0.004560514705882332,
+        "edge_overshoot": 0.03886799251209733,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 4.690599998866674,
+        "rss_delta_mb": 6.33984375,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 2.3467925595011794
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.3560340530818476,
+        "sigma_chroma": 0.08181356174142848,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "strength": "medium",
+      "params": {
+        "sigma": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.1453581672984727,
+        "sobel_p95": 0.6367096745999415,
+        "local_contrast": 0.05954390785181573,
+        "high_frequency_ratio": 0.001408673111976043,
+        "flat_noise": 0.00373801470588234,
+        "edge_overshoot": 0.01683835766514304,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.8127000003005378,
+        "rss_delta_mb": 5.62890625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 0.9069268055986296
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.2810673000535316,
+        "sigma_chroma": 0.14006945960553785,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "strength": "strong",
+      "params": {
+        "sigma": 1.8
+      },
+      "metrics": {
+        "sobel_mean": 0.10912971366692867,
+        "sobel_p95": 0.4675522395935492,
+        "local_contrast": 0.05164685209020445,
+        "high_frequency_ratio": 0.00016745381377201193,
+        "flat_noise": 0.003326764705882338,
+        "edge_overshoot": 0.006661662240473962,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.8062999990652315,
+        "rss_delta_mb": 5.87890625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 1.404042970862084
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.21561645066038881,
+        "sigma_chroma": 0.1408817928426868,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 15,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.19881747742299435,
+        "sobel_p95": 0.9025703298731507,
+        "local_contrast": 0.06975434904276095,
+        "high_frequency_ratio": 0.006034745911361103,
+        "flat_noise": 0.0038330882352941055,
+        "edge_overshoot": 0.054718738312690196,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 11.71529999555787,
+        "rss_delta_mb": 6.25,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 5.861377834081411
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.2696946347334465,
+        "sigma_chroma": 0.12115369994049835,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 35,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.16996214646933921,
+        "sobel_p95": 0.8710409464569127,
+        "local_contrast": 0.06653755260148396,
+        "high_frequency_ratio": 0.005114681636914363,
+        "flat_noise": 0.003416862745098016,
+        "edge_overshoot": 0.057851699710769866,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 23.89930000208551,
+        "rss_delta_mb": 5.734375,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 11.957254815105161
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.314256915171331,
+        "sigma_chroma": 0.1432027449488266,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 75,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.13994849235496157,
+        "sobel_p95": 0.7326561818713315,
+        "local_contrast": 0.06158864070003938,
+        "high_frequency_ratio": 0.003926636343782328,
+        "flat_noise": 0.0031011764705882548,
+        "edge_overshoot": 0.05371261623001544,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 38.04590000072494,
+        "rss_delta_mb": 5.75,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 19.035056296166832
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.250894922673714,
+        "sigma_chroma": 0.14587183987088737,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 20,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.21647719171477425,
+        "sobel_p95": 0.9074023193091653,
+        "local_contrast": 0.07172469989375393,
+        "high_frequency_ratio": 0.006555702996505848,
+        "flat_noise": 0.005032009803921571,
+        "edge_overshoot": 0.05316595832987815,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 24.73190000455361,
+        "rss_delta_mb": 5.94140625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 12.373819751638846
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.07972470484590265,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0023087117914697463
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 45,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.2165157619257378,
+        "sobel_p95": 0.9073574872998449,
+        "local_contrast": 0.07173827546776804,
+        "high_frequency_ratio": 0.0065693289615971675,
+        "flat_noise": 0.005040588235294106,
+        "edge_overshoot": 0.05315702048694167,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 21.259000001009554,
+        "rss_delta_mb": 5.8671875,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 10.636264664831609
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.04363389959542852,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 90,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.21650369850786788,
+        "sobel_p95": 0.9071472444935733,
+        "local_contrast": 0.07173661224320606,
+        "high_frequency_ratio": 0.00656791763499072,
+        "flat_noise": 0.0050590686274509696,
+        "edge_overshoot": 0.05314964977543412,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 33.74600000097416,
+        "rss_delta_mb": 5.9765625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 16.8837380578919
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.039456185804376855,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "strength": "weak",
+      "params": {
+        "h": 3.0,
+        "h_colour": 3.0
+      },
+      "metrics": {
+        "sobel_mean": 0.19100467775223245,
+        "sobel_p95": 0.9013921723125422,
+        "local_contrast": 0.06806425583800835,
+        "high_frequency_ratio": 0.006153840212813243,
+        "flat_noise": 0.00022514705882352784,
+        "edge_overshoot": 0.05293738734766836,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1617.6459999987856,
+        "rss_delta_mb": 10.9453125,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 809.3377388012703
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.150629791688474,
+        "sigma_chroma": 0.06951251557888746,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "strength": "medium",
+      "params": {
+        "h": 6.0,
+        "h_colour": 6.0
+      },
+      "metrics": {
+        "sobel_mean": 0.15951107555133673,
+        "sobel_p95": 0.8510560328843952,
+        "local_contrast": 0.06303655465797213,
+        "high_frequency_ratio": 0.005098300472185784,
+        "flat_noise": 0.00013813725490196063,
+        "edge_overshoot": 0.050084127894709514,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1362.9011000011815,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 681.884228369834
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.10583541603997558,
+        "sigma_chroma": 0.0677718014992826,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "strength": "strong",
+      "params": {
+        "h": 10.0,
+        "h_colour": 10.0
+      },
+      "metrics": {
+        "sobel_mean": 0.13024738182046353,
+        "sobel_p95": 0.7193821830286609,
+        "local_contrast": 0.05731621464535036,
+        "high_frequency_ratio": 0.0037605540093398433,
+        "flat_noise": 0.00015534313725489718,
+        "edge_overshoot": 0.0402016892738171,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1433.0808000013349,
+        "rss_delta_mb": 5.90625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 716.9964097172476
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.10513913040813361,
+        "sigma_chroma": 0.06707551586744065,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "median-3",
+      "family": "median",
+      "strength": "weak",
+      "params": {
+        "kernel": 3
+      },
+      "metrics": {
+        "sobel_mean": 0.16452325056707667,
+        "sobel_p95": 0.7477196488859339,
+        "local_contrast": 0.0645962554651292,
+        "high_frequency_ratio": 0.003500316379657034,
+        "flat_noise": 0.0038986764705882387,
+        "edge_overshoot": 0.04377444032628644,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.8834000040660612,
+        "rss_delta_mb": 5.7421875,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 1.4426175067673346
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.31913091459422455,
+        "sigma_chroma": 0.11500317685922784,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "median-5",
+      "family": "median",
+      "strength": "medium",
+      "params": {
+        "kernel": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.12548528216912347,
+        "sobel_p95": 0.5743578374217101,
+        "local_contrast": 0.0584015718885416,
+        "high_frequency_ratio": 0.0017052395619104616,
+        "flat_noise": 0.0033850245098038974,
+        "edge_overshoot": 0.03198551672559323,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 5.960199996479787,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 2.9819965480444495
+      },
+      "noise_before": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "noise_after": {
+        "sigma_luma": 0.28083520484291763,
+        "sigma_chroma": 0.14842488718764119,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "none",
+      "family": "none",
+      "strength": "none",
+      "params": {},
+      "metrics": {
+        "sobel_mean": 0.13071551848072804,
+        "sobel_p95": 0.3636233295436151,
+        "local_contrast": 0.03548985652472254,
+        "high_frequency_ratio": 0.0011684512182630296,
+        "flat_noise": 0.009376470588235293,
+        "edge_overshoot": 0.013751993584466046,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 0.0007999988156370819,
+        "rss_delta_mb": 0.0,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 0.0004000574161438818
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "strength": "weak",
+      "params": {
+        "sigma": 0.5
+      },
+      "metrics": {
+        "sobel_mean": 0.11893583825359222,
+        "sobel_p95": 0.32953303788695376,
+        "local_contrast": 0.033772218357949246,
+        "high_frequency_ratio": 0.0008739733492728584,
+        "flat_noise": 0.00897012254901961,
+        "edge_overshoot": 0.010928904543375728,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.8316999994567595,
+        "rss_delta_mb": 6.0390625,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 0.915982817236879
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.33804667425926405,
+        "sigma_chroma": 0.1191808906502795,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "strength": "medium",
+      "params": {
+        "sigma": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.09016364914647118,
+        "sobel_p95": 0.24776267626186033,
+        "local_contrast": 0.029700801292509744,
+        "high_frequency_ratio": 0.00034199071794252246,
+        "flat_noise": 0.0077488970588235305,
+        "edge_overshoot": 0.0057934750868821215,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.4572000000043772,
+        "rss_delta_mb": 6.15234375,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 0.7287056623232254
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.2939485842426076,
+        "sigma_chroma": 0.18167252610809403,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "strength": "strong",
+      "params": {
+        "sigma": 1.8
+      },
+      "metrics": {
+        "sobel_mean": 0.06030544961464497,
+        "sobel_p95": 0.16439430893562723,
+        "local_contrast": 0.02490940432045409,
+        "high_frequency_ratio": 4.5036580826343084e-05,
+        "flat_noise": 0.005995441176470606,
+        "edge_overshoot": 0.002421424030811011,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.396999996562954,
+        "rss_delta_mb": 5.3828125,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 1.1986738059833446
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.27526491978818207,
+        "sigma_chroma": 0.2033154044978478,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 15,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.11081642808630968,
+        "sobel_p95": 0.3454619971034052,
+        "local_contrast": 0.03325249823878638,
+        "high_frequency_ratio": 0.0009584576718794198,
+        "flat_noise": 0.00800644607843138,
+        "edge_overshoot": 0.01570096486938575,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 6.434900002204813,
+        "rss_delta_mb": 5.76171875,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 3.217916599009263
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.31797043854115464,
+        "sigma_chroma": 0.18173054991074752,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 35,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.08277279936871491,
+        "sobel_p95": 0.27166692857000935,
+        "local_contrast": 0.029260707683392485,
+        "high_frequency_ratio": 0.000583342054019989,
+        "flat_noise": 0.006579387254901963,
+        "edge_overshoot": 0.012841334959781684,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 18.771899995044805,
+        "rss_delta_mb": 5.85546875,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 9.38731115764026
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.28385244258089937,
+        "sigma_chroma": 0.19670069099534934,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 75,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.06006136793460046,
+        "sobel_p95": 0.17565222844497658,
+        "local_contrast": 0.025235472669293265,
+        "high_frequency_ratio": 0.00022235154440962884,
+        "flat_noise": 0.005500514705882352,
+        "edge_overshoot": 0.006606095709166661,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 40.10720000223955,
+        "rss_delta_mb": 5.8203125,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 20.05650819480802
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.27387234852449815,
+        "sigma_chroma": 0.20285121407661982,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 20,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.13007174753071654,
+        "sobel_p95": 0.3626938597361062,
+        "local_contrast": 0.03537585781369252,
+        "high_frequency_ratio": 0.0011581801921426746,
+        "flat_noise": 0.009323676470588224,
+        "edge_overshoot": 0.013759687008380123,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 13.449099998979364,
+        "rss_delta_mb": 5.8515625,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 6.725525200643775
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.09829232169502117,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 45,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.12933014663033449,
+        "sobel_p95": 0.36195782219866185,
+        "local_contrast": 0.03524063011129597,
+        "high_frequency_ratio": 0.0011524170285243862,
+        "flat_noise": 0.009298382352941184,
+        "edge_overshoot": 0.013768820177035008,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 20.50489999965066,
+        "rss_delta_mb": 5.80859375,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 10.253936820664327
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.36740671840193273,
+        "sigma_chroma": 0.07351615796197863,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 90,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.12894485855080806,
+        "sobel_p95": 0.36141068101223855,
+        "local_contrast": 0.035152913456161124,
+        "high_frequency_ratio": 0.0011491991486690667,
+        "flat_noise": 0.009265343137254885,
+        "edge_overshoot": 0.013767888790866113,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 26.375999994343147,
+        "rss_delta_mb": 5.84375,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 13.189912534489073
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.3686832420603096,
+        "sigma_chroma": 0.07606920527873244,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "strength": "weak",
+      "params": {
+        "h": 3.0,
+        "h_colour": 3.0
+      },
+      "metrics": {
+        "sobel_mean": 0.08428073056147113,
+        "sobel_p95": 0.3195208649884912,
+        "local_contrast": 0.02902987125782676,
+        "high_frequency_ratio": 0.0007912530412860396,
+        "flat_noise": 0.004344264705882367,
+        "edge_overshoot": 0.01268959331985603,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1395.3303000016604,
+        "rss_delta_mb": 5.7421875,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 697.7663261181173
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.28315615694905744,
+        "sigma_chroma": 0.11088348687082966,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "strength": "medium",
+      "params": {
+        "h": 6.0,
+        "h_colour": 6.0
+      },
+      "metrics": {
+        "sobel_mean": 0.05864558942784173,
+        "sobel_p95": 0.22627316646060333,
+        "local_contrast": 0.02404235585059352,
+        "high_frequency_ratio": 0.00046119035296418283,
+        "flat_noise": 0.002818406862745121,
+        "edge_overshoot": 0.008059382876079893,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1350.5484999986948,
+        "rss_delta_mb": 5.75,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 675.3721789652973
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.22838168724415778,
+        "sigma_chroma": 0.10490703519751964,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "strength": "strong",
+      "params": {
+        "h": 10.0,
+        "h_colour": 10.0
+      },
+      "metrics": {
+        "sobel_mean": 0.045874561443082204,
+        "sobel_p95": 0.1661083217559738,
+        "local_contrast": 0.021181796225494848,
+        "high_frequency_ratio": 0.0002476899237703024,
+        "flat_noise": 0.002265294117647046,
+        "edge_overshoot": 0.005304110371059377,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1569.253800000297,
+        "rss_delta_mb": 5.75,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 784.7406873998214
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.21538435544977483,
+        "sigma_chroma": 0.10595146364528256,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "median-3",
+      "family": "median",
+      "strength": "weak",
+      "params": {
+        "kernel": 3
+      },
+      "metrics": {
+        "sobel_mean": 0.1024559963735601,
+        "sobel_p95": 0.29237495261161955,
+        "local_contrast": 0.03182177580482188,
+        "high_frequency_ratio": 0.0006493510069669895,
+        "flat_noise": 0.008314105392156872,
+        "edge_overshoot": 0.012372551413106576,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.9622000036179088,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 0.9812422819398356
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.38446571638206034,
+        "sigma_chroma": 0.16269874264040102,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "median-5",
+      "family": "median",
+      "strength": "medium",
+      "params": {
+        "kernel": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.07099679649059429,
+        "sobel_p95": 0.2065933120069705,
+        "local_contrast": 0.0272779982227977,
+        "high_frequency_ratio": 0.00019957542653038999,
+        "flat_noise": 0.0066651715686274725,
+        "edge_overshoot": 0.00794290438150569,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 6.58090000069933,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.99971,
+        "ms_per_megapixel": 3.29092718479146
+      },
+      "noise_before": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.32180000951628535,
+        "sigma_chroma": 0.19391554846798154,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "none",
+      "family": "none",
+      "strength": "none",
+      "params": {},
+      "metrics": {
+        "sobel_mean": 0.14836369782465664,
+        "sobel_p95": 0.7156593898806578,
+        "local_contrast": 0.06491533466354411,
+        "high_frequency_ratio": 0.0029001266830363543,
+        "flat_noise": 0.004341960784313701,
+        "edge_overshoot": 0.020885927381092795,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 0.000600004568696022,
+        "rss_delta_mb": 0.0,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 0.0003003675312660305
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "strength": "weak",
+      "params": {
+        "sigma": 0.5
+      },
+      "metrics": {
+        "sobel_mean": 0.14124626005713292,
+        "sobel_p95": 0.706426444746804,
+        "local_contrast": 0.06359706892866739,
+        "high_frequency_ratio": 0.0023086925301413473,
+        "flat_noise": 0.004262034313725474,
+        "edge_overshoot": 0.01853369081312637,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.7395999966538511,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 0.8708589628257216
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.29429672705852855,
+        "sigma_chroma": 0.012068950951927039,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "strength": "medium",
+      "params": {
+        "sigma": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.12104837206129583,
+        "sobel_p95": 0.6813371948012694,
+        "local_contrast": 0.05980206679187174,
+        "high_frequency_ratio": 0.001074549770826199,
+        "flat_noise": 0.0028744117647058923,
+        "edge_overshoot": 0.013705538840851399,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.7717999944579788,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 0.8869785631617941
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.25414425562230974,
+        "sigma_chroma": 0.03086866301165954,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "strength": "strong",
+      "params": {
+        "sigma": 1.8
+      },
+      "metrics": {
+        "sobel_mean": 0.098543978689666,
+        "sobel_p95": 0.6172486696825608,
+        "local_contrast": 0.054435332548851134,
+        "high_frequency_ratio": 0.0001779379438728057,
+        "flat_noise": 0.0012867401960784254,
+        "edge_overshoot": 0.008248831594168358,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 3.5758000012720004,
+        "rss_delta_mb": 4.80859375,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 1.7900767339444768
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.14656812550272932,
+        "sigma_chroma": 0.026284782602033402,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 15,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.13079090186593073,
+        "sobel_p95": 0.7092004926163171,
+        "local_contrast": 0.06294625035594673,
+        "high_frequency_ratio": 0.0026493008092701867,
+        "flat_noise": 0.0027872549019607646,
+        "edge_overshoot": 0.021795203035861438,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 5.17260000196984,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 2.5894487706900793
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.2472974469091973,
+        "sigma_chroma": 0.032145186670036435,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 35,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.11240986724178824,
+        "sobel_p95": 0.6767111873879312,
+        "local_contrast": 0.06089518254335248,
+        "high_frequency_ratio": 0.0027150628874829967,
+        "flat_noise": 0.001558088235294111,
+        "edge_overshoot": 0.022885624327286566,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 16.568800005188677,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 8.294486097689129
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.17360721753925817,
+        "sigma_chroma": 0.029069925129401184,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 75,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.09953548864472675,
+        "sobel_p95": 0.5784609703462176,
+        "local_contrast": 0.05924706147601391,
+        "high_frequency_ratio": 0.0033634418244227944,
+        "flat_noise": 0.0008706249999999997,
+        "edge_overshoot": 0.025899486469947344,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 26.14299999549985,
+        "rss_delta_mb": 4.95703125,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 13.087414293530857
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.1066477492771245,
+        "sigma_chroma": 0.023151497258744658,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 20,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.14817360402734103,
+        "sobel_p95": 0.7143659833057997,
+        "local_contrast": 0.0648772464951942,
+        "high_frequency_ratio": 0.002892661325117778,
+        "flat_noise": 0.004340686274509793,
+        "edge_overshoot": 0.020893623511654406,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 12.75020000321092,
+        "rss_delta_mb": 5.75390625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 6.382861561263957
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0034234043565562274,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 45,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.14814950567844848,
+        "sobel_p95": 0.7143666159499834,
+        "local_contrast": 0.06486439998782642,
+        "high_frequency_ratio": 0.002895272386508249,
+        "flat_noise": 0.00432426470588233,
+        "edge_overshoot": 0.02088505146576842,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 20.261999998183455,
+        "rss_delta_mb": 5.78515625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 10.143334293592737
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.00905171321394528,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 90,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.1480648551763255,
+        "sobel_p95": 0.7138060795950683,
+        "local_contrast": 0.06483696354987263,
+        "high_frequency_ratio": 0.0028937531511212507,
+        "flat_noise": 0.0043242647058823365,
+        "edge_overshoot": 0.020878334809552604,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 27.050500000768807,
+        "rss_delta_mb": 5.78515625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 13.54171672792556
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.008239379976796343,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "strength": "weak",
+      "params": {
+        "h": 3.0,
+        "h_colour": 3.0
+      },
+      "metrics": {
+        "sobel_mean": 0.13234209037648714,
+        "sobel_p95": 0.7149424320472619,
+        "local_contrast": 0.06257202308530593,
+        "high_frequency_ratio": 0.0028441875278403038,
+        "flat_noise": 0.00038372549019607353,
+        "edge_overshoot": 0.021001795598558966,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1322.059400001308,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 661.8344907413955
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.0,
+        "sigma_chroma": 0.0,
+        "flat_fraction": 0.1475748194014448,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "strength": "medium",
+      "params": {
+        "h": 6.0,
+        "h_colour": 6.0
+      },
+      "metrics": {
+        "sobel_mean": 0.11811189771959131,
+        "sobel_p95": 0.7112813582812987,
+        "local_contrast": 0.06043761144230546,
+        "high_frequency_ratio": 0.0027547526854963286,
+        "flat_noise": 0.00020843137254902095,
+        "edge_overshoot": 0.020794261883719203,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1371.1844000063138,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 686.4268951076077
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.0,
+        "sigma_chroma": 0.0,
+        "flat_fraction": 0.1568627450980392,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "strength": "strong",
+      "params": {
+        "h": 10.0,
+        "h_colour": 10.0
+      },
+      "metrics": {
+        "sobel_mean": 0.10568299421626218,
+        "sobel_p95": 0.6963487254727544,
+        "local_contrast": 0.05863755721614164,
+        "high_frequency_ratio": 0.00257130084198166,
+        "flat_noise": 0.0001749999999999998,
+        "edge_overshoot": 0.020404065916503688,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1458.1727999975556,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 729.9740484416828
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.0,
+        "sigma_chroma": 0.0,
+        "flat_fraction": 0.15737874097007223,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "median-3",
+      "family": "median",
+      "strength": "weak",
+      "params": {
+        "kernel": 3
+      },
+      "metrics": {
+        "sobel_mean": 0.13069801247270268,
+        "sobel_p95": 0.6916574464906025,
+        "local_contrast": 0.0628341684610867,
+        "high_frequency_ratio": 0.0024354316408595135,
+        "flat_noise": 0.0034745833333333525,
+        "edge_overshoot": 0.020998161275555063,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.2393000035663135,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 1.121013153778151
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.29557325071690543,
+        "sigma_chroma": 0.02471813993038903,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "median-5",
+      "family": "median",
+      "strength": "medium",
+      "params": {
+        "kernel": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.1105512824376697,
+        "sobel_p95": 0.6536609550635017,
+        "local_contrast": 0.06012029678329017,
+        "high_frequency_ratio": 0.00209243375780436,
+        "flat_noise": 0.001763161764705885,
+        "edge_overshoot": 0.0208683002282933,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 6.41899999754969,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 3.213407502297639
+      },
+      "noise_before": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.18625640651772016,
+        "sigma_chroma": 0.028025496681638267,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "none",
+      "family": "none",
+      "strength": "none",
+      "params": {},
+      "metrics": {
+        "sobel_mean": 0.3216630373154179,
+        "sobel_p95": 1.3811775445805394,
+        "local_contrast": 0.11672168127747172,
+        "high_frequency_ratio": 0.03483598824057745,
+        "flat_noise": 0.009004289215686283,
+        "edge_overshoot": 0.06701125272896548,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 0.0012000018614344299,
+        "rss_delta_mb": 0.0,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 0.0006007314201240859
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "strength": "weak",
+      "params": {
+        "sigma": 0.5
+      },
+      "metrics": {
+        "sobel_mean": 0.30154591594464947,
+        "sobel_p95": 1.274527607464095,
+        "local_contrast": 0.11220051720107033,
+        "high_frequency_ratio": 0.025763600633291313,
+        "flat_noise": 0.008697475490196081,
+        "edge_overshoot": 0.04934641960754997,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.460399999108631,
+        "rss_delta_mb": 5.90234375,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 1.231697744011033
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.3373503886274221,
+        "sigma_chroma": 0.17029986078800893,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "strength": "medium",
+      "params": {
+        "sigma": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.2549329579256617,
+        "sobel_p95": 1.0216555053033294,
+        "local_contrast": 0.10164324612193393,
+        "high_frequency_ratio": 0.010543074477490859,
+        "flat_noise": 0.007949301470588225,
+        "edge_overshoot": 0.0225445986724563,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.5984999956563115,
+        "rss_delta_mb": 5.86328125,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 1.3008318093082747
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.2858252518711182,
+        "sigma_chroma": 0.22170894993900583,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "strength": "strong",
+      "params": {
+        "sigma": 1.8
+      },
+      "metrics": {
+        "sobel_mean": 0.19693869926710839,
+        "sobel_p95": 0.7250691920629223,
+        "local_contrast": 0.0867058476401417,
+        "high_frequency_ratio": 0.0015374824233350998,
+        "flat_noise": 0.007262156862745099,
+        "edge_overshoot": 0.009601292974295968,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 3.137899999273941,
+        "rss_delta_mb": 4.75390625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 1.570860165598338
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.2622675879937991,
+        "sigma_chroma": 0.21259921292240708,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 15,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.3092328589529138,
+        "sobel_p95": 1.3834589833024022,
+        "local_contrast": 0.11600459491286513,
+        "high_frequency_ratio": 0.03441354405832998,
+        "flat_noise": 0.007844093137254907,
+        "edge_overshoot": 0.06879930649306158,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 4.408799999509938,
+        "rss_delta_mb": 5.7890625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 2.2070838136723947
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.2255385209141365,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 35,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.29025661378986384,
+        "sobel_p95": 1.383990891980949,
+        "local_contrast": 0.11415181005140396,
+        "high_frequency_ratio": 0.033737004958724406,
+        "flat_noise": 0.00725889705882353,
+        "edge_overshoot": 0.07552239322901616,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 18.13650000258349,
+        "rss_delta_mb": 5.78515625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 9.079290418440568
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.2860573470817322,
+        "sigma_chroma": 0.21816949797714263,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 75,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.2613008290168812,
+        "sobel_p95": 1.3271385790998718,
+        "local_contrast": 0.10893888806080099,
+        "high_frequency_ratio": 0.030433190824417606,
+        "flat_noise": 0.0069531372549019735,
+        "edge_overshoot": 0.0804896108233887,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 35.35890000057407,
+        "rss_delta_mb": 5.796875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 17.700974385139364
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.263312016441562,
+        "sigma_chroma": 0.2092918561711578,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 20,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.32065358920084963,
+        "sobel_p95": 1.3788826352226864,
+        "local_contrast": 0.1165228331114733,
+        "high_frequency_ratio": 0.034597883572296144,
+        "flat_noise": 0.008956875000000013,
+        "edge_overshoot": 0.06700328030424867,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 13.266100002510939,
+        "rss_delta_mb": 5.7265625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 6.641125609997226
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.376342384010571,
+        "sigma_chroma": 0.17383931274987213,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 45,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.32034046271826205,
+        "sobel_p95": 1.3776399808671353,
+        "local_contrast": 0.11643891974434814,
+        "high_frequency_ratio": 0.034659238819055235,
+        "flat_noise": 0.00892615196078431,
+        "edge_overshoot": 0.06697630748291883,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 20.075200001883786,
+        "rss_delta_mb": 5.78515625,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 10.049820582770542
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.37576214598403607,
+        "sigma_chroma": 0.1293930799172947,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 90,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.3198362246844716,
+        "sobel_p95": 1.3760975782581744,
+        "local_contrast": 0.11630384928416143,
+        "high_frequency_ratio": 0.03461909512867929,
+        "flat_noise": 0.008925710784313716,
+        "edge_overshoot": 0.0669563991164367,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 26.189500000327826,
+        "rss_delta_mb": 5.796875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 13.110692602368392
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.37622633640526404,
+        "sigma_chroma": 0.1205734619139634,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "strength": "weak",
+      "params": {
+        "h": 3.0,
+        "h_colour": 3.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3168328236149799,
+        "sobel_p95": 1.3848382060806843,
+        "local_contrast": 0.11639240544305954,
+        "high_frequency_ratio": 0.0350988534024354,
+        "flat_noise": 0.007633235294117651,
+        "edge_overshoot": 0.06734072971682586,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1237.4525000050198,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 619.4795371196474
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.3482588635262792,
+        "sigma_chroma": 0.2174151885426472,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "strength": "medium",
+      "params": {
+        "h": 6.0,
+        "h_colour": 6.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3070733318135716,
+        "sobel_p95": 1.3801906779499022,
+        "local_contrast": 0.11505509904848615,
+        "high_frequency_ratio": 0.03439329032357066,
+        "flat_noise": 0.00648833333333332,
+        "edge_overshoot": 0.06715382597526173,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1336.9849000009708,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 669.3063264935015
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.27654144344655895,
+        "sigma_chroma": 0.17993181202848915,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "strength": "strong",
+      "params": {
+        "h": 10.0,
+        "h_colour": 10.0
+      },
+      "metrics": {
+        "sobel_mean": 0.2898205463079909,
+        "sobel_p95": 1.3483298433559379,
+        "local_contrast": 0.11213726381882301,
+        "high_frequency_ratio": 0.03195100620525547,
+        "flat_noise": 0.005495808823529414,
+        "edge_overshoot": 0.06438688555746533,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1237.3068000015337,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 619.406598424451
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.23905806693240095,
+        "sigma_chroma": 0.16217652841651958,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "median-3",
+      "family": "median",
+      "strength": "weak",
+      "params": {
+        "kernel": 3
+      },
+      "metrics": {
+        "sobel_mean": 0.28511630555890266,
+        "sobel_p95": 1.2571150261696924,
+        "local_contrast": 0.11154185881157594,
+        "high_frequency_ratio": 0.025973784927791052,
+        "flat_noise": 0.008064240196078428,
+        "edge_overshoot": 0.06021815476387915,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.6710000020102598,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 1.337125946155655
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.3717004797982914,
+        "sigma_chroma": 0.2244940924663736,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.00010722045549888527
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "median-5",
+      "family": "median",
+      "strength": "medium",
+      "params": {
+        "kernel": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.23608458996139753,
+        "sobel_p95": 1.0507238235803513,
+        "local_contrast": 0.10228568133429441,
+        "high_frequency_ratio": 0.015379551786440258,
+        "flat_noise": 0.006990882352941169,
+        "edge_overshoot": 0.04791049867446659,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 6.747400002495851,
+        "rss_delta_mb": 5.71875,
+        "megapixels": 1.997568,
+        "ms_per_megapixel": 3.377807415064644
+      },
+      "noise_before": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "noise_after": {
+        "sigma_luma": 0.31390877235541,
+        "sigma_chroma": 0.22913599667865323,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "none",
+      "family": "none",
+      "strength": "none",
+      "params": {},
+      "metrics": {
+        "sobel_mean": 0.37163942725065613,
+        "sobel_p95": 1.3745384446475468,
+        "local_contrast": 0.10399153918335688,
+        "high_frequency_ratio": 0.04335647009112152,
+        "flat_noise": 0.013622401960784307,
+        "edge_overshoot": 0.06829764677654565,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 0.0012000018614344299,
+        "rss_delta_mb": 0.0,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 0.0006000477344405013
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "strength": "weak",
+      "params": {
+        "sigma": 0.5
+      },
+      "metrics": {
+        "sobel_mean": 0.32642268257501095,
+        "sobel_p95": 1.2046919228383854,
+        "local_contrast": 0.09652399585614378,
+        "high_frequency_ratio": 0.029697923549057113,
+        "flat_noise": 0.012160514705882357,
+        "edge_overshoot": 0.05017979359601929,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.6467999996384606,
+        "rss_delta_mb": 5.9375,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 1.3235032330714098
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.4783482290754159,
+        "sigma_chroma": 0.19008597749285086,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.03720718478349556
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "strength": "medium",
+      "params": {
+        "sigma": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.23790591003924605,
+        "sobel_p95": 0.8490962594045162,
+        "local_contrast": 0.0820427441193744,
+        "high_frequency_ratio": 0.00937145587789822,
+        "flat_noise": 0.010042671568627457,
+        "edge_overshoot": 0.019524892579860773,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1.5420999989146367,
+        "rss_delta_mb": 5.9453125,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 0.7711101460487102
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.2810673000535316,
+        "sigma_chroma": 0.1970488338112703,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "strength": "strong",
+      "params": {
+        "sigma": 1.8
+      },
+      "metrics": {
+        "sobel_mean": 0.16467405024610354,
+        "sobel_p95": 0.5468683503312475,
+        "local_contrast": 0.06731323618241011,
+        "high_frequency_ratio": 0.0010618499419565624,
+        "flat_noise": 0.008853811274509786,
+        "edge_overshoot": 0.006825871526076367,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 3.4472999977879226,
+        "rss_delta_mb": 4.75,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 1.7237844540813796
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.20633264223582956,
+        "sigma_chroma": 0.15411121984768372,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 15,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.35270270809309695,
+        "sobel_p95": 1.368055459806244,
+        "local_contrast": 0.10240882374864374,
+        "high_frequency_ratio": 0.041889685859292994,
+        "flat_noise": 0.010711911764705869,
+        "edge_overshoot": 0.06948310323455283,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 5.35669999953825,
+        "rss_delta_mb": 5.74609375,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 2.6785589273654598
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.31936300980483856,
+        "sigma_chroma": 0.1971648814165773,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 35,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.3144734181404222,
+        "sobel_p95": 1.3412165819153299,
+        "local_contrast": 0.09852755269997238,
+        "high_frequency_ratio": 0.03776459657589128,
+        "flat_noise": 0.009217205882352936,
+        "edge_overshoot": 0.07496791386838814,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 17.40829999471316,
+        "rss_delta_mb": 4.609375,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 8.704828974016554
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.24694930409327634,
+        "sigma_chroma": 0.1707060274065834,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 75,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.2582686198592252,
+        "sobel_p95": 1.227197516224329,
+        "local_contrast": 0.08926838189844036,
+        "high_frequency_ratio": 0.02846650329696504,
+        "flat_noise": 0.008456740196078425,
+        "edge_overshoot": 0.07573482945033709,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 26.085499994223937,
+        "rss_delta_mb": 4.9453125,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 13.043767410970025
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.20633264223582956,
+        "sigma_chroma": 0.15503960069013964,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "strength": "weak",
+      "params": {
+        "d": 5,
+        "sigma_colour": 20,
+        "sigma_space": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.3696943890555731,
+        "sobel_p95": 1.371302477074078,
+        "local_contrast": 0.10372924190960714,
+        "high_frequency_ratio": 0.04269586926700192,
+        "flat_noise": 0.013534240196078424,
+        "edge_overshoot": 0.06838381970295487,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 12.357599996903446,
+        "rss_delta_mb": 5.828125,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 6.179281982446354
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.1855601208858782,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11349597033501474
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "strength": "medium",
+      "params": {
+        "d": 7,
+        "sigma_colour": 45,
+        "sigma_space": 7
+      },
+      "metrics": {
+        "sobel_mean": 0.36746755617407634,
+        "sobel_p95": 1.360914793263831,
+        "local_contrast": 0.10333122062569709,
+        "high_frequency_ratio": 0.042052935355796274,
+        "flat_noise": 0.01353237745098039,
+        "edge_overshoot": 0.06766221444680653,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 20.2556000003824,
+        "rss_delta_mb": 5.8359375,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 10.128590030213557
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.10513913040813362,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.10245779517140272
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "strength": "strong",
+      "params": {
+        "d": 9,
+        "sigma_colour": 90,
+        "sigma_space": 9
+      },
+      "metrics": {
+        "sobel_mean": 0.3661877998654712,
+        "sobel_p95": 1.354753556901385,
+        "local_contrast": 0.10304663107502215,
+        "high_frequency_ratio": 0.04165125952067544,
+        "flat_noise": 0.013500882352941179,
+        "edge_overshoot": 0.06740695827983037,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 28.236600002855994,
+        "rss_delta_mb": 5.8046875,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 14.119401314730545
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.09550717916765339,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.10113576264819957
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "strength": "weak",
+      "params": {
+        "h": 3.0,
+        "h_colour": 3.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3700943304326162,
+        "sobel_p95": 1.3907712568030288,
+        "local_contrast": 0.1043533761299236,
+        "high_frequency_ratio": 0.04462229405210273,
+        "flat_noise": 0.011392598039215674,
+        "edge_overshoot": 0.06960622108368744,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1325.2338000020245,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 662.668588150888
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.3200592954366805,
+        "sigma_chroma": 0.19356740565206057,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "strength": "medium",
+      "params": {
+        "h": 6.0,
+        "h_colour": 6.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3472980892927733,
+        "sobel_p95": 1.385587538416769,
+        "local_contrast": 0.10183706263313475,
+        "high_frequency_ratio": 0.04297524115271899,
+        "flat_noise": 0.007500514705882365,
+        "edge_overshoot": 0.0694651486444379,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1386.1648000020068,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 693.1364646452457
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.18173054991074752,
+        "sigma_chroma": 0.11314641517431598,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "strength": "strong",
+      "params": {
+        "h": 10.0,
+        "h_colour": 10.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3097965928453466,
+        "sobel_p95": 1.340178533703763,
+        "local_contrast": 0.09657129217672708,
+        "high_frequency_ratio": 0.03789788743026041,
+        "flat_noise": 0.006022598039215678,
+        "edge_overshoot": 0.06697550059282545,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 1351.5152999971178,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 675.8103632068891
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.14970141084601807,
+        "sigma_chroma": 0.09330227466682056,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "median-3",
+      "family": "median",
+      "strength": "weak",
+      "params": {
+        "kernel": 3
+      },
+      "metrics": {
+        "sobel_mean": 0.2792024337899797,
+        "sobel_p95": 1.0838434458932484,
+        "local_contrast": 0.0910343668175716,
+        "high_frequency_ratio": 0.021711310673632928,
+        "flat_noise": 0.010536544117647062,
+        "edge_overshoot": 0.06120973688622358,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 2.313299999514129,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 1.156740225494653
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.3664783375594768,
+        "sigma_chroma": 0.21143873686933717,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "filters",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "median-5",
+      "family": "median",
+      "strength": "medium",
+      "params": {
+        "kernel": 5
+      },
+      "metrics": {
+        "sobel_mean": 0.19454938117257403,
+        "sobel_p95": 0.7726145605383391,
+        "local_contrast": 0.07680831696340235,
+        "high_frequency_ratio": 0.007414359086202729,
+        "flat_noise": 0.008781495098039202,
+        "edge_overshoot": 0.03755846735313802,
+        "tiles_sampled": 16
+      },
+      "cost": {
+        "elapsed_ms": 6.041199994797353,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.999844,
+        "ms_per_megapixel": 3.0208356225772373
+      },
+      "noise_before": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "noise_after": {
+        "sigma_luma": 0.2620354927831851,
+        "sigma_chroma": 0.18985388228223687,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.0
+      }
+    },
+    {
+      "experiment": "ladder",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "injected_sigma": 0,
+      "noise": {
+        "sigma_luma": 0.42798356837218193,
+        "sigma_chroma": 0.06661132544621269,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.0005088361875907388
+      },
+      "metrics": {
+        "sobel_mean": 0.2165149592090485,
+        "sobel_p95": 0.9076898790774245,
+        "local_contrast": 0.0717389107990969,
+        "high_frequency_ratio": 0.006572003115289047,
+        "flat_noise": 0.005025294117647052,
+        "edge_overshoot": 0.053182891721509834,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.0
+    },
+    {
+      "experiment": "ladder",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "injected_sigma": 2,
+      "noise": {
+        "sigma_luma": 1.5160459157305273,
+        "sigma_chroma": 1.3579890773024057,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 0.6044478795240664
+      },
+      "metrics": {
+        "sobel_mean": 0.22145334882649542,
+        "sobel_p95": 0.9082730717060313,
+        "local_contrast": 0.07249405697575109,
+        "high_frequency_ratio": 0.006730057984603209,
+        "flat_noise": 0.006664411764705889,
+        "edge_overshoot": 0.0533119163682646,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.3207867384875763
+    },
+    {
+      "experiment": "ladder",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "injected_sigma": 4,
+      "noise": {
+        "sigma_luma": 2.8146186191157536,
+        "sigma_chroma": 2.581014789632781,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.23183993907012565,
+        "sobel_p95": 0.909813465136032,
+        "local_contrast": 0.07421347776381229,
+        "high_frequency_ratio": 0.0070544433660197315,
+        "flat_noise": 0.009821973039215712,
+        "edge_overshoot": 0.05377506707680723,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "injected_sigma": 8,
+      "noise": {
+        "sigma_luma": 5.298037372685355,
+        "sigma_chroma": 4.9178654176996535,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.25887517755672396,
+        "sobel_p95": 0.9166111838966822,
+        "local_contrast": 0.07899090361598923,
+        "high_frequency_ratio": 0.008314636752688093,
+        "flat_noise": 0.01673999999999999,
+        "edge_overshoot": 0.05565006727637016,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "injected_sigma": 16,
+      "noise": {
+        "sigma_luma": 9.109737016598775,
+        "sigma_chroma": 8.516849801085357,
+        "flat_fraction": 0.10030864197530864,
+        "blocks": 1944,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3207708977935356,
+        "sobel_p95": 0.9443464885163427,
+        "local_contrast": 0.09059028159316243,
+        "high_frequency_ratio": 0.013030783717732176,
+        "flat_noise": 0.02849409313725489,
+        "edge_overshoot": 0.06260201713895862,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "injected_sigma": 0,
+      "noise": {
+        "sigma_luma": 0.36705857558601174,
+        "sigma_chroma": 0.08703570398024307,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.0
+      },
+      "metrics": {
+        "sobel_mean": 0.13071551848072804,
+        "sobel_p95": 0.3636233295436151,
+        "local_contrast": 0.03548985652472254,
+        "high_frequency_ratio": 0.0011684512182630296,
+        "flat_noise": 0.009376470588235293,
+        "edge_overshoot": 0.013751993584466046,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.0
+    },
+    {
+      "experiment": "ladder",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "injected_sigma": 2,
+      "noise": {
+        "sigma_luma": 1.4364372584899314,
+        "sigma_chroma": 1.3197513913537524,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 0.5679804884171549
+      },
+      "metrics": {
+        "sobel_mean": 0.13409060814322243,
+        "sobel_p95": 0.36608450959214567,
+        "local_contrast": 0.03612501422842268,
+        "high_frequency_ratio": 0.0012507786758458404,
+        "flat_noise": 0.010449044117647062,
+        "edge_overshoot": 0.014552735962957102,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.2950450506474034
+    },
+    {
+      "experiment": "ladder",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "injected_sigma": 4,
+      "noise": {
+        "sigma_luma": 2.70947948870762,
+        "sigma_chroma": 2.5442857225531186,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.14303153095663182,
+        "sobel_p95": 0.37320662433506707,
+        "local_contrast": 0.03787097298235165,
+        "high_frequency_ratio": 0.001471470950532967,
+        "flat_noise": 0.012657610294117636,
+        "edge_overshoot": 0.016551344216318677,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "injected_sigma": 8,
+      "noise": {
+        "sigma_luma": 5.259741662934049,
+        "sigma_chroma": 4.965677031086134,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.17165262284598248,
+        "sobel_p95": 0.40206148621204596,
+        "local_contrast": 0.04374104361413178,
+        "high_frequency_ratio": 0.002354082413186635,
+        "flat_noise": 0.0185773774509804,
+        "edge_overshoot": 0.022519270668060466,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "injected_sigma": 16,
+      "noise": {
+        "sigma_luma": 10.223445884729966,
+        "sigma_chroma": 9.40879169547489,
+        "flat_fraction": 0.1,
+        "blocks": 1880,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.24894690271507092,
+        "sobel_p95": 0.5168872405663035,
+        "local_contrast": 0.060393553068008116,
+        "high_frequency_ratio": 0.005849485785407619,
+        "flat_noise": 0.03224968137254898,
+        "edge_overshoot": 0.03751412184562833,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "injected_sigma": 0,
+      "noise": {
+        "sigma_luma": 0.30044725013979906,
+        "sigma_chroma": 0.0035394519618632183,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "metrics": {
+        "sobel_mean": 0.14836369782465664,
+        "sobel_p95": 0.7156593898806578,
+        "local_contrast": 0.06491533466354411,
+        "high_frequency_ratio": 0.0029001266830363543,
+        "flat_noise": 0.004341960784313701,
+        "edge_overshoot": 0.020885927381092795,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.0
+    },
+    {
+      "experiment": "ladder",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "injected_sigma": 2,
+      "noise": {
+        "sigma_luma": 1.4099784044799377,
+        "sigma_chroma": 1.3019380839391292,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.5551595034739738
+      },
+      "metrics": {
+        "sobel_mean": 0.15343223530000916,
+        "sobel_p95": 0.7144782802841985,
+        "local_contrast": 0.0660257114349102,
+        "high_frequency_ratio": 0.0031109463910037128,
+        "flat_noise": 0.005896348039215689,
+        "edge_overshoot": 0.021483888661684512,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.2859949436286874
+    },
+    {
+      "experiment": "ladder",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "injected_sigma": 4,
+      "noise": {
+        "sigma_luma": 2.6779145400641187,
+        "sigma_chroma": 2.566566862772061,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.16504366030302742,
+        "sobel_p95": 0.7142546965500066,
+        "local_contrast": 0.06849926395305954,
+        "high_frequency_ratio": 0.003663090165732444,
+        "flat_noise": 0.009095490196078413,
+        "edge_overshoot": 0.022942608611653478,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "injected_sigma": 8,
+      "noise": {
+        "sigma_luma": 5.019987310369806,
+        "sigma_chroma": 4.9002842054956455,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.19618941745940563,
+        "sobel_p95": 0.7200057021593838,
+        "local_contrast": 0.0749068810310283,
+        "high_frequency_ratio": 0.005737259701809173,
+        "flat_noise": 0.0162294975490196,
+        "edge_overshoot": 0.02758351425545228,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "injected_sigma": 16,
+      "noise": {
+        "sigma_luma": 8.445944714242787,
+        "sigma_chroma": 7.947230130435993,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.2657827402209815,
+        "sobel_p95": 0.7630030473725766,
+        "local_contrast": 0.08882623022597405,
+        "high_frequency_ratio": 0.0129613808439425,
+        "flat_noise": 0.029108909313725485,
+        "edge_overshoot": 0.04055995040117803,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "injected_sigma": 0,
+      "noise": {
+        "sigma_luma": 0.376806574431799,
+        "sigma_chroma": 0.13983736439492384,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3216630373154179,
+        "sobel_p95": 1.3811775445805394,
+        "local_contrast": 0.11672168127747172,
+        "high_frequency_ratio": 0.03483598824057745,
+        "flat_noise": 0.009004289215686283,
+        "edge_overshoot": 0.06701125272896548,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.0
+    },
+    {
+      "experiment": "ladder",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "injected_sigma": 2,
+      "noise": {
+        "sigma_luma": 1.4154326419293661,
+        "sigma_chroma": 1.2778582058379286,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 0.5539933388128006
+      },
+      "metrics": {
+        "sobel_mean": 0.3242106710995301,
+        "sobel_p95": 1.3808124469753205,
+        "local_contrast": 0.11688816702972357,
+        "high_frequency_ratio": 0.03551867379974089,
+        "flat_noise": 0.009974485294117654,
+        "edge_overshoot": 0.06716425549248278,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.28517176857374155
+    },
+    {
+      "experiment": "ladder",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "injected_sigma": 4,
+      "noise": {
+        "sigma_luma": 2.631727593151936,
+        "sigma_chroma": 2.415588928267666,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.33117980749160936,
+        "sobel_p95": 1.3804052633709885,
+        "local_contrast": 0.11756361313207792,
+        "high_frequency_ratio": 0.03655749923770528,
+        "flat_noise": 0.012190085784313725,
+        "edge_overshoot": 0.0675783228136656,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "injected_sigma": 8,
+      "noise": {
+        "sigma_luma": 5.017086120237131,
+        "sigma_chroma": 4.5101901802561954,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.3513566341791057,
+        "sobel_p95": 1.3807059606989056,
+        "local_contrast": 0.11989398347126554,
+        "high_frequency_ratio": 0.0405541190104724,
+        "flat_noise": 0.01698375,
+        "edge_overshoot": 0.06915308496501682,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "injected_sigma": 16,
+      "noise": {
+        "sigma_luma": 8.956554177593546,
+        "sigma_chroma": 7.853405641545292,
+        "flat_fraction": 0.1001031991744066,
+        "blocks": 1938,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.40162518587752394,
+        "sobel_p95": 1.3868648063930147,
+        "local_contrast": 0.1268113951389584,
+        "high_frequency_ratio": 0.054878576918872074,
+        "flat_noise": 0.02645450980392157,
+        "edge_overshoot": 0.07494469452339012,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "injected_sigma": 0,
+      "noise": {
+        "sigma_luma": 0.6744686820442302,
+        "sigma_chroma": 0.16908136093228554,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.11123417975314905
+      },
+      "metrics": {
+        "sobel_mean": 0.37163942725065613,
+        "sobel_p95": 1.3745384446475468,
+        "local_contrast": 0.10399153918335688,
+        "high_frequency_ratio": 0.04335647009112152,
+        "flat_noise": 0.013622401960784307,
+        "edge_overshoot": 0.06829764677654565,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.0
+    },
+    {
+      "experiment": "ladder",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "injected_sigma": 2,
+      "noise": {
+        "sigma_luma": 1.5573588632198159,
+        "sigma_chroma": 1.2744348014813722,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 0.6091808014659985
+      },
+      "metrics": {
+        "sobel_mean": 0.3738840263926546,
+        "sobel_p95": 1.3744469478454198,
+        "local_contrast": 0.10430200223347806,
+        "high_frequency_ratio": 0.04399655577341728,
+        "flat_noise": 0.014569718137254904,
+        "edge_overshoot": 0.06842994267078441,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.3241276245642342
+    },
+    {
+      "experiment": "ladder",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "injected_sigma": 4,
+      "noise": {
+        "sigma_luma": 2.78467833694655,
+        "sigma_chroma": 2.4137901903854075,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.37990880857376097,
+        "sobel_p95": 1.3751902952626738,
+        "local_contrast": 0.10517409655467087,
+        "high_frequency_ratio": 0.044697936600242724,
+        "flat_noise": 0.016674901960784305,
+        "edge_overshoot": 0.06881166433452358,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "injected_sigma": 8,
+      "noise": {
+        "sigma_luma": 5.239085189189404,
+        "sigma_chroma": 4.588522313838414,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.39906002506428817,
+        "sobel_p95": 1.3791552525776054,
+        "local_contrast": 0.10814524627188697,
+        "high_frequency_ratio": 0.047553656658886195,
+        "flat_noise": 0.022358553921568627,
+        "edge_overshoot": 0.07040215402928654,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "ladder",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "injected_sigma": 16,
+      "noise": {
+        "sigma_luma": 9.169385485726568,
+        "sigma_chroma": 8.40532805238534,
+        "flat_fraction": 0.10015408320493066,
+        "blocks": 1947,
+        "score": 1.0
+      },
+      "metrics": {
+        "sobel_mean": 0.4506617031548177,
+        "sobel_p95": 1.395549907944822,
+        "local_contrast": 0.11696570576610303,
+        "high_frequency_ratio": 0.0583613383101787,
+        "flat_noise": 0.03485279411764706,
+        "edge_overshoot": 0.0762848747555197,
+        "tiles_sampled": 16
+      },
+      "proposed_strength": 0.6
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 22.40390000224579,
+        "rss_delta_mb": 11.8359375,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 11.209078975351218
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 1.278100004128646,
+        "rss_delta_mb": 5.50390625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 0.6394566965233118
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 1.5679999996791594,
+        "rss_delta_mb": 5.50390625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 0.7844989411661614
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 5.791700001282152,
+        "rss_delta_mb": 6.58984375,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 2.897692933346684
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 19.39699999638833,
+        "rss_delta_mb": 5.91015625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 9.70467216969409
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 31.1096000004909,
+        "rss_delta_mb": 5.94140625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 15.564699148904152
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 11.37159999780124,
+        "rss_delta_mb": 6.15234375,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 5.689418469046934
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 20.23650000046473,
+        "rss_delta_mb": 5.8671875,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 10.124689302628836
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 25.02489999460522,
+        "rss_delta_mb": 5.80859375,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 12.520412979957863
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 1445.2922000054969,
+        "rss_delta_mb": 11.265625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 723.1059954158329
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 1401.9157000002451,
+        "rss_delta_mb": 5.8125,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 701.4039429078119
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 1353.4597999969264,
+        "rss_delta_mb": 5.73828125,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 677.1605741236058
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "median-3",
+      "family": "median",
+      "cost": {
+        "elapsed_ms": 1.5788999953656457,
+        "rss_delta_mb": 5.7421875,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 0.7899524074139381
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 1.998728,
+      "arm": "median-5",
+      "family": "median",
+      "cost": {
+        "elapsed_ms": 5.685399999492802,
+        "rss_delta_mb": 5.72265625,
+        "megapixels": 1.998728,
+        "ms_per_megapixel": 2.8445091075387956
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 5.338499999197666,
+        "rss_delta_mb": 22.63671875,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 0.6675444716035904
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 6.25679999939166,
+        "rss_delta_mb": 22.8203125,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 0.7823718741502247
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 7.8581999987363815,
+        "rss_delta_mb": 23.265625,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 0.9826164590615716
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 18.456600002537016,
+        "rss_delta_mb": 22.5703125,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 2.3078769875703076
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 68.39549999858718,
+        "rss_delta_mb": 22.69921875,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 8.55240946211148
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 106.99279999971623,
+        "rss_delta_mb": 23.25390625,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 13.378749115282089
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 52.28920000081416,
+        "rss_delta_mb": 23.09375,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 6.538422101782139
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 86.41549999447307,
+        "rss_delta_mb": 23.1484375,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 10.805692477445044
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 130.57439999829512,
+        "rss_delta_mb": 23.0703125,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 16.327473796931322
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 5547.3800000036135,
+        "rss_delta_mb": 23.15625,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 693.6635480834107
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 5460.317900004156,
+        "rss_delta_mb": 22.8828125,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 682.7770025088913
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 5709.989599999972,
+        "rss_delta_mb": 22.890625,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 713.9968138928242
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "median-3",
+      "family": "median",
+      "cost": {
+        "elapsed_ms": 7.270000001881272,
+        "rss_delta_mb": 22.8828125,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 0.9090659006356298
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 7.99722,
+      "arm": "median-5",
+      "family": "median",
+      "cost": {
+        "elapsed_ms": 19.46699999825796,
+        "rss_delta_mb": 22.8828125,
+        "megapixels": 7.99722,
+        "ms_per_megapixel": 2.434220891542056
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "gaussian-weak",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 11.126200006401632,
+        "rss_delta_mb": 45.6328125,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 0.6954526990906418
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "gaussian-medium",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 11.600599995290395,
+        "rss_delta_mb": 45.2734375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 0.7251054783442444
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "gaussian-strong",
+      "family": "gaussian",
+      "cost": {
+        "elapsed_ms": 15.541000000666827,
+        "rss_delta_mb": 46.3203125,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 0.9714035691262822
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "bilateral-weak",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 44.39369999454357,
+        "rss_delta_mb": 45.36328125,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 2.774866393383353
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "bilateral-medium",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 153.05320000334177,
+        "rss_delta_mb": 45.609375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 9.566721880385147
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "bilateral-strong",
+      "family": "bilateral",
+      "cost": {
+        "elapsed_ms": 262.63769999786746,
+        "rss_delta_mb": 45.62890625,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 16.416395286924864
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "chroma-weak",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 105.12110000126995,
+        "rss_delta_mb": 46.15234375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 6.570684751774851
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "chroma-medium",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 187.05860000045504,
+        "rss_delta_mb": 45.921875,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 11.69225864927681
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "chroma-strong",
+      "family": "chroma",
+      "cost": {
+        "elapsed_ms": 266.1759999973583,
+        "rss_delta_mb": 45.6015625,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 16.63755977106343
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "nlm-weak",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 11904.475099996489,
+        "rss_delta_mb": 46.3671875,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 744.0994530735062
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "nlm-medium",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 11741.06600000232,
+        "rss_delta_mb": 45.96484375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 733.8854267589037
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "nlm-strong",
+      "family": "nlm",
+      "cost": {
+        "elapsed_ms": 11669.28100000223,
+        "rss_delta_mb": 45.7734375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 729.3984436042272
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "median-3",
+      "family": "median",
+      "cost": {
+        "elapsed_ms": 13.094200003251899,
+        "rss_delta_mb": 45.7734375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 0.8184642312249211
+      }
+    },
+    {
+      "experiment": "scaling",
+      "megapixels": 15.9985,
+      "arm": "median-5",
+      "family": "median",
+      "cost": {
+        "elapsed_ms": 37.51950000150828,
+        "rss_delta_mb": 45.7734375,
+        "megapixels": 15.9985,
+        "ms_per_megapixel": 2.345188611526598
+      }
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "none",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.1159052332440213,
+        "sobel_p95": 0.38155036995783803,
+        "local_contrast": 0.03857080997974184,
+        "high_frequency_ratio": 0.002918825977473182,
+        "flat_noise": 0.005311397058823547,
+        "edge_overshoot": 0.020392482511544498,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0011999945854768157,
+      "sr_ms": 10934.374000004027,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "gaussian-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.05123604669238931,
+        "sobel_p95": 0.18503203977021251,
+        "local_contrast": 0.023845774795747534,
+        "high_frequency_ratio": 0.0001904835571921039,
+        "flat_noise": 0.002470882352941191,
+        "edge_overshoot": 0.004355849132100192,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 89.53910000127507,
+      "sr_ms": 1744.1899999976158,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "bilateral-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.06863614514701817,
+        "sobel_p95": 0.292727083062328,
+        "local_contrast": 0.030832944288489594,
+        "high_frequency_ratio": 0.0012730573264700938,
+        "flat_noise": 0.0019424019607843105,
+        "edge_overshoot": 0.017096305858355136,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 29.765799998131115,
+      "sr_ms": 1760.004800002207,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "chroma-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.1191454251373817,
+        "sobel_p95": 0.39427958595813883,
+        "local_contrast": 0.039296569776911275,
+        "high_frequency_ratio": 0.0032536596023601282,
+        "flat_noise": 0.0053935294117647,
+        "edge_overshoot": 0.022114706221170177,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 28.345499995339196,
+      "sr_ms": 1710.135099994659,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "nlm-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.06897473039636826,
+        "sobel_p95": 0.2940358360219636,
+        "local_contrast": 0.02977214100213647,
+        "high_frequency_ratio": 0.001122183354836751,
+        "flat_noise": 0.0015334068627451047,
+        "edge_overshoot": 0.015996053123945128,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 1577.4603999961982,
+      "sr_ms": 1944.4674999976996,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "dni-0.25",
+      "denoise_dni": 0.25,
+      "metrics": {
+        "sobel_mean": 0.09979086431796577,
+        "sobel_p95": 0.35658321409905397,
+        "local_contrast": 0.03640364626948812,
+        "high_frequency_ratio": 0.0018959377795813477,
+        "flat_noise": 0.003945147058823506,
+        "edge_overshoot": 0.017763196846319378,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 2046.0942999998224,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "arm": "dni-1.00",
+      "denoise_dni": 1.0,
+      "metrics": {
+        "sobel_mean": 0.080786740417445,
+        "sobel_p95": 0.34569748893039887,
+        "local_contrast": 0.0350897694716522,
+        "high_frequency_ratio": 0.001460998747323056,
+        "flat_noise": 0.0012070098039215545,
+        "edge_overshoot": 0.01698574190880163,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1748.4665999945719,
+      "output": "6928x4616"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "none",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.04643061895627902,
+        "sobel_p95": 0.12632133913577603,
+        "local_contrast": 0.01861884361233165,
+        "high_frequency_ratio": 0.00014952749204985019,
+        "flat_noise": 0.004790955882352958,
+        "edge_overshoot": 0.004259473131667978,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0015999976312741637,
+      "sr_ms": 1794.0092000062577,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "gaussian-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.03414509837191292,
+        "sobel_p95": 0.08347300234890809,
+        "local_contrast": 0.013084231832232715,
+        "high_frequency_ratio": 6.843769143671249e-05,
+        "flat_noise": 0.003829411764705883,
+        "edge_overshoot": 0.003538896207801759,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 1.8096999992849305,
+      "sr_ms": 1738.2489000010537,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "bilateral-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.030828379956766717,
+        "sobel_p95": 0.08771866913379728,
+        "local_contrast": 0.012742827933722858,
+        "high_frequency_ratio": 5.7304008322158764e-05,
+        "flat_noise": 0.0029437990196078314,
+        "edge_overshoot": 0.003616915115185295,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 19.932600000174716,
+      "sr_ms": 1734.1818999993848,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "chroma-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.04624157710898938,
+        "sobel_p95": 0.1257894890324359,
+        "local_contrast": 0.018438107069434835,
+        "high_frequency_ratio": 0.00015192909460142698,
+        "flat_noise": 0.004733382352941164,
+        "edge_overshoot": 0.0043186972647104895,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 24.302699996042065,
+      "sr_ms": 1737.6617000045371,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "nlm-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.02609925765760799,
+        "sobel_p95": 0.07585864578064577,
+        "local_contrast": 0.009929897614106023,
+        "high_frequency_ratio": 5.573572124315334e-05,
+        "flat_noise": 0.002200539215686234,
+        "edge_overshoot": 0.0032558743038332,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 1369.1337999989628,
+      "sr_ms": 1893.3316999973613,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "dni-0.25",
+      "denoise_dni": 0.25,
+      "metrics": {
+        "sobel_mean": 0.04635110028847674,
+        "sobel_p95": 0.12632258384864664,
+        "local_contrast": 0.018596674180366632,
+        "high_frequency_ratio": 0.0001284078597174219,
+        "flat_noise": 0.004690171568627441,
+        "edge_overshoot": 0.004102136305878669,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1779.4701999955578,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "arm": "dni-1.00",
+      "denoise_dni": 1.0,
+      "metrics": {
+        "sobel_mean": 0.03873056192361303,
+        "sobel_p95": 0.12111022255636812,
+        "local_contrast": 0.016550277142327964,
+        "high_frequency_ratio": 6.467128274544359e-05,
+        "flat_noise": 0.0028565686274509908,
+        "edge_overshoot": 0.003401812952062131,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1765.4217000017525,
+      "output": "5228x6120"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "none",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.05779059513094566,
+        "sobel_p95": 0.17450312046765848,
+        "local_contrast": 0.020269974570179754,
+        "high_frequency_ratio": 0.0017990668970932979,
+        "flat_noise": 0.004516764705882359,
+        "edge_overshoot": 0.008894876872394479,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0008999995770864189,
+      "sr_ms": 1805.1803000053042,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "gaussian-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.04419300355226849,
+        "sobel_p95": 0.138112905068994,
+        "local_contrast": 0.01655309851301924,
+        "high_frequency_ratio": 0.0010068475690577616,
+        "flat_noise": 0.0031271813725490204,
+        "edge_overshoot": 0.007627037601174011,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 2.8740999987348914,
+      "sr_ms": 1732.785200001672,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "bilateral-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.033773384186283825,
+        "sobel_p95": 0.10646914970156326,
+        "local_contrast": 0.01512958649939298,
+        "high_frequency_ratio": 0.0004832389307640578,
+        "flat_noise": 0.00210424019607844,
+        "edge_overshoot": 0.0052000596454438944,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 20.416500003193505,
+      "sr_ms": 1713.424199995643,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "chroma-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.058033841164419925,
+        "sobel_p95": 0.17492783135867013,
+        "local_contrast": 0.02029342199449332,
+        "high_frequency_ratio": 0.0018124658760807365,
+        "flat_noise": 0.0045186764705882265,
+        "edge_overshoot": 0.00901415870739342,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 24.583200000051875,
+      "sr_ms": 1705.1559000028647,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "nlm-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.03667115140231388,
+        "sobel_p95": 0.11638500997400461,
+        "local_contrast": 0.015683177244925666,
+        "high_frequency_ratio": 0.000759996627756096,
+        "flat_noise": 0.00166953431372549,
+        "edge_overshoot": 0.00643564173679639,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 1688.6532999997144,
+      "sr_ms": 1966.4803999985452,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "dni-0.25",
+      "denoise_dni": 0.25,
+      "metrics": {
+        "sobel_mean": 0.05120869455134435,
+        "sobel_p95": 0.1510290905848287,
+        "local_contrast": 0.018936477029552305,
+        "high_frequency_ratio": 0.0014867480175443518,
+        "flat_noise": 0.003932377450980405,
+        "edge_overshoot": 0.006978020727241501,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1796.199800002796,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "arm": "dni-1.00",
+      "denoise_dni": 1.0,
+      "metrics": {
+        "sobel_mean": 0.029330542128448732,
+        "sobel_p95": 0.08460504942671487,
+        "local_contrast": 0.015152089369781331,
+        "high_frequency_ratio": 0.0006630375552312893,
+        "flat_noise": 0.0007304901960784381,
+        "edge_overshoot": 0.0056020705643428335,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1770.8895999967353,
+      "output": "6528x4896"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "none",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.10106287331860861,
+        "sobel_p95": 0.39816179116897915,
+        "local_contrast": 0.049557370436522336,
+        "high_frequency_ratio": 0.00836611181510352,
+        "flat_noise": 0.0035547058823529403,
+        "edge_overshoot": 0.013661730262954006,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0010000003385357559,
+      "sr_ms": 1823.1672000038088,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "gaussian-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.07914308735251352,
+        "sobel_p95": 0.29563363712161284,
+        "local_contrast": 0.04128217202826712,
+        "high_frequency_ratio": 0.0038505239945768417,
+        "flat_noise": 0.0031169117647058954,
+        "edge_overshoot": 0.005700299471084948,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 2.3053999975672923,
+      "sr_ms": 1787.833700000192,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "bilateral-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.08973875489026968,
+        "sobel_p95": 0.40778035141291924,
+        "local_contrast": 0.04772210560913303,
+        "high_frequency_ratio": 0.006940102693991899,
+        "flat_noise": 0.0025239215686274504,
+        "edge_overshoot": 0.016012760925913368,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 21.817499997268897,
+      "sr_ms": 1732.802200000151,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "chroma-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.10093006036826588,
+        "sobel_p95": 0.39824205310598426,
+        "local_contrast": 0.049476029362892776,
+        "high_frequency_ratio": 0.008171302651606299,
+        "flat_noise": 0.0035369607843137156,
+        "edge_overshoot": 0.013655327125942012,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 24.451600002066698,
+      "sr_ms": 1734.3517999979667,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "nlm-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.09576424218061093,
+        "sobel_p95": 0.4053045043577893,
+        "local_contrast": 0.0487256016578238,
+        "high_frequency_ratio": 0.0075436464147612065,
+        "flat_noise": 0.0025479166666666523,
+        "edge_overshoot": 0.013780014843670823,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 1472.0164999962435,
+      "sr_ms": 1867.328300002555,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "dni-0.25",
+      "denoise_dni": 0.25,
+      "metrics": {
+        "sobel_mean": 0.10172218623253057,
+        "sobel_p95": 0.40695259531524114,
+        "local_contrast": 0.05076753435949319,
+        "high_frequency_ratio": 0.010314496407172575,
+        "flat_noise": 0.00365286764705881,
+        "edge_overshoot": 0.014058779204244393,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1806.2969999955385,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "arm": "dni-1.00",
+      "denoise_dni": 1.0,
+      "metrics": {
+        "sobel_mean": 0.09963084511952425,
+        "sobel_p95": 0.42929402621737384,
+        "local_contrast": 0.05306614245988294,
+        "high_frequency_ratio": 0.007574504203238798,
+        "flat_noise": 0.0022655637254901948,
+        "edge_overshoot": 0.01612345795819662,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1765.1373999979114,
+      "output": "4896x6528"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "none",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.1543109609061767,
+        "sobel_p95": 0.5870059608116773,
+        "local_contrast": 0.05931893784674751,
+        "high_frequency_ratio": 0.0049683458427312996,
+        "flat_noise": 0.0065783333333333405,
+        "edge_overshoot": 0.022487403321078958,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0008999995770864189,
+      "sr_ms": 1833.7507999967784,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "gaussian-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.0900090963029413,
+        "sobel_p95": 0.33385019931207305,
+        "local_contrast": 0.042527683227674196,
+        "high_frequency_ratio": 0.0012025185090899539,
+        "flat_noise": 0.004031593137254891,
+        "edge_overshoot": 0.008935026135414654,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 2.7222999997320585,
+      "sr_ms": 1764.514299997245,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "bilateral-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.12363453684536044,
+        "sobel_p95": 0.592933060673403,
+        "local_contrast": 0.054012230600285725,
+        "high_frequency_ratio": 0.0041537841551345074,
+        "flat_noise": 0.00316612745098039,
+        "edge_overshoot": 0.02297484867455035,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 21.37159999983851,
+      "sr_ms": 1745.149800000945,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "chroma-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.1543969923821727,
+        "sobel_p95": 0.6031933325776531,
+        "local_contrast": 0.05943361212563271,
+        "high_frequency_ratio": 0.005471916070417953,
+        "flat_noise": 0.006351568627450992,
+        "edge_overshoot": 0.024525174770219937,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 24.629100000311155,
+      "sr_ms": 1773.756400005368,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "nlm-medium",
+      "denoise_dni": 0.0,
+      "metrics": {
+        "sobel_mean": 0.14018591467768832,
+        "sobel_p95": 0.6136050549914597,
+        "local_contrast": 0.05809935683456304,
+        "high_frequency_ratio": 0.004569531501588092,
+        "flat_noise": 0.0031897549019607816,
+        "edge_overshoot": 0.02290891611781626,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 1414.045100005751,
+      "sr_ms": 1973.9829000027385,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "dni-0.25",
+      "denoise_dni": 0.25,
+      "metrics": {
+        "sobel_mean": 0.15189312438062685,
+        "sobel_p95": 0.6119390046128189,
+        "local_contrast": 0.060786316429396386,
+        "high_frequency_ratio": 0.004577779543822266,
+        "flat_noise": 0.005417892156862742,
+        "edge_overshoot": 0.02211983540078854,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1821.912400002475,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "sr",
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "arm": "dni-1.00",
+      "denoise_dni": 1.0,
+      "metrics": {
+        "sobel_mean": 0.15047865811457117,
+        "sobel_p95": 0.6540810216261884,
+        "local_contrast": 0.06416696139160968,
+        "high_frequency_ratio": 0.004460021439794869,
+        "flat_noise": 0.003528014705882373,
+        "edge_overshoot": 0.022249488004655493,
+        "tiles_sampled": 16
+      },
+      "filter_ms": 0.0,
+      "sr_ms": 1805.2559999996447,
+      "output": "7568x4228"
+    },
+    {
+      "experiment": "crops",
+      "category": "landscape-detail",
+      "file": "landscape-detail-strip.png",
+      "region": {
+        "left": 700,
+        "top": 400,
+        "size": 256,
+        "why": "rock and snow texture"
+      },
+      "panels": [
+        "none",
+        "gaussian-weak",
+        "gaussian-medium",
+        "gaussian-strong",
+        "bilateral-weak",
+        "bilateral-medium",
+        "bilateral-strong",
+        "chroma-weak",
+        "chroma-medium",
+        "chroma-strong",
+        "nlm-weak",
+        "nlm-medium",
+        "nlm-strong",
+        "median-3",
+        "median-5"
+      ],
+      "zoom": 3
+    },
+    {
+      "experiment": "crops",
+      "category": "portrait-skin",
+      "file": "portrait-skin-strip.png",
+      "region": {
+        "left": 500,
+        "top": 500,
+        "size": 256,
+        "why": "skin gradient and hair"
+      },
+      "panels": [
+        "none",
+        "gaussian-weak",
+        "gaussian-medium",
+        "gaussian-strong",
+        "bilateral-weak",
+        "bilateral-medium",
+        "bilateral-strong",
+        "chroma-weak",
+        "chroma-medium",
+        "chroma-strong",
+        "nlm-weak",
+        "nlm-medium",
+        "nlm-strong",
+        "median-3",
+        "median-5"
+      ],
+      "zoom": 3
+    },
+    {
+      "experiment": "crops",
+      "category": "text-signage",
+      "file": "text-signage-strip.png",
+      "region": {
+        "left": 560,
+        "top": 250,
+        "size": 256,
+        "why": "lettering - the region Phase 2.5 missed"
+      },
+      "panels": [
+        "none",
+        "gaussian-weak",
+        "gaussian-medium",
+        "gaussian-strong",
+        "bilateral-weak",
+        "bilateral-medium",
+        "bilateral-strong",
+        "chroma-weak",
+        "chroma-medium",
+        "chroma-strong",
+        "nlm-weak",
+        "nlm-medium",
+        "nlm-strong",
+        "median-3",
+        "median-5"
+      ],
+      "zoom": 3
+    },
+    {
+      "experiment": "crops",
+      "category": "foliage-texture",
+      "file": "foliage-texture-strip.png",
+      "region": {
+        "left": 450,
+        "top": 700,
+        "size": 256,
+        "why": "frond detail"
+      },
+      "panels": [
+        "none",
+        "gaussian-weak",
+        "gaussian-medium",
+        "gaussian-strong",
+        "bilateral-weak",
+        "bilateral-medium",
+        "bilateral-strong",
+        "chroma-weak",
+        "chroma-medium",
+        "chroma-strong",
+        "nlm-weak",
+        "nlm-medium",
+        "nlm-strong",
+        "median-3",
+        "median-5"
+      ],
+      "zoom": 3
+    },
+    {
+      "experiment": "crops",
+      "category": "low-light-noise",
+      "file": "low-light-noise-strip.png",
+      "region": {
+        "left": 800,
+        "top": 400,
+        "size": 256,
+        "why": "dark water and sky, where chroma mottle lives"
+      },
+      "panels": [
+        "none",
+        "gaussian-weak",
+        "gaussian-medium",
+        "gaussian-strong",
+        "bilateral-weak",
+        "bilateral-medium",
+        "bilateral-strong",
+        "chroma-weak",
+        "chroma-medium",
+        "chroma-strong",
+        "nlm-weak",
+        "nlm-medium",
+        "nlm-strong",
+        "median-3",
+        "median-5"
+      ],
+      "zoom": 3
+    }
+  ]
+}

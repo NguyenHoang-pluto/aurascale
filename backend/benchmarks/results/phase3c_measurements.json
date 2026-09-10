@@ -1,0 +1,1142 @@
+{
+  "provenance": {
+    "generated_at": "2026-09-09T05:45:53+00:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.22631-SP0",
+    "numpy": "2.4.6",
+    "opencv": "5.0.0",
+    "torch": "2.7.1+cu118",
+    "cuda_device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "cuda_total_mib": 4095.5,
+    "corpus_root": "E:\\Tool\\aurascale\\backend\\benchmarks\\corpus",
+    "corpus_images": [
+      "landscape-detail/landscape-detail.jpg",
+      "portrait-skin/portrait-skin.jpg",
+      "text-signage/text-signage.jpg",
+      "foliage-texture/foliage-texture.jpg",
+      "low-light-noise/low-light-noise.jpg"
+    ],
+    "scale": 4,
+    "tile_size": 256,
+    "tile_pad": 16,
+    "sharpen_strength": 0.0,
+    "output_format": "png (lossless); metrics from the array, size from the encode",
+    "candidates": [
+      {
+        "arm": "x4plus",
+        "model_id": "RealESRGAN_x4plus",
+        "architecture": "RRDBNet, 23 blocks, 16.70 M",
+        "scale": 4,
+        "denoise": null,
+        "source": "https://github.com/xinntao/Real-ESRGAN",
+        "licence": "BSD-3-Clause",
+        "checkpoint": "RealESRGAN_x4plus.pth (in manifest)",
+        "trained_for": "real-world photographs (Real-ESRGAN degradation pipeline)",
+        "behaviour": "restoration-oriented GAN; no face prior",
+        "notes": "The mandated baseline and the current Standard model.",
+        "in_manifest": true
+      },
+      {
+        "arm": "v3-dn0",
+        "model_id": "realesr-general-x4v3",
+        "architecture": "SRVGGNetCompact, 1.21 M",
+        "scale": 4,
+        "denoise": 0.0,
+        "source": "https://github.com/xinntao/Real-ESRGAN",
+        "licence": "BSD-3-Clause",
+        "checkpoint": "realesr-general-x4v3.pth (in manifest)",
+        "trained_for": "real-world photographs",
+        "behaviour": "restoration-oriented; DNI blend toward the wdn weights",
+        "notes": "Like-for-like reference: least-denoised state this model can produce.",
+        "in_manifest": true
+      },
+      {
+        "arm": "v3-dn1",
+        "model_id": "realesr-general-x4v3",
+        "architecture": "SRVGGNetCompact, 1.21 M",
+        "scale": 4,
+        "denoise": 1.0,
+        "source": "https://github.com/xinntao/Real-ESRGAN",
+        "licence": "BSD-3-Clause",
+        "checkpoint": "realesr-general-x4v3.pth (in manifest)",
+        "trained_for": "real-world photographs",
+        "behaviour": "restoration-oriented; plain x4v3 weights (no blend)",
+        "notes": "What a user selecting Creative actually gets at DEFAULT_DENOISE.",
+        "in_manifest": true
+      },
+      {
+        "arm": "hat",
+        "model_id": "Real_HAT_GAN_SRx4",
+        "architecture": "HAT (Hybrid Attention Transformer), 20.77 M",
+        "scale": 4,
+        "denoise": null,
+        "source": "https://github.com/XPixelGroup/HAT",
+        "licence": "Apache-2.0",
+        "checkpoint": "Real_HAT_GAN_SRx4.pth, sha256 f5b1e3bbbb05147ca2beefcc715279cb647d7976cbda67d62ea7e6e20d5ffcc7",
+        "trained_for": "real-world photographs (GAN variant, not the bicubic classical one)",
+        "behaviour": "restoration-oriented GAN; no face prior",
+        "notes": "Architecture vendored to benchmarks/arch/hat.py, research only. Weights obtained from a third-party HuggingFace mirror because the official release is Google Drive only; the sha256 above was verified against an independent listing after download.",
+        "in_manifest": false
+      }
+    ],
+    "regions": {
+      "portrait-skin": {
+        "eye-left": [
+          315,
+          510,
+          140
+        ],
+        "eye-right": [
+          929,
+          510,
+          140
+        ],
+        "hair": [
+          180,
+          120,
+          160
+        ],
+        "lips": [
+          645,
+          1185,
+          160
+        ],
+        "skin-cheek": [
+          1019,
+          900,
+          160
+        ],
+        "identity-face": [
+          620,
+          760,
+          640
+        ]
+      },
+      "landscape-detail": {
+        "fine-texture": [
+          760,
+          420,
+          180
+        ]
+      },
+      "foliage-texture": {
+        "saturated-foliage": [
+          500,
+          760,
+          180
+        ]
+      },
+      "text-signage": {
+        "text": [
+          600,
+          300,
+          180
+        ]
+      },
+      "low-light-noise": {
+        "dark-noisy": [
+          900,
+          450,
+          180
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "experiment": "pilot",
+      "arm": "x4plus",
+      "model": "RealESRGAN_x4plus",
+      "denoise": null,
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.09567516730946113,
+        "sobel_p95": 0.37928984977465546,
+        "local_contrast": 0.03458898760970867,
+        "high_frequency_ratio": 0.0020580901738662307,
+        "flat_noise": 0.001879877450980381,
+        "edge_overshoot": 0.02119768392582374,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3223802475428203,
+        "sigma_chroma": 0.23406801990420034,
+        "chroma_gradient": 2.346820330761416,
+        "chroma_gradient_p95": 7.211102550927978,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 731.1650390625,
+        "precision_forced": false
+      },
+      "sr_ms": 29959.408800001256,
+      "png_bytes": 40705075,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "x4plus",
+      "model": "RealESRGAN_x4plus",
+      "denoise": null,
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.07515816157418945,
+        "sobel_p95": 0.22958315552411357,
+        "local_contrast": 0.02287700028176255,
+        "high_frequency_ratio": 0.0007180017154046856,
+        "flat_noise": 0.005019338235294117,
+        "edge_overshoot": 0.010894261605009956,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.41231714165573813,
+        "sigma_chroma": 0.23621490060237965,
+        "chroma_gradient": 2.904130522283482,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "precision_forced": false
+      },
+      "sr_ms": 36742.48079999961,
+      "png_bytes": 36413877,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "x4plus",
+      "model": "RealESRGAN_x4plus",
+      "denoise": null,
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.04369815944175639,
+        "sobel_p95": 0.1279282133309833,
+        "local_contrast": 0.016787121442216363,
+        "high_frequency_ratio": 0.0015293491159555058,
+        "flat_noise": 0.002127181372549033,
+        "edge_overshoot": 0.00920833285250232,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.4197441883953855,
+        "sigma_chroma": 0.2644724924946319,
+        "chroma_gradient": 2.2808962386478955,
+        "chroma_gradient_p95": 6.324555320336759,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "precision_forced": false
+      },
+      "sr_ms": 36442.468400004145,
+      "png_bytes": 32832705,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "x4plus",
+      "model": "RealESRGAN_x4plus",
+      "denoise": null,
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.09564134228454044,
+        "sobel_p95": 0.38936678274512815,
+        "local_contrast": 0.04842759965267332,
+        "high_frequency_ratio": 0.0041317530388793825,
+        "flat_noise": 0.0028479901960784273,
+        "edge_overshoot": 0.012748254141192558,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2855931566605042,
+        "sigma_chroma": 0.20940790377646482,
+        "chroma_gradient": 3.722070316543243,
+        "chroma_gradient_p95": 11.313708498984761,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "precision_forced": false
+      },
+      "sr_ms": 43698.960399997304,
+      "png_bytes": 39071956,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "x4plus",
+      "model": "RealESRGAN_x4plus",
+      "denoise": null,
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.14551489321221636,
+        "sobel_p95": 0.6090829502342698,
+        "local_contrast": 0.05799911791876733,
+        "high_frequency_ratio": 0.005082194254375278,
+        "flat_noise": 0.003754142156862739,
+        "edge_overshoot": 0.023978918343162806,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.44689932803722143,
+        "sigma_chroma": 0.26754775403526715,
+        "chroma_gradient": 9.82700075463575,
+        "chroma_gradient_p95": 41.617304093369626,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 247.8369140625,
+        "precision_forced": false
+      },
+      "sr_ms": 42809.4076999987,
+      "png_bytes": 37995772,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn0",
+      "model": "realesr-general-x4v3",
+      "denoise": 0.0,
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.1159052332440213,
+        "sobel_p95": 0.38155036995783803,
+        "local_contrast": 0.03857080997974184,
+        "high_frequency_ratio": 0.002918825977473182,
+        "flat_noise": 0.005311397058823547,
+        "edge_overshoot": 0.020392482511544498,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.5845317879313124,
+        "sigma_chroma": 0.32197408092424584,
+        "chroma_gradient": 3.100974036105886,
+        "chroma_gradient_p95": 7.615773105863909,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 2227.154399995925,
+      "png_bytes": 52169151,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn0",
+      "model": "realesr-general-x4v3",
+      "denoise": 0.0,
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.04643061895627902,
+        "sobel_p95": 0.12632133913577603,
+        "local_contrast": 0.01861884361233165,
+        "high_frequency_ratio": 0.00014952749204985019,
+        "flat_noise": 0.004790955882352958,
+        "edge_overshoot": 0.004259473131667978,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.5685172183989478,
+        "sigma_chroma": 0.38005590738039474,
+        "chroma_gradient": 3.7513432823483184,
+        "chroma_gradient_p95": 8.94427190999916,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 36,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 2288.5548999984167,
+      "png_bytes": 35757982,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn0",
+      "model": "realesr-general-x4v3",
+      "denoise": 0.0,
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.05779059513094566,
+        "sobel_p95": 0.17450312046765848,
+        "local_contrast": 0.020269974570179754,
+        "high_frequency_ratio": 0.0017990668970932979,
+        "flat_noise": 0.004516764705882359,
+        "edge_overshoot": 0.008894876872394479,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.9975452152188925,
+        "sigma_chroma": 0.3858582876457442,
+        "chroma_gradient": 3.181019792354311,
+        "chroma_gradient_p95": 7.615773105863909,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 2135.498900002858,
+      "png_bytes": 43912413,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn0",
+      "model": "realesr-general-x4v3",
+      "denoise": 0.0,
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.10106287331860861,
+        "sobel_p95": 0.39816179116897915,
+        "local_contrast": 0.049557370436522336,
+        "high_frequency_ratio": 0.00836611181510352,
+        "flat_noise": 0.0035547058823529403,
+        "edge_overshoot": 0.013661730262954006,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.45513870801401773,
+        "sigma_chroma": 0.376458431615878,
+        "chroma_gradient": 4.163831168401388,
+        "chroma_gradient_p95": 11.313708498984761,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 4926.166599994758,
+      "png_bytes": 43974323,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn0",
+      "model": "realesr-general-x4v3",
+      "denoise": 0.0,
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.1543109609061767,
+        "sobel_p95": 0.5870059608116773,
+        "local_contrast": 0.05931893784674751,
+        "high_frequency_ratio": 0.0049683458427312996,
+        "flat_noise": 0.0065783333333333405,
+        "edge_overshoot": 0.022487403321078958,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.8968158938124245,
+        "sigma_chroma": 0.376110288799957,
+        "chroma_gradient": 10.049918678215988,
+        "chroma_gradient_p95": 37.33630940518894,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 40,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 5291.715899998962,
+      "png_bytes": 46611233,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn1",
+      "model": "realesr-general-x4v3",
+      "denoise": 1.0,
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.080786740417445,
+        "sobel_p95": 0.34569748893039887,
+        "local_contrast": 0.0350897694716522,
+        "high_frequency_ratio": 0.001460998747323056,
+        "flat_noise": 0.0012070098039215545,
+        "edge_overshoot": 0.01698574190880163,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.18161450230544052,
+        "sigma_chroma": 0.11262420095043452,
+        "chroma_gradient": 2.0093911502068593,
+        "chroma_gradient_p95": 7.0710678118654755,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 6539.426700001059,
+      "png_bytes": 33075685,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn1",
+      "model": "realesr-general-x4v3",
+      "denoise": 1.0,
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.03873056192361303,
+        "sobel_p95": 0.12111022255636812,
+        "local_contrast": 0.016550277142327964,
+        "high_frequency_ratio": 6.467128274544359e-05,
+        "flat_noise": 0.0028565686274509908,
+        "edge_overshoot": 0.003401812952062131,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2938325366373006,
+        "sigma_chroma": 0.19026004890081133,
+        "chroma_gradient": 2.0926681727352534,
+        "chroma_gradient_p95": 6.0,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 36,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 2138.762599999609,
+      "png_bytes": 27860186,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn1",
+      "model": "realesr-general-x4v3",
+      "denoise": 1.0,
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.029330542128448732,
+        "sobel_p95": 0.08460504942671487,
+        "local_contrast": 0.015152089369781331,
+        "high_frequency_ratio": 0.0006630375552312893,
+        "flat_noise": 0.0007304901960784381,
+        "edge_overshoot": 0.0056020705643428335,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3654339091117139,
+        "sigma_chroma": 0.22861378245477176,
+        "chroma_gradient": 1.896253737436819,
+        "chroma_gradient_p95": 4.47213595499958,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 5471.120599999267,
+      "png_bytes": 26953118,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn1",
+      "model": "realesr-general-x4v3",
+      "denoise": 1.0,
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.09963084511952425,
+        "sobel_p95": 0.42929402621737384,
+        "local_contrast": 0.05306614245988294,
+        "high_frequency_ratio": 0.007574504203238798,
+        "flat_noise": 0.0022655637254901948,
+        "edge_overshoot": 0.01612345795819662,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.17418745556579313,
+        "sigma_chroma": 0.13774850749939802,
+        "chroma_gradient": 3.3086504965873345,
+        "chroma_gradient_p95": 11.40175425099138,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 35,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 2701.0443000035593,
+      "png_bytes": 36111205,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "v3-dn1",
+      "model": "realesr-general-x4v3",
+      "denoise": 1.0,
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.15047865811457117,
+        "sobel_p95": 0.6540810216261884,
+        "local_contrast": 0.06416696139160968,
+        "high_frequency_ratio": 0.004460021439794869,
+        "flat_noise": 0.003528014705882373,
+        "edge_overshoot": 0.022249488004655493,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.3165778672774708,
+        "sigma_chroma": 0.2347062817333888,
+        "chroma_gradient": 10.375026783089082,
+        "chroma_gradient_p95": 46.04345773288535,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": true,
+        "tile_size": 256,
+        "tiles": 40,
+        "tile_reduced": false,
+        "peak_vram_mb": 43.38427734375,
+        "precision_forced": false
+      },
+      "sr_ms": 5021.031600001152,
+      "png_bytes": 34973137,
+      "provenance": {
+        "params_millions": null,
+        "precision_forced": false
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "hat",
+      "model": "Real_HAT_GAN_SRx4",
+      "denoise": null,
+      "category": "landscape-detail",
+      "image": "landscape-detail.jpg",
+      "input": "1732x1154",
+      "output": "6928x4616",
+      "luma": {
+        "sobel_mean": 0.0729945486073521,
+        "sobel_p95": 0.27207651690926493,
+        "local_contrast": 0.027691074604393257,
+        "high_frequency_ratio": 0.0008803141514747859,
+        "flat_noise": 0.0017221323529411862,
+        "edge_overshoot": 0.012236160507438486,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.2681860158644556,
+        "sigma_chroma": 0.2374334004581031,
+        "chroma_gradient": 2.4239482429376684,
+        "chroma_gradient_p95": 7.211102550927978,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": false,
+        "tile_size": 128,
+        "tiles": 140,
+        "tile_reduced": true,
+        "peak_vram_mb": 2907.4833984375,
+        "precision_forced": true
+      },
+      "sr_ms": 204824.70280000416,
+      "png_bytes": 37686762,
+      "provenance": {
+        "params_millions": 20.772507,
+        "vram_after_load_mb": 83.47412109375,
+        "free_vram_after_load_mb": 2399,
+        "fp16_requested": true,
+        "fp16_used": false,
+        "precision_forced": true,
+        "precision_reason": "fp16 yields 100% NaN output; measured, not assumed"
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "hat",
+      "model": "Real_HAT_GAN_SRx4",
+      "denoise": null,
+      "category": "portrait-skin",
+      "image": "portrait-skin.jpg",
+      "input": "1307x1530",
+      "output": "5228x6120",
+      "luma": {
+        "sobel_mean": 0.05257454988337375,
+        "sobel_p95": 0.14606513177912128,
+        "local_contrast": 0.01905911028841872,
+        "high_frequency_ratio": 0.00011125702209920689,
+        "flat_noise": 0.004817696078431379,
+        "edge_overshoot": 0.00487084672050954,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.38318919272368346,
+        "sigma_chroma": 0.2680119444564951,
+        "chroma_gradient": 2.9076958493211436,
+        "chroma_gradient_p95": 8.246211251235321,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": false,
+        "tile_size": 128,
+        "tiles": 132,
+        "tile_reduced": true,
+        "peak_vram_mb": 1067.728515625,
+        "precision_forced": true
+      },
+      "sr_ms": 189643.6812999964,
+      "png_bytes": 33539496,
+      "provenance": {
+        "params_millions": 20.772507,
+        "vram_after_load_mb": 83.47412109375,
+        "free_vram_after_load_mb": 2399,
+        "fp16_requested": true,
+        "fp16_used": false,
+        "precision_forced": true,
+        "precision_reason": "fp16 yields 100% NaN output; measured, not assumed"
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "hat",
+      "model": "Real_HAT_GAN_SRx4",
+      "denoise": null,
+      "category": "text-signage",
+      "image": "text-signage.jpg",
+      "input": "1632x1224",
+      "output": "6528x4896",
+      "luma": {
+        "sobel_mean": 0.03811995829197966,
+        "sobel_p95": 0.11018922349653969,
+        "local_contrast": 0.014820710173055415,
+        "high_frequency_ratio": 0.0009985835268053293,
+        "flat_noise": 0.0020931127450980443,
+        "edge_overshoot": 0.00665421829507747,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.35568591026592666,
+        "sigma_chroma": 0.3016657499955224,
+        "chroma_gradient": 2.0162510012737545,
+        "chroma_gradient_p95": 5.0990195135927845,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": false,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 1067.728515625,
+        "precision_forced": true
+      },
+      "sr_ms": 196702.95740000438,
+      "png_bytes": 32156929,
+      "provenance": {
+        "params_millions": 20.772507,
+        "vram_after_load_mb": 83.47412109375,
+        "free_vram_after_load_mb": 2399,
+        "fp16_requested": true,
+        "fp16_used": false,
+        "precision_forced": true,
+        "precision_reason": "fp16 yields 100% NaN output; measured, not assumed"
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "hat",
+      "model": "Real_HAT_GAN_SRx4",
+      "denoise": null,
+      "category": "foliage-texture",
+      "image": "foliage-texture.jpg",
+      "input": "1224x1632",
+      "output": "4896x6528",
+      "luma": {
+        "sobel_mean": 0.08135206654209343,
+        "sobel_p95": 0.3205638567332334,
+        "local_contrast": 0.04085743306465653,
+        "high_frequency_ratio": 0.004698134932551187,
+        "flat_noise": 0.002873333333333335,
+        "edge_overshoot": 0.009322378355191025,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.188229215807939,
+        "sigma_chroma": 0.14871500620090866,
+        "chroma_gradient": 2.9771704227315277,
+        "chroma_gradient_p95": 8.94427190999916,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": false,
+        "tile_size": 128,
+        "tiles": 130,
+        "tile_reduced": true,
+        "peak_vram_mb": 1067.728515625,
+        "precision_forced": true
+      },
+      "sr_ms": 194329.0463000012,
+      "png_bytes": 37528926,
+      "provenance": {
+        "params_millions": 20.772507,
+        "vram_after_load_mb": 83.47412109375,
+        "free_vram_after_load_mb": 2399,
+        "fp16_requested": true,
+        "fp16_used": false,
+        "precision_forced": true,
+        "precision_reason": "fp16 yields 100% NaN output; measured, not assumed"
+      }
+    },
+    {
+      "experiment": "pilot",
+      "arm": "hat",
+      "model": "Real_HAT_GAN_SRx4",
+      "denoise": null,
+      "category": "low-light-noise",
+      "image": "low-light-noise.jpg",
+      "input": "1892x1057",
+      "output": "7568x4228",
+      "luma": {
+        "sobel_mean": 0.12347954715335294,
+        "sobel_p95": 0.4723826545064481,
+        "local_contrast": 0.04972154955452343,
+        "high_frequency_ratio": 0.002741354612860022,
+        "flat_noise": 0.004175588235294125,
+        "edge_overshoot": 0.01592363073005661,
+        "tiles_sampled": 16
+      },
+      "chroma_metrics": {
+        "sigma_luma": 0.43506247229590833,
+        "sigma_chroma": 0.27996484780311515,
+        "chroma_gradient": 7.961827817639482,
+        "chroma_gradient_p95": 31.144823004794873,
+        "blocks_used": 410,
+        "blocks_total": 4096
+      },
+      "config": {
+        "device": "cuda",
+        "fp16": false,
+        "tile_size": 128,
+        "tiles": 135,
+        "tile_reduced": true,
+        "peak_vram_mb": 1067.728515625,
+        "precision_forced": true
+      },
+      "sr_ms": 213463.5272000014,
+      "png_bytes": 38518215,
+      "provenance": {
+        "params_millions": 20.772507,
+        "vram_after_load_mb": 83.47412109375,
+        "free_vram_after_load_mb": 2399,
+        "fp16_requested": true,
+        "fp16_used": false,
+        "precision_forced": true,
+        "precision_reason": "fp16 yields 100% NaN output; measured, not assumed"
+      }
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "eye-left",
+      "file": "blind__portrait-skin__eye-left.png",
+      "panel_order": [
+        "v3-dn0",
+        "x4plus",
+        "hat",
+        "v3-dn1"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "eye-right",
+      "file": "blind__portrait-skin__eye-right.png",
+      "panel_order": [
+        "v3-dn0",
+        "v3-dn1",
+        "x4plus",
+        "hat"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "hair",
+      "file": "blind__portrait-skin__hair.png",
+      "panel_order": [
+        "v3-dn1",
+        "x4plus",
+        "hat",
+        "v3-dn0"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "lips",
+      "file": "blind__portrait-skin__lips.png",
+      "panel_order": [
+        "v3-dn1",
+        "hat",
+        "x4plus",
+        "v3-dn0"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "skin-cheek",
+      "file": "blind__portrait-skin__skin-cheek.png",
+      "panel_order": [
+        "x4plus",
+        "hat",
+        "v3-dn0",
+        "v3-dn1"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "portrait-skin",
+      "region": "identity-face",
+      "file": "blind__portrait-skin__identity-face.png",
+      "panel_order": [
+        "hat",
+        "v3-dn0",
+        "x4plus",
+        "v3-dn1"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "landscape-detail",
+      "region": "fine-texture",
+      "file": "blind__landscape-detail__fine-texture.png",
+      "panel_order": [
+        "v3-dn0",
+        "v3-dn1",
+        "x4plus",
+        "hat"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "foliage-texture",
+      "region": "saturated-foliage",
+      "file": "blind__foliage-texture__saturated-foliage.png",
+      "panel_order": [
+        "v3-dn0",
+        "v3-dn1",
+        "x4plus",
+        "hat"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "text-signage",
+      "region": "text",
+      "file": "blind__text-signage__text.png",
+      "panel_order": [
+        "v3-dn0",
+        "v3-dn1",
+        "x4plus",
+        "hat"
+      ],
+      "panel_count": 4
+    },
+    {
+      "experiment": "strips",
+      "category": "low-light-noise",
+      "region": "dark-noisy",
+      "file": "blind__low-light-noise__dark-noisy.png",
+      "panel_order": [
+        "x4plus",
+        "v3-dn0",
+        "hat",
+        "v3-dn1"
+      ],
+      "panel_count": 4
+    }
+  ]
+}
