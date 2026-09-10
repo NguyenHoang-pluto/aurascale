@@ -65,7 +65,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         # Unexpected failures are logged in full but never echoed verbatim in
         # production, where the traceback could disclose filesystem layout.
         logger.exception("unhandled exception")
-        include_trace = get_settings().environment != "production"
+        include_trace = not get_settings().is_production
         payload: dict[str, object] = {
             "type": f"https://pixelforge.ai/errors/{ErrorCode.INTERNAL_ERROR.value}",
             "title": "Something went wrong",

@@ -119,6 +119,20 @@ class Settings(BaseSettings):
         return self.max_upload_size_mb * 1024 * 1024
 
     @property
+    def is_production(self) -> bool:
+        """Whether this process is serving people rather than a developer.
+
+        Named rather than compared inline because more than one thing now turns
+        on it - the traceback in an unexpected-error response, and whether the
+        interactive docs are mounted at all - and two spellings of the same
+        condition are two chances to get one of them backwards.
+
+        `test` is deliberately not production: the suite asserts on the
+        developer-facing behaviour.
+        """
+        return self.environment == "production"
+
+    @property
     def resolved_database_url(self) -> str:
         """Configured URL, or an absolute SQLite path inside the storage tree."""
         if self.database_url is not None:

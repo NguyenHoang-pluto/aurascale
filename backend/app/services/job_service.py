@@ -185,7 +185,17 @@ class JobService:
         self._validate_denoise(resolved_model, options)
 
         self._storage.ensure_ready()
-        self._storage.assert_capacity()
+        # Counted against the cap *before* it is written, at the largest it is
+        # allowed to be.
+        #
+        # The size is not known yet - the upload is streamed, and streaming is
+        # what keeps a 32 MB body out of memory - so the limit stands in for it.
+        # Checking with nothing, which is what this used to do, meant a cap of
+        # 10 GB was satisfied at 9.99 GB used and then exceeded by the very next
+        # file. Reserving the maximum is conservative in the safe direction: it
+        # can refuse a job that would have just fitted, and cannot accept one
+        # that will not.
+        self._storage.assert_capacity(self._settings.max_upload_size_bytes)
 
         staged = self._settings.inputs_dir / f"{job_id}.upload"
         size_bytes = self._images.stream_to_file(upload, staged)
